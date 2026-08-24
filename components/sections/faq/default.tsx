@@ -23,29 +23,28 @@ interface FAQProps {
 }
 
 export default function FAQ({
-  title = "Questions and Answers",
+  title = "Frequently Asked Questions",
   items = [
     {
-      question:
-        "What platforms does BeverlyAlgo work on?",
+      question: "What is EntrixAlgo, exactly?",
       answer: (
         <>
           <p className="text-muted-foreground mb-4 max-w-[640px] text-balance">
-            BeverlyAlgo is a custom indicator built for TradingView, which supports both desktop and mobile platforms. 
-            You can use it to analyze crypto, stocks, indices, and more across any chart TradingView supports. 
+            EntrixAlgo is a web dashboard for traders — sign in from any browser, desktop or mobile.
+            It bundles AI chart analysis, a trade journal, and a risk calculator, plus an AI trading assistant to chat with.
           </p>
           <p className="text-muted-foreground mb-4 max-w-[640px] text-balance">
-            No TradingView subscription required.
+            Pro also includes invite-only access to our TradingView indicator, if you want signals painted directly on your own charts too.
           </p>
         </>
       ),
     },
     {
-      question: "Can I use BeverlyAlgo for both crypto and stock trading?",
+      question: "Can I use EntrixAlgo for crypto and stocks?",
       answer: (
         <>
           <p className="text-muted-foreground mb-4 max-w-[600px]">
-            Yes. BeverlyAlgo is optimized for a wide range of markets, including cryptocurrencies, stocks, ETFs, and indices. 
+            Yes. Upload a screenshot of any chart — crypto, stocks, ETFs, or indices — and the AI reads it, no matter where the chart came from.
           </p>
           <p className="text-muted-foreground mb-4 max-w-[600px]">
             It adapts well to different timeframes and asset classes.
@@ -54,37 +53,36 @@ export default function FAQ({
       ),
     },
     {
-      question:
-        "What’s included with my purchase?",
+      question: "What's included with my subscription?",
       answer: (
         <>
           <p className="text-muted-foreground mb-4 max-w-[580px]">
-            Your purchase includes full access to the BeverlyAlgo indicator on TradingView, ongoing updates, setup support, 
-            and access to private user resources such as tutorials and best-practice guides.
+            Pro includes unlimited AI chart analysis, the AI trading assistant, and invite-only access to our TradingView indicator.
+            Trade journal and risk calculator are free for everyone, no subscription needed.
           </p>
         </>
       ),
     },
     {
-      question: 'Can I lose money using BeverlyAlgo?',
+      question: 'Can I lose money using EntrixAlgo?',
       answer: (
         <>
           <p className="text-muted-foreground mb-4 max-w-[580px]">
             Absolutely.
           </p>
           <p className="text-muted-foreground mb-4 max-w-[580px]">
-            Losses are a natural part of trading. No tool can eliminate risk. 
-            BeverlyAlgo is designed to support your analysis and improve decision-making, but it does not guarantee profits. 
+            Losses are a natural part of trading. No tool can eliminate risk.
+            EntrixAlgo is designed to support your analysis and improve decision-making, but it does not guarantee profits.
             Markets are unpredictable, and outcomes depend on your strategy, discipline, and risk management.
           </p>
         </>
       ),
     },
     {
-      question: "Do I need trading experience to use BeverlyAlgo?",
+      question: "Do I need trading experience to use EntrixAlgo?",
       answer: (
         <p className="text-muted-foreground mb-4 max-w-[580px]">
-          While the interface is user-friendly, trading experience is recommended. BeverlyAlgo is an analysis tool, not a trading course or autopilot system. 
+          While the interface is user-friendly, trading experience is recommended. EntrixAlgo is an analysis tool, not a trading course or autopilot system.
           Understanding market structure, risk management, and trading psychology will help you get the most value from it.
         </p>
       ),
@@ -94,8 +92,7 @@ export default function FAQ({
       answer: (
         <>
           <p className="text-muted-foreground mb-4 max-w-[580px]">
-          No, BeverlyAlgo is not an automated trading bot. It is a visual indicator and analysis tool that helps you make informed trading decisions. 
-          You remain in full control of when and how you execute trades.
+          No, EntrixAlgo does not place trades for you. Chart analysis, the indicator, and the AI assistant all surface information and signals — you remain in full control of when and how you execute trades.
           </p>
         </>
       ),
@@ -106,7 +103,7 @@ export default function FAQ({
   return (
     <Section className={`relative overflow-hidden bg-black ${className ?? ""}`}>
       {/* Animated gradient background */}
-      <BackgroundGradientAnimation containerClassName="absolute inset-0 z-0" />
+      <BackgroundGradientAnimation variant="corners" size="55%" containerClassName="absolute inset-0 z-0" />
 
       {/* Top vignette */}
       <div
@@ -122,11 +119,11 @@ export default function FAQ({
 
       {/* Content */}
       <div className="relative z-[3] max-w-container mx-auto flex flex-col items-center gap-8">
-        <h2 className="from-foreground to-foreground dark:to-brand bg-linear-to-r bg-clip-text text-center text-3xl font-semibold text-transparent drop-shadow-[0_0_24px_var(--brand-foreground)] sm:text-5xl pb-2">
+        <h2 className="from-foreground to-foreground dark:to-brand bg-linear-to-r bg-clip-text text-center text-3xl font-extrabold text-transparent drop-shadow-[0_0_24px_var(--brand-foreground)] sm:text-5xl pb-2">
           {title}
         </h2>
         {items !== false && items.length > 0 && (
-          <Accordion type="single" collapsible className="w-full max-w-[800px]">
+          <Accordion type="single" collapsible className="w-full max-w-[800px] px-3 sm:px-0">
             {items.map((item, index) => (
               <AccordionItem
                 key={index}

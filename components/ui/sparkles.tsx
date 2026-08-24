@@ -5,6 +5,7 @@ import Particles, {
   useParticlesProvider,
 } from "@tsparticles/react"
 import { loadSlim } from "@tsparticles/slim"
+import { useReducedMotion } from "framer-motion"
 import { useId } from "react"
 
 interface SparklesProps {
@@ -64,6 +65,7 @@ export function Sparkles({
   options = {},
 }: SparklesProps) {
   const id = useId()
+  const shouldReduceMotion = useReducedMotion()
 
   const defaultOptions = {
     background: {
@@ -73,11 +75,12 @@ export function Sparkles({
       enable: false,
       zIndex: 1,
     },
-    fpsLimit: 120,
+    fpsLimit: 60,
     particles: {
       color: { value: color },
       move: {
-        enable: true,
+        // Particles stay put (but still visible) for users who prefer reduced motion.
+        enable: !shouldReduceMotion,
         direction,
         speed: {
           min: minSpeed ?? speed / 10,
@@ -92,7 +95,7 @@ export function Sparkles({
           max: opacity,
         },
         animation: {
-          enable: true,
+          enable: !shouldReduceMotion,
           sync: false,
           speed: opacitySpeed,
         },

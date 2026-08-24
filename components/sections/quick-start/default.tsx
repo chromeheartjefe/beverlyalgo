@@ -1,12 +1,13 @@
 'use client'
 
-import { motion } from 'framer-motion';
-import Image from 'next/image';
+import { motion } from 'framer-motion'
+import { Activity, ArrowRight, BookOpen, Bot, Calculator, UserPlus, Zap } from 'lucide-react'
+import type { ComponentType } from 'react'
 
-import { Section } from '@/components/ui/section';
-import { GlowCard } from '@/components/ui/spotlight-card';
+import { Section } from '@/components/ui/section'
+import { GlowCard } from '@/components/ui/spotlight-card'
 
-const EASE = [0.16, 1, 0.3, 1] as const;
+const EASE = [0.16, 1, 0.3, 1] as const
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -14,7 +15,7 @@ const containerVariants = {
     opacity: 1,
     transition: { staggerChildren: 0.18, delayChildren: 0.15 },
   },
-};
+}
 
 const itemVariants = {
   hidden: { opacity: 0, y: 36, filter: 'blur(10px)' },
@@ -24,7 +25,7 @@ const itemVariants = {
     filter: 'blur(0px)',
     transition: { duration: 0.65, ease: EASE },
   },
-};
+}
 
 const headingVariants = {
   hidden: { opacity: 0, y: 20 },
@@ -33,35 +34,55 @@ const headingVariants = {
     y: 0,
     transition: { duration: 0.6, ease: EASE },
   },
-};
+}
 
-const steps = [
+interface Tool {
+  icon:  ComponentType<{ className?: string }>
+  label: string
+}
+
+interface Step {
+  number:      string
+  title:       string
+  description: string
+  icon?:       ComponentType<{ className?: string }>
+  tag?:        string
+  tools?:      Tool[]
+}
+
+const steps: Step[] = [
   {
     number: '01',
-    image: '/step1.png',
-    alt: 'Choose a plan and enter your TradingView username at checkout',
-    description:
-      'Choose your plan, complete checkout, and enter your TradingView username.',
+    title: 'Create your account',
+    description: 'Sign up in seconds and choose a plan — no card required to explore the free tools.',
+    icon: UserPlus,
+    tag: 'Free to join',
   },
   {
     number: '02',
-    image: '/step2.png',
-    alt: 'Accept the TradingView invite and load the indicator',
-    description:
-      'Accept the automated invite in TradingView, then click the indicator to load it up.',
+    title: 'Free tools, unlocked instantly',
+    description: 'Trade Journal and Risk Calculator are free forever — log trades and size positions the moment you sign in.',
+    tools: [
+      { icon: BookOpen, label: 'Trade Journal' },
+      { icon: Calculator, label: 'Risk Calculator' },
+    ],
   },
   {
     number: '03',
-    image: '/step3.jpg',
-    alt: 'Real-time signals painted on your TradingView chart',
-    description: 'Trade.',
-    isPayoff: true,
+    title: 'Go Pro for AI signals',
+    description: 'Unlock AI Chart Analysis, the AI Trading Bot, and invite-only TradingView Indicator access.',
+    tools: [
+      { icon: Zap, label: 'Chart Analysis' },
+      { icon: Bot, label: 'Trading Bot' },
+      { icon: Activity, label: 'Indicator' },
+    ],
+    tag: 'Pro',
   },
-];
+]
 
 export default function QuickStartGuide() {
   return (
-    <Section className="pt-20 sm:pt-32 md:pt-44">
+    <Section>
       <div className="container mx-auto max-w-5xl px-4">
 
         {/* Section header */}
@@ -77,15 +98,15 @@ export default function QuickStartGuide() {
         >
           <motion.h2
             variants={headingVariants}
-            className="from-foreground to-foreground dark:to-brand bg-linear-to-r bg-clip-text text-4xl font-semibold text-transparent drop-shadow-[0_0_24px_var(--brand-foreground)] sm:text-5xl md:text-6xl pb-2"
+            className="from-foreground to-foreground dark:to-brand bg-linear-to-r bg-clip-text text-4xl font-bold text-transparent drop-shadow-[0_0_24px_var(--brand-foreground)] sm:text-5xl md:text-6xl pb-2"
           >
-            Quick start guide
+            Quick Start Guide
           </motion.h2>
           <motion.p
             variants={headingVariants}
             className="text-muted-foreground mx-auto max-w-md text-base sm:text-lg"
           >
-            Only 3 steps to unlock your trading potential
+            Sign up and your free tools are ready instantly. Go Pro whenever you want the AI.
           </motion.p>
         </motion.div>
 
@@ -111,28 +132,53 @@ export default function QuickStartGuide() {
                 <span className="from-brand/40 to-transparent h-px flex-1 bg-gradient-to-r" />
               </div>
 
+              <h3 className="flex items-center gap-2 text-lg font-semibold text-white">
+                {step.title}
+                {step.tag && (
+                  <span className="rounded-full border border-purple-500/25 bg-purple-500/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-purple-400">
+                    {step.tag}
+                  </span>
+                )}
+              </h3>
+
               {/* Glow card */}
-              <GlowCard glowColor="purple" customSize className="h-80 w-full p-0 gap-0 overflow-hidden">
-                <div className="relative h-full w-full">
-                  <Image
-                    src={step.image}
-                    alt={step.alt}
-                    fill
-                    className="object-cover rounded-2xl"
-                    sizes="(max-width: 640px) 100vw, 33vw"
-                  />
+              <GlowCard glowColor="purple" customSize className="h-56 w-full p-5">
+                <div className="flex h-full w-full items-center justify-center">
+                  {step.icon ? (
+                    <div className="flex size-16 shrink-0 items-center justify-center rounded-2xl border border-purple-500/25 bg-purple-500/10">
+                      <step.icon className="size-7 text-purple-400" />
+                    </div>
+                  ) : (
+                    <div className="flex w-full flex-col gap-2.5">
+                      {step.tools?.map((tool) => (
+                        <div
+                          key={tool.label}
+                          className="flex items-center gap-3 rounded-xl border border-white/10 bg-white/[0.03] px-3.5 py-2.5"
+                        >
+                          <div className="flex size-8 shrink-0 items-center justify-center rounded-lg border border-purple-500/20 bg-purple-500/10">
+                            <tool.icon className="size-4 text-purple-400" />
+                          </div>
+                          <span className="text-sm font-medium text-gray-200">{tool.label}</span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
               </GlowCard>
 
               {/* Description below card */}
-              {step.isPayoff ? (
-                <p className="from-foreground to-brand bg-linear-to-r bg-clip-text text-lg font-semibold text-transparent">
-                  {step.description}
-                </p>
-              ) : (
-                <p className="text-muted-foreground text-sm leading-relaxed">
-                  {step.description}
-                </p>
+              <p className="text-muted-foreground text-sm leading-relaxed">
+                {step.description}
+              </p>
+
+              {step.tag === 'Pro' && (
+                <a
+                  href="#pricing"
+                  className="group inline-flex items-center gap-1 text-sm font-medium text-purple-400 transition-colors hover:text-purple-300"
+                >
+                  See full plan comparison
+                  <ArrowRight className="size-3.5 transition-transform group-hover:translate-x-0.5" />
+                </a>
               )}
             </motion.div>
           ))}
@@ -140,5 +186,5 @@ export default function QuickStartGuide() {
 
       </div>
     </Section>
-  );
+  )
 }

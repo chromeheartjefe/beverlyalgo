@@ -4,12 +4,13 @@ import { AnimatePresence, motion, type Variants } from "framer-motion"
 import { ArrowRight, Menu, X } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
+import { useSession } from "next-auth/react"
 import React, { useEffect, useState } from "react"
 
 import { AnimatedGroup } from "@/components/ui/animated-group"
 import { BackgroundGradientAnimation } from "@/components/ui/background-gradient-animation"
 import { Banner } from "@/components/ui/banner"
-import { Button } from "@/components/ui/button"
+import { LiquidMetalButton } from "@/components/ui/liquid-metal-button"
 import { StardustButton } from "@/components/ui/stardust-button"
 import { cn } from "@/lib/utils"
 
@@ -24,13 +25,13 @@ const Logo = () => (
   <Link href="/" className="flex items-center gap-2">
     <Image
       src="/logo_transparent.png"
-      alt="BeverlyAlgo logo"
+      alt="EntrixAlgo logo"
       width={28}
       height={28}
       className="size-7 object-contain"
     />
     <span className="text-xl font-bold tracking-tight">
-      Beverly<span className="text-pink-400">Algo</span>
+      Entrix<span className="text-purple-400">Algo</span>
     </span>
   </Link>
 )
@@ -38,19 +39,21 @@ const Logo = () => (
 export function HeroHeader() {
   const [menuOpen, setMenuOpen] = useState(false)
   const [isScrolled, setIsScrolled] = useState(false)
+  const { status } = useSession()
+  const isAuthed = status === "authenticated"
 
   useEffect(() => {
     const handleScroll = () => setIsScrolled(window.scrollY > 50)
-    window.addEventListener("scroll", handleScroll)
+    window.addEventListener("scroll", handleScroll, { passive: true })
     return () => window.removeEventListener("scroll", handleScroll)
   }, [])
 
   return (
     <header className="fixed inset-x-0 top-0 z-50 flex flex-col">
       <Banner
-        id="beverly-launch-banner"
+        id="entrix-launch-banner"
         variant="rainbow"
-        height="3rem"
+        height="2.75rem"
         rainbowColors={[
           "rgba(231,77,255,0.77)",
           "rgba(231,77,255,0.77)",
@@ -60,9 +63,10 @@ export function HeroHeader() {
           "rgba(231,77,255,0.77)",
           "transparent",
         ]}
-        className="border-b border-white/5"
+        className="border-b border-white/5 whitespace-nowrap pl-4 pr-11 text-xs sm:whitespace-normal sm:px-4 sm:text-sm"
       >
-        🚀 BeverlyAlgo is evolving. New features dropping soon.{" "}
+        <span className="sm:hidden">🚀 EntrixAlgo is evolving.</span>
+        <span className="hidden sm:inline">🚀 EntrixAlgo is evolving. New features coming soon.</span>{" "}
         <a href="#pricing" className="ml-1 underline underline-offset-2 opacity-80 hover:opacity-100">
           Get early access →
         </a>
@@ -73,7 +77,7 @@ export function HeroHeader() {
           "flex w-full max-w-6xl items-center justify-between rounded-2xl border px-4 transition-all duration-300 lg:px-8",
           isScrolled
             ? "border-white/35 bg-black/80 py-3 shadow-lg backdrop-blur-md"
-            : "border-transparent bg-transparent py-4"
+            : "border-white/10 bg-transparent py-4"
         )}
       >
         <Logo />
@@ -93,14 +97,16 @@ export function HeroHeader() {
 
         {/* Desktop CTAs */}
         <div className="hidden items-center gap-4 md:flex">
-          <StardustButton href="#pricing" size="sm">
-            Get Access
-          </StardustButton>
+          {isAuthed ? (
+            <LiquidMetalButton href="/dashboard" label="Dashboard" size="sm" />
+          ) : (
+            <LiquidMetalButton href="/sign-in" label="Sign In" size="sm" />
+          )}
         </div>
 
         {/* Mobile hamburger */}
         <button
-          className="p-2 text-white md:hidden"
+          className="flex size-11 items-center justify-center text-white md:hidden"
           onClick={() => setMenuOpen(!menuOpen)}
           aria-label="Toggle menu"
         >
@@ -130,9 +136,13 @@ export function HeroHeader() {
                 </Link>
               ))}
               <div className="flex flex-col gap-3 border-t border-white/10 pt-3">
-                <StardustButton href="#pricing" size="sm" className="w-full justify-center">
-                  Get Access
-                </StardustButton>
+                <LiquidMetalButton
+                  href={isAuthed ? "/dashboard" : "/sign-in"}
+                  label={isAuthed ? "Dashboard" : "Sign In"}
+                  size="sm"
+                  className="mx-auto"
+                  onClick={() => setMenuOpen(false)}
+                />
               </div>
             </div>
           </motion.div>
@@ -164,6 +174,9 @@ const transitionVariants: { item: Variants } = {
 }
 
 export function HeroSection() {
+  const { status } = useSession()
+  const isAuthed = status === "authenticated"
+
   return (
     <>
       <HeroHeader />
@@ -194,7 +207,7 @@ export function HeroSection() {
                   className="hover:bg-background dark:hover:border-t-border bg-[#1e0938] group mx-auto flex w-fit items-center gap-4 rounded-full border p-1 pl-4 shadow-md shadow-black/5 transition-all duration-300 dark:shadow-zinc-950"
                 >
                   <span className="text-foreground text-sm">
-                    BeverlyAlgo v2.0: New signal engine is live
+                    Join 5,000+ traders using EntrixAlgo
                   </span>
                   <span className="dark:border-background block h-4 w-0.5 border-l bg-white dark:bg-zinc-700" />
                   <div className="bg-background group-hover:bg-muted size-6 overflow-hidden rounded-full duration-500">
@@ -212,22 +225,45 @@ export function HeroSection() {
                 {/* Main headline */}
                 <h1
                   className="mx-auto mt-8 max-w-4xl text-balance text-6xl font-black tracking-tight md:text-7xl lg:mt-16 xl:text-[5.25rem] animate-glow-pulse"
-                  style={{
-                    backgroundImage:
-                      "linear-gradient(135deg, #ffffff 0%, #f5f0ff 55%, #d8b4fe 100%)",
-                    WebkitBackgroundClip: "text",
-                    WebkitTextFillColor: "transparent",
-                    backgroundClip: "text",
-                  }}
                 >
-                  <span className="font-semibold">Trade Smarter with</span>
+                  <span
+                    className="font-semibold"
+                    style={{
+                      backgroundImage:
+                        "linear-gradient(135deg, #ffffff 0%, #f5f0ff 55%, #d8b4fe 100%)",
+                      WebkitBackgroundClip: "text",
+                      WebkitTextFillColor: "transparent",
+                      backgroundClip: "text",
+                    }}
+                  >
+                    Trade Smarter with
+                  </span>
                   <br />
-                  <span className="font-black">AI-Powered Precision</span>
+                  <span
+                    className="font-black"
+                    style={{
+                      WebkitTextFillColor: "white",
+                      color: "white",
+                      textShadow: [
+                        "0 0 1px rgba(255,255,255,0.9)",
+                        "0 0 1px rgba(255,255,255,0.9)",
+                        "0 0 4px rgba(255,255,255,0.5)",
+                        "0 0 24px rgba(216,180,254,0.5)",
+                      ].join(", "),
+                    }}
+                  >
+                    AI-Powered Precision
+                  </span>
                 </h1>
 
                 {/* Subtext */}
-                <p className="mx-auto mt-8 max-w-2xl text-balance text-lg text-muted-foreground">
-                  Professionally designed AI-based TradingView algorithm that elevates your trading with precise, easy-to-read signals. Join thousands of traders using BeverlyAlgo.
+                <p className="mx-auto mt-8 max-w-2xl text-balance text-base text-muted-foreground sm:text-lg">
+                  <span className="sm:hidden">
+                    Professionally designed AI-based TradingView algorithm that elevates your trading. Join thousands of traders using EntrixAlgo.
+                  </span>
+                  <span className="hidden sm:inline">
+                    Professionally designed AI-based TradingView algorithm that elevates your trading with precise, easy-to-read signals. Join thousands of traders using EntrixAlgo.
+                  </span>
                 </p>
               </AnimatedGroup>
 
@@ -243,19 +279,9 @@ export function HeroSection() {
                 }}
                 className="mt-12 flex flex-col items-center justify-center gap-2 md:flex-row"
               >
-                <StardustButton href="#pricing">
-                  Get Access
+                <StardustButton href={isAuthed ? "/dashboard" : "#pricing"}>
+                  {isAuthed ? "Dashboard" : "Get Access"}
                 </StardustButton>
-                <Button
-                  asChild
-                  size="lg"
-                  variant="ghost"
-                  className="h-11 rounded-xl px-5"
-                >
-                  <Link href="#features">
-                    <span className="text-nowrap">Explore Features</span>
-                  </Link>
-                </Button>
               </AnimatedGroup>
             </div>
           </div>
@@ -278,11 +304,11 @@ export function HeroSection() {
               />
               <div className="relative mx-auto max-w-6xl overflow-hidden rounded-2xl border bg-background p-4 shadow-lg shadow-zinc-950/15 ring-1 ring-background">
                 <Image
-                  className="relative aspect-[15/8] rounded-2xl"
+                  className="relative rounded-2xl"
                   src="/dashboard.png"
-                  alt="BeverlyAlgo trading dashboard"
-                  width={2700}
-                  height={1440}
+                  alt="EntrixAlgo trading dashboard"
+                  width={1876}
+                  height={1175}
                   priority
                 />
               </div>

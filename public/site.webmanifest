@@ -1,6 +1,6 @@
 {
-  "name": "BeverlyAlgo",
-  "short_name": "BeverlyAlgo",
+  "name": "EntrixAlgo",
+  "short_name": "EntrixAlgo",
   "description": "AI-powered TradingView algorithm for smarter trading",
   "icons": [
     { "src": "/android-chrome-192x192.png", "sizes": "192x192", "type": "image/png" },

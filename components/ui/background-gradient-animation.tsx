@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import { cn } from "@/lib/utils";
 
@@ -11,10 +11,21 @@ interface BackgroundGradientAnimationProps {
   fifthColor?: string;
   size?: string;
   blendingValue?: string;
+  /** "center" (default) stacks every orb at the container's center. "corners"
+   *  anchors them at the four corners instead, so the drifting motion reads
+   *  as glow bleeding in from the edges rather than one blob in the middle. */
+  variant?: "center" | "corners";
   children?: React.ReactNode;
   className?: string;
   containerClassName?: string;
 }
+
+const CORNER_POSITIONS: React.CSSProperties[] = [
+  { top: "-15%", left: "-15%" },
+  { top: "-15%", right: "-15%" },
+  { bottom: "-15%", left: "-15%" },
+  { bottom: "-15%", right: "-15%" },
+];
 
 export const BackgroundGradientAnimation = ({
   firstColor = "131, 80, 232",
@@ -24,14 +35,31 @@ export const BackgroundGradientAnimation = ({
   fifthColor = "95, 0, 230",
   size = "80%",
   blendingValue = "screen",
+  variant = "center",
   children,
   className,
   containerClassName,
 }: BackgroundGradientAnimationProps) => {
   const [isSafari, setIsSafari] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
+  // These blurred, continuously-animating orbs are expensive to keep painting —
+  // only render them while the section is actually near the viewport so scroll
+  // performance doesn't pay for every instance on the page at once.
+  const [isNearViewport, setIsNearViewport] = useState(false);
 
   useEffect(() => {
     setIsSafari(/^((?!chrome|android).)*safari/i.test(navigator.userAgent));
+  }, []);
+
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => setIsNearViewport(entry.isIntersecting),
+      { rootMargin: "200px" }
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
   }, []);
 
   const orbs: Array<{
@@ -73,13 +101,13 @@ export const BackgroundGradientAnimation = ({
   ];
 
   return (
-    <div className={cn("relative overflow-hidden", containerClassName)}>
-      {/* Blurry orbs — no mouse interaction */}
+    <div ref={containerRef} className={cn("relative overflow-hidden", containerClassName)}>
+      {/* Blurry orbs — no mouse interaction. Only mounted near the viewport. */}
       <div
         aria-hidden="true"
         className={cn("absolute inset-0", isSafari ? "blur-[30px]" : "blur-[55px]")}
       >
-        {orbs.map((orb, i) => (
+        {isNearViewport && orbs.map((orb, i) => (
           <div
             key={i}
             className={cn("absolute", orb.animClass)}
@@ -88,8 +116,9 @@ export const BackgroundGradientAnimation = ({
               mixBlendMode: blendingValue as React.CSSProperties["mixBlendMode"],
               width: size,
               height: size,
-              top: `calc(50% - ${size} / 2)`,
-              left: `calc(50% - ${size} / 2)`,
+              ...(variant === "corners"
+                ? CORNER_POSITIONS[i % CORNER_POSITIONS.length]
+                : { top: `calc(50% - ${size} / 2)`, left: `calc(50% - ${size} / 2)` }),
               transformOrigin: orb.origin,
               opacity: orb.opacity,
               willChange: "transform",

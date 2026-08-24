@@ -1,5 +1,5 @@
 'use client';
-import { motion, useReducedMotion } from 'motion/react';
+import { motion, useReducedMotion } from 'framer-motion';
 import Image from 'next/image';
 import type { ComponentProps, ReactNode } from 'react';
 import React from 'react';
@@ -27,7 +27,7 @@ const footerLinks: FooterSection[] = [
     {
         label: 'Company',
         links: [
-            { title: 'FAQs', href: '/faqs' },
+            { title: 'FAQs', href: '#faq' },
             { title: 'About Us', href: '/about' },
             { title: 'Privacy Policy', href: '/privacy' },
             { title: 'Terms of Services', href: '/terms' },
@@ -53,17 +53,17 @@ export function Footer() {
                 <AnimatedContainer className="space-y-4">
                     <Image
                         src="/logo_transparent.png"
-                        alt="BeverlyAlgo"
+                        alt="EntrixAlgo"
                         width={48}
                         height={48}
                         className="size-12 object-contain"
                     />
                     <p className="text-muted-foreground mt-8 text-sm md:mt-0">
-                        © {new Date().getFullYear()} BeverlyAlgo. All rights reserved.
+                        © {new Date().getFullYear()} EntrixAlgo. All rights reserved.
                     </p>
                 </AnimatedContainer>
 
-                <div className="mt-10 grid grid-cols-2 gap-8 md:grid-cols-3 xl:col-span-2 xl:mt-0">
+                <div className="mt-10 grid grid-cols-3 gap-3 sm:gap-8 xl:col-span-2 xl:mt-0">
                     {footerLinks.map((section, index) => (
                         <AnimatedContainer key={section.label} delay={0.1 + index * 0.1}>
                             <div className="mb-10 md:mb-0">
