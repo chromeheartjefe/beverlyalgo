@@ -18,8 +18,10 @@ import {
 } from "lucide-react"
 import { useEffect, useMemo, useRef, useState } from "react"
 import { toast } from "sonner"
+import useSWR from "swr"
 
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
+import { fetcher } from "@/lib/swr"
 import { tradeResult, type TradeRow } from "@/lib/trades"
 import { cn } from "@/lib/utils"
 
@@ -216,8 +218,11 @@ function TradeFormModal({
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
 export default function TradeJournalPage() {
-  const [trades,  setTrades]  = useState<TradeRow[]>([])
-  const [loading, setLoading] = useState(true)
+  // Cached via SWR (shared with the Dashboard Overview page's own useSWR call
+  // on this same key) so returning to this tab shows the already-fetched
+  // trades instantly instead of flashing back to an empty/loading state.
+  const { data: tradesData, isLoading: loading, mutate: mutateTrades } = useSWR<TradeRow[]>("/api/trades", fetcher)
+  const trades = tradesData ?? []
   const [filter,  setFilter]  = useState<FilterType>("all")
   const [search,  setSearch]  = useState("")
 
@@ -239,13 +244,6 @@ export default function TradeJournalPage() {
   // actual DELETE request only fires once the undo window (matching the toast
   // duration below) elapses without the user clicking "Undo".
   const pendingDeletesRef = useRef<Map<string, { trade: TradeRow; index: number; timer: ReturnType<typeof setTimeout> }>>(new Map())
-
-  useEffect(() => {
-    fetch("/api/trades")
-      .then((r) => r.json())
-      .then((data) => setTrades(Array.isArray(data) ? data : []))
-      .finally(() => setLoading(false))
-  }, [])
 
   const filtered = trades.filter((t) => {
     if (search.trim() && !t.pair.toLowerCase().includes(search.trim().toLowerCase())) return false
@@ -340,7 +338,7 @@ export default function TradeJournalPage() {
         )
       )
       const deletedIds = new Set(results.filter((r) => r.ok).map((r) => r.id))
-      setTrades((prev) => prev.filter((t) => !deletedIds.has(t.id)))
+      mutateTrades((prev) => (prev ?? []).filter((t) => !deletedIds.has(t.id)), { revalidate: false })
       setSelected((prev) => {
         const next = new Set(prev)
         deletedIds.forEach((id) => next.delete(id))
@@ -429,8 +427,9 @@ export default function TradeJournalPage() {
       }
 
       const saved: TradeRow = await res.json()
-      setTrades((prev) =>
-        editing ? prev.map((t) => (t.id === saved.id ? saved : t)) : [saved, ...prev]
+      mutateTrades(
+        (prev) => (editing ? (prev ?? []).map((t) => (t.id === saved.id ? saved : t)) : [saved, ...(prev ?? [])]),
+        { revalidate: false }
       )
       setModalOpen(false)
       toast.success(editing ? "Trade updated" : "Trade added")
@@ -449,7 +448,7 @@ export default function TradeJournalPage() {
   function handleDelete(trade: TradeRow) {
     setConfirmDeleteId(null)
     const index = trades.findIndex((t) => t.id === trade.id)
-    setTrades((prev) => prev.filter((t) => t.id !== trade.id))
+    mutateTrades((prev) => (prev ?? []).filter((t) => t.id !== trade.id), { revalidate: false })
 
     const timer = setTimeout(() => commitDelete(trade.id), 5000)
     pendingDeletesRef.current.set(trade.id, { trade, index, timer })
@@ -463,11 +462,11 @@ export default function TradeJournalPage() {
           if (!pending) return
           clearTimeout(pending.timer)
           pendingDeletesRef.current.delete(trade.id)
-          setTrades((prev) => {
-            const next = [...prev]
+          mutateTrades((prev) => {
+            const next = [...(prev ?? [])]
             next.splice(Math.min(pending.index, next.length), 0, pending.trade)
             return next
-          })
+          }, { revalidate: false })
         },
       },
     })

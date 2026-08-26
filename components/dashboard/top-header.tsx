@@ -8,6 +8,7 @@ import { useEffect, useState } from "react"
 
 import { MarketTicker } from "@/components/dashboard/market-ticker"
 import { useMobileNav } from "@/components/dashboard/mobile-nav-context"
+import { Avatar } from "@/components/ui/avatar"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -94,9 +95,9 @@ export function DashboardHeader() {
   const { data: session } = useSession()
   const name     = session?.user?.name ?? "User"
   const email    = session?.user?.email ?? ""
-  const initials = name.charAt(0).toUpperCase()
-  const plan     = (session?.user as { plan?: string })?.plan ?? "free"
-  const userId   = session?.user?.id
+  const plan          = (session?.user as { plan?: string })?.plan ?? "free"
+  const userId        = session?.user?.id
+  const avatarVersion = (session?.user as { avatarVersion?: number | null })?.avatarVersion
 
   const [notifications, setNotifications] = useState<Notification[]>([])
   const [unread, setUnread] = useState(false)
@@ -235,9 +236,12 @@ export function DashboardHeader() {
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <button className="flex items-center gap-2.5">
-              <div className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-purple-500 to-violet-600 text-xs font-bold text-white">
-                {initials}
-              </div>
+              <Avatar
+                userId={userId}
+                avatarVersion={avatarVersion}
+                name={name}
+                className="size-8 shrink-0 rounded-lg text-xs"
+              />
               <div className="hidden text-left md:block">
                 <p className="text-sm font-semibold leading-none text-white">{name}</p>
                 <p className="mt-0.5 text-[11px] capitalize leading-none text-gray-500">{plan} Trader</p>

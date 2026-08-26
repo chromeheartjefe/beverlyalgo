@@ -2,9 +2,11 @@
 
 import { AlertTriangle, Bot, Loader2, Send, Trash2, User } from "lucide-react"
 import { useSession } from "next-auth/react"
-import { useEffect, useRef, useState } from "react"
+import { useEffect, useMemo, useRef, useState } from "react"
+import useSWR from "swr"
 
 import { FeatureLock } from "@/components/dashboard/feature-lock"
+import { fetcher } from "@/lib/swr"
 import { cn } from "@/lib/utils"
 
 type Message = {
@@ -51,25 +53,20 @@ export default function TradingBotPage() {
   const plan   = (session?.user as { plan?: string })?.plan ?? "free"
   const locked = plan === "free"
 
-  const [messages, setMessages] = useState<Message[]>([])
-  const [loadingHistory, setLoadingHistory] = useState(true)
+  // Cached via SWR so returning to this tab shows the already-fetched chat
+  // history instantly instead of flashing back to an empty/loading state.
+  // Skipped entirely (no fetch) while the feature is locked.
+  const { data: chatData, isLoading: loadingHistory, mutate: mutateChat } = useSWR<Message[]>(
+    locked ? null : "/api/chat",
+    fetcher
+  )
+  const messages = useMemo(() => chatData ?? [], [chatData])
   const [input, setInput]       = useState("")
   const [sending, setSending]   = useState(false)
   const [error, setError]       = useState<string | null>(null)
   const [clearing, setClearing] = useState(false)
 
   const scrollRef = useRef<HTMLDivElement>(null)
-
-  useEffect(() => {
-    if (locked) { setLoadingHistory(false); return }
-    fetch("/api/chat")
-      .then((r) => (r.ok ? r.json() : []))
-      .then((rows: { id: string; role: string; content: string }[]) => {
-        setMessages(rows.map((r) => ({ id: r.id, role: r.role as "user" | "assistant", content: r.content })))
-      })
-      .catch(() => {})
-      .finally(() => setLoadingHistory(false))
-  }, [locked])
 
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" })
@@ -81,7 +78,7 @@ export default function TradingBotPage() {
 
     setError(null)
     setInput("")
-    setMessages((prev) => [...prev, { id: crypto.randomUUID(), role: "user", content: trimmed }])
+    mutateChat((prev) => [...(prev ?? []), { id: crypto.randomUUID(), role: "user", content: trimmed }], { revalidate: false })
     setSending(true)
 
     try {
@@ -94,7 +91,7 @@ export default function TradingBotPage() {
 
       if (!res.ok) throw new Error(data.error ?? "Something went wrong.")
 
-      setMessages((prev) => [...prev, { id: crypto.randomUUID(), role: "assistant", content: data.reply }])
+      mutateChat((prev) => [...(prev ?? []), { id: crypto.randomUUID(), role: "assistant", content: data.reply }], { revalidate: false })
     } catch (err) {
       setError(err instanceof Error ? err.message : "Something went wrong.")
     } finally {
@@ -110,7 +107,7 @@ export default function TradingBotPage() {
     try {
       const res = await fetch("/api/chat", { method: "DELETE" })
       if (res.ok) {
-        setMessages([])
+        mutateChat([], { revalidate: false })
         setError(null)
       }
     } finally {

@@ -1,14 +1,41 @@
 "use client"
 
 import { AnimatePresence, motion } from "framer-motion"
-import { Bell, Eye, EyeOff, Loader2, Lock, LogOut, Moon, Shield, User } from "lucide-react"
+import { Bell, Camera, Eye, EyeOff, Loader2, Lock, LogOut, Moon, Shield, Trash2, User } from "lucide-react"
 import Link from "next/link"
 import { signOut, useSession } from "next-auth/react"
-import { useEffect, useState } from "react"
+import { useEffect, useRef, useState } from "react"
+import { toast } from "sonner"
 
+import { Avatar } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import { markVisited } from "@/lib/onboarding"
 import { cn } from "@/lib/utils"
+
+const MAX_AVATAR_SOURCE_BYTES = 20 * 1024 * 1024 // client-side sanity cap before we even try to decode it
+
+// Downscale to ≤512 px on the longest edge and re-encode as JPEG before
+// upload — mirrors the same technique used for chart-analysis uploads
+// (app/dashboard/chart-analysis/page.tsx). The server (sharp) does the
+// authoritative square crop/compress; this step just keeps a huge phone
+// photo from being uploaded at full resolution for no benefit.
+function resizeForUpload(file: File, maxPx = 512): Promise<Blob> {
+  return new Promise((resolve, reject) => {
+    const img = new Image()
+    const src = URL.createObjectURL(file)
+    img.onload = () => {
+      URL.revokeObjectURL(src)
+      const scale  = Math.min(1, maxPx / Math.max(img.width, img.height))
+      const canvas = document.createElement("canvas")
+      canvas.width  = Math.round(img.width  * scale)
+      canvas.height = Math.round(img.height * scale)
+      canvas.getContext("2d")!.drawImage(img, 0, 0, canvas.width, canvas.height)
+      canvas.toBlob((blob) => (blob ? resolve(blob) : reject(new Error("Resize failed"))), "image/jpeg", 0.9)
+    }
+    img.onerror = () => { URL.revokeObjectURL(src); reject(new Error("Image load failed")) }
+    img.src = src
+  })
+}
 
 type UserSettings = {
   name:         string
@@ -60,6 +87,13 @@ export default function SettingsPage() {
   const [nameInput,  setNameInput]  = useState("")
   const [emailInput, setEmailInput] = useState("")
   const displayName = nameInput  || session?.user?.name  || "User"
+
+  const userId        = session?.user?.id
+  const avatarVersion = (session?.user as { avatarVersion?: number | null })?.avatarVersion
+  const [avatarBusy, setAvatarBusy]   = useState(false)
+  const [avatarError, setAvatarError] = useState("")
+  const [avatarPreview, setAvatarPreview] = useState<string | null>(null)
+  const avatarInputRef = useRef<HTMLInputElement>(null)
 
   const [notifSignals, setNotifSignals] = useState(true)
   const [notifJournal, setNotifJournal] = useState(false)
@@ -131,6 +165,71 @@ export default function SettingsPage() {
       setSaveError("Something went wrong. Please try again.")
     } finally {
       setSaving(false)
+    }
+  }
+
+  const handleAvatarSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    e.target.value = "" // allow re-selecting the same file next time
+    if (!file) return
+
+    setAvatarError("")
+
+    if (!file.type.startsWith("image/")) {
+      setAvatarError("File must be an image.")
+      return
+    }
+    if (file.size > MAX_AVATAR_SOURCE_BYTES) {
+      setAvatarError("Image must be under 20 MB.")
+      return
+    }
+
+    // Shown immediately in place of the old photo/spinner-dimmed overlay,
+    // rather than making the user stare at the old photo until the upload
+    // round-trip resolves. Cleared in `finally`, by which point (success
+    // path) `updateSession` has already refreshed avatarVersion, so the
+    // real uploaded photo takes over with no flash back to the old one.
+    const localPreview = URL.createObjectURL(file)
+    setAvatarPreview(localPreview)
+
+    setAvatarBusy(true)
+    try {
+      const resized = await resizeForUpload(file)
+      const form = new FormData()
+      form.append("file", resized, "avatar.jpg")
+
+      const res  = await fetch("/api/user/avatar", { method: "POST", body: form })
+      const data = await res.json()
+      if (!res.ok) {
+        setAvatarError(data.error ?? "Something went wrong. Please try again.")
+        return
+      }
+      await updateSession({})
+      toast.success("Profile photo updated.")
+    } catch {
+      setAvatarError("Couldn't process that image. Try a different file.")
+    } finally {
+      setAvatarBusy(false)
+      URL.revokeObjectURL(localPreview)
+      setAvatarPreview(null)
+    }
+  }
+
+  const handleAvatarRemove = async () => {
+    setAvatarError("")
+    setAvatarBusy(true)
+    try {
+      const res = await fetch("/api/user/avatar", { method: "DELETE" })
+      if (!res.ok) {
+        setAvatarError("Something went wrong. Please try again.")
+        return
+      }
+      await updateSession({})
+      toast.success("Profile photo removed.")
+    } catch {
+      setAvatarError("Something went wrong. Please try again.")
+    } finally {
+      setAvatarBusy(false)
     }
   }
 
@@ -213,23 +312,78 @@ export default function SettingsPage() {
       <div className="relative mx-auto max-w-2xl">
         <motion.div
           animate={{ filter: loaded ? "blur(0px)" : "blur(8px)", opacity: loaded ? 1 : 0.5 }}
-          transition={{ duration: 0.5, ease: "easeOut" }}
+          transition={{ duration: 0.15, ease: "easeOut" }}
           className={cn("space-y-5", !loaded && "pointer-events-none select-none")}
         >
         {/* Profile */}
         <SectionCard title="Profile">
           <div className="flex items-center gap-4">
-            <div className="flex size-14 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-purple-500 to-violet-600 text-xl font-bold text-white">
-              {displayName.charAt(0).toUpperCase()}
+            <div className="group relative shrink-0">
+              <Avatar
+                userId={userId}
+                avatarVersion={avatarVersion}
+                name={displayName}
+                previewSrc={avatarPreview}
+                className="size-14 rounded-2xl text-xl"
+              />
+              <button
+                type="button"
+                onClick={() => avatarInputRef.current?.click()}
+                disabled={avatarBusy}
+                aria-label="Change profile photo"
+                className="absolute inset-0 flex items-center justify-center rounded-2xl bg-black/60 opacity-0 transition-opacity group-hover:opacity-100 disabled:opacity-100"
+              >
+                {avatarBusy ? (
+                  <Loader2 className="size-4 animate-spin text-white" />
+                ) : (
+                  <Camera className="size-4 text-white" />
+                )}
+              </button>
+              <input
+                ref={avatarInputRef}
+                type="file"
+                accept="image/*"
+                onChange={handleAvatarSelect}
+                className="hidden"
+              />
             </div>
             <div>
-              <p className="font-semibold text-white">{displayName}</p>
+              <div className="flex flex-wrap items-center gap-2">
+                <p className="font-semibold text-white">{displayName}</p>
+                <span className="inline-flex items-center gap-1.5 rounded-full border border-purple-500/20 bg-purple-500/10 px-2.5 py-0.5 text-[11px] font-medium text-purple-400 capitalize">
+                  {plan} Trader
+                </span>
+              </div>
               <p className="text-sm text-gray-500">{emailInput || "—"}</p>
-              <span className="mt-1.5 inline-flex items-center gap-1.5 rounded-full border border-purple-500/20 bg-purple-500/10 px-2.5 py-0.5 text-[11px] font-medium text-purple-400 capitalize">
-                {plan} Trader
-              </span>
+              <div className="mt-2 flex items-center gap-3">
+                <button
+                  type="button"
+                  onClick={() => avatarInputRef.current?.click()}
+                  disabled={avatarBusy}
+                  className="text-xs font-medium text-purple-400 hover:text-purple-300 disabled:opacity-60"
+                >
+                  Change photo
+                </button>
+                {avatarVersion && (
+                  <button
+                    type="button"
+                    onClick={handleAvatarRemove}
+                    disabled={avatarBusy}
+                    className="inline-flex items-center gap-1 text-xs font-medium text-gray-500 hover:text-red-400 disabled:opacity-60"
+                  >
+                    <Trash2 className="size-3" />
+                    Remove
+                  </button>
+                )}
+              </div>
             </div>
           </div>
+
+          {avatarError && (
+            <p role="alert" className="mt-4 rounded-lg border border-red-500/20 bg-red-500/[0.08] px-3.5 py-2.5 text-sm text-red-400">
+              {avatarError}
+            </p>
+          )}
 
           <div className="mt-6 space-y-4">
             <div>

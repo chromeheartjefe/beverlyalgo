@@ -6,12 +6,14 @@ declare module "next-auth" {
       id:             string
       plan?:          string
       emailVerified?: boolean
+      avatarVersion?: number | null
     } & DefaultSession["user"]
   }
 
   interface User {
     plan?:          string
     emailVerified?: boolean
+    avatarVersion?: number | null
   }
 }
 
@@ -20,5 +22,6 @@ declare module "next-auth/jwt" {
     id?:            string
     plan?:          string
     emailVerified?: boolean
+    avatarVersion?: number | null
   }
 }

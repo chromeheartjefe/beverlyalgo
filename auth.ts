@@ -33,6 +33,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           email:         row.email,
           plan:          row.plan,
           emailVerified: !!row.emailVerified,
+          avatarVersion: row.avatarUpdatedAt ? row.avatarUpdatedAt.getTime() : null,
         }
       },
     }),
@@ -51,17 +52,19 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         token.id            = user.id
         token.plan          = user.plan
         token.emailVerified = (user as { emailVerified?: boolean }).emailVerified
+        token.avatarVersion = (user as { avatarVersion?: number | null }).avatarVersion ?? null
       } else if (token.id) {
-        // Re-fetch on every request so plan upgrades (Stripe webhook) and email
-        // verification show up without forcing the user to sign out and back in.
+        // Re-fetch on every request so plan upgrades (Stripe webhook), email
+        // verification, and avatar changes show up without forcing a re-login.
         const [row] = await db
-          .select({ plan: users.plan, emailVerified: users.emailVerified })
+          .select({ plan: users.plan, emailVerified: users.emailVerified, avatarUpdatedAt: users.avatarUpdatedAt })
           .from(users)
           .where(eq(users.id, String(token.id)))
           .limit(1)
         if (row) {
           token.plan          = row.plan
           token.emailVerified = !!row.emailVerified
+          token.avatarVersion = row.avatarUpdatedAt ? row.avatarUpdatedAt.getTime() : null
         }
       }
       return token
@@ -74,6 +77,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           id:            String(token.id   ?? ""),
           plan:          String(token.plan ?? ""),
           emailVerified: !!token.emailVerified,
+          avatarVersion: (token.avatarVersion as number | null | undefined) ?? null,
         },
       }
     },

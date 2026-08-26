@@ -12,12 +12,21 @@ import {
   Zap,
 } from "lucide-react"
 import Link from "next/link"
-import { useEffect, useMemo, useState } from "react"
+import { useMemo, useState } from "react"
+import useSWR from "swr"
 
 import { OnboardingChecklist } from "@/components/dashboard/onboarding-checklist"
 import { AnimatedGroup } from "@/components/ui/animated-group"
+import { fetcher } from "@/lib/swr"
 import { tradeResult, type TradeRow } from "@/lib/trades"
 import { cn } from "@/lib/utils"
+
+// sessionStorage (not state persisted across tabs/reloads-of-the-flag) so the
+// entrance reveal plays once on the FIRST /dashboard visit of a browser
+// session, then stays instant on every navigation back to this tab after —
+// the jitter this was previously removed for was specifically about repeat
+// visits, not the first one.
+const REVEAL_KEY = "dashboardRevealed"
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -185,20 +194,25 @@ const fmtPrice = (n: number | null) =>
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
 export default function DashboardPage() {
-  const [trades,    setTrades]    = useState<TradeRow[]>([])
-  const [analyses,  setAnalyses]  = useState<AnalysisRow[]>([])
-  const [loaded,    setLoaded]    = useState(false)
+  // Cached via SWR (shared with the Trade Journal / Chart Analysis pages'
+  // own useSWR calls on these same keys) so switching back to this tab after
+  // visiting another one shows the already-fetched data instantly instead of
+  // flashing back to an empty/loading state.
+  const { data: tradesData }   = useSWR<TradeRow[]>("/api/trades", fetcher)
+  const { data: analysesData } = useSWR<AnalysisRow[]>("/api/analyses", fetcher)
+  const trades   = useMemo(() => tradesData ?? [], [tradesData])
+  const analyses = useMemo(() => analysesData ?? [], [analysesData])
+  const loaded   = tradesData !== undefined && analysesData !== undefined
 
-  useEffect(() => {
-    Promise.all([
-      fetch("/api/trades").then((r) => r.json()).catch(() => []),
-      fetch("/api/analyses").then((r) => r.json()).catch(() => []),
-    ]).then(([t, a]) => {
-      setTrades(Array.isArray(t) ? t : [])
-      setAnalyses(Array.isArray(a) ? a : [])
-      setLoaded(true)
-    })
-  }, [])
+  // Lazy initializer runs once, synchronously, on the client's first render —
+  // guarded for SSR (no sessionStorage there) so it never disagrees with the
+  // server-rendered markup framer-motion hydrates against.
+  const [reveal] = useState(() => {
+    if (typeof window === "undefined") return false
+    const first = !window.sessionStorage.getItem(REVEAL_KEY)
+    if (first) window.sessionStorage.setItem(REVEAL_KEY, "1")
+    return first
+  })
 
   const now = Date.now()
 
@@ -315,14 +329,26 @@ export default function DashboardPage() {
       <OnboardingChecklist hasTrades={trades.length > 0} hasAnalyses={analyses.length > 0} />
 
       {/* Stats */}
-      <AnimatedGroup
-        preset="blur-slide"
-        className="mb-8 grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4"
-      >
-        {STATS.map((s) => (
-          <StatCard key={s.label} {...s} />
-        ))}
-      </AnimatedGroup>
+      {/* Stagger reveal plays only on the first /dashboard visit of the
+          session (see `reveal` above) — a cascading entrance on every single
+          tab-open read as lag rather than polish for a page revisited this
+          often, but a completely flat first paint felt bare too. */}
+      {reveal ? (
+        <AnimatedGroup
+          preset="blur-slide"
+          className="mb-8 grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4"
+        >
+          {STATS.map((s) => (
+            <StatCard key={s.label} {...s} />
+          ))}
+        </AnimatedGroup>
+      ) : (
+        <div className="mb-8 grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+          {STATS.map((s) => (
+            <StatCard key={s.label} {...s} />
+          ))}
+        </div>
+      )}
 
       {/* Main 2-column layout */}
       <div className="grid grid-cols-1 gap-6 xl:grid-cols-5">
@@ -330,9 +356,9 @@ export default function DashboardPage() {
         <div className="space-y-6 xl:col-span-3">
           {/* New AI Analysis CTA */}
           <motion.div
-            initial={{ opacity: 0, y: 16 }}
+            initial={reveal ? { opacity: 0, y: 16 } : false}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.25, duration: 0.5 }}
+            transition={{ duration: 0.2 }}
             className="overflow-hidden rounded-2xl border border-white/[0.07] bg-gradient-to-br from-[#0f0f1e] to-[#0a0a12]"
           >
             <div className="p-6">
@@ -371,9 +397,9 @@ export default function DashboardPage() {
 
           {/* Performance Overview */}
           <motion.div
-            initial={{ opacity: 0, y: 16 }}
+            initial={reveal ? { opacity: 0, y: 16 } : false}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.35, duration: 0.5 }}
+            transition={{ duration: 0.2 }}
             className="rounded-2xl border border-white/[0.07] bg-white/[0.025] p-6"
           >
             <div className="mb-5 flex items-center justify-between">
@@ -413,9 +439,9 @@ export default function DashboardPage() {
 
         {/* Right column: recent analyses */}
         <motion.div
-          initial={{ opacity: 0, y: 16 }}
+          initial={reveal ? { opacity: 0, y: 16 } : false}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3, duration: 0.5 }}
+          transition={{ duration: 0.2 }}
           className="xl:col-span-2"
         >
           <div className="rounded-2xl border border-white/[0.07] bg-white/[0.025]">

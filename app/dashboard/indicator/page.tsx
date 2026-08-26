@@ -2,10 +2,12 @@
 
 import { Activity, AlertTriangle, CheckCircle2, Clock, ExternalLink, Loader2, Sparkles } from "lucide-react"
 import { useSession } from "next-auth/react"
-import { useEffect, useState } from "react"
+import { useState } from "react"
+import useSWR from "swr"
 
 import { FeatureLock } from "@/components/dashboard/feature-lock"
 import { IndicatorSignalPreview } from "@/components/dashboard/indicator-signal-preview"
+import { fetcher } from "@/lib/swr"
 import { cn } from "@/lib/utils"
 
 type AccessState = {
@@ -106,20 +108,16 @@ export default function IndicatorPage() {
   const plan   = (session?.user as { plan?: string })?.plan ?? "free"
   const locked = plan === "free"
 
-  const [state, setState]     = useState<AccessState | null>(null)
-  const [loading, setLoading] = useState(true)
+  // Cached via SWR so returning to this tab shows the already-fetched access
+  // state instantly instead of flashing back to a loading state. Skipped
+  // entirely (no fetch) while the feature is locked, matching the old guard.
+  const { data: state, isLoading: loading, mutate: mutateState } = useSWR<AccessState>(
+    locked ? null : "/api/indicator",
+    fetcher
+  )
   const [username, setUsername] = useState("")
   const [submitting, setSubmitting] = useState(false)
   const [error, setError]     = useState<string | null>(null)
-
-  useEffect(() => {
-    if (locked) { setLoading(false); return }
-    fetch("/api/indicator")
-      .then((r) => (r.ok ? r.json() : null))
-      .then(setState)
-      .catch(() => {})
-      .finally(() => setLoading(false))
-  }, [locked])
 
   const submit = async () => {
     const trimmed = username.trim()
@@ -135,7 +133,7 @@ export default function IndicatorPage() {
       })
       const data = await res.json()
       if (!res.ok) throw new Error(data.error ?? "Something went wrong.")
-      setState(data)
+      mutateState(data, { revalidate: false })
     } catch (err) {
       setError(err instanceof Error ? err.message : "Something went wrong.")
     } finally {

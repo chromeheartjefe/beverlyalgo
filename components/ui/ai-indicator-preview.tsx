@@ -70,7 +70,7 @@ export function AiIndicatorPreview() {
             {/* ── Right: animated preview ── */}
             <div className="flex items-center justify-center border-t border-white/[0.05] bg-gradient-to-br from-[#0b0b1e] to-[#050510] p-8 lg:border-l lg:border-t-0 lg:p-12">
               <div className="w-full max-w-md">
-                <IndicatorSignalPreview height={220} volumeHeight={30} sellTop="11.9%" buyTop="46.6%" />
+                <IndicatorSignalPreview height={220} volumeHeight={30} sellTop="21.5%" buyTop="65.5%" />
               </div>
             </div>
 

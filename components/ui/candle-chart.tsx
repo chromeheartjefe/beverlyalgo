@@ -220,6 +220,12 @@ export type CandleChartProps = {
   volumeHeight?: number
   /** headroom above the tallest visible wick, as a fraction of its price (default 0.02) */
   topPad?: number
+  /** false = omit the date-label row below the chart (and its scrub-to-zoom
+   *  cursor/gesture with it). Default true. Turn off for compact previews
+   *  where the dates are noise and/or callers need the rendered box to be
+   *  EXACTLY the SVG's own aspect ratio (no extra fixed-height chrome) so
+   *  percentage-based overlays stay glued to the chart at every width. */
+  showDateAxis?: boolean
 }
 
 export default function CandleChart({
@@ -239,6 +245,7 @@ export default function CandleChart({
   height = VB_H,
   volumeHeight = VOL_H,
   topPad = 0.02,
+  showDateAxis = true,
 }: CandleChartProps) {
   const reduced = useReducedMotion() || isSnapshot()
   const [timeframe, setTimeframe] = useState<(typeof TIMEFRAMES)[number]>("6M")
@@ -431,8 +438,12 @@ export default function CandleChart({
       </div>
       )}
 
-      {/* chart — OHLC + Chg live in the crosshair tooltip only (no top strip) */}
-      <div ref={plotRef} className={`relative mt-3 ${fill ? "min-h-0 flex-1" : ""}`}>
+      {/* chart — OHLC + Chg live in the crosshair tooltip only (no top strip).
+          Top margin only when there's a header row above to separate from —
+          otherwise this box's aspect ratio must exactly match the SVG's own
+          viewBox so percentage-based overlays (signal markers, etc.) stay
+          glued to specific candles at every container width. */}
+      <div ref={plotRef} className={`relative ${chrome ? "mt-3" : ""} ${fill ? "min-h-0 flex-1" : ""}`}>
         <svg
           ref={svgRef}
           viewBox={`0 0 ${VW} ${VH}`}
@@ -708,13 +719,18 @@ export default function CandleChart({
       </div>
 
       {/* date axis — scroll sideways (or vertically) here to change how much chart is visible */}
-      <div ref={dateAxisRef} className="mt-2 flex shrink-0 cursor-ew-resize touch-none select-none justify-between border-t border-foreground/[0.04] pr-[46px] pt-2">
+      {showDateAxis && (
+      <div
+        ref={dateAxisRef}
+        className={`mt-2 flex shrink-0 touch-none select-none justify-between border-t border-foreground/[0.04] pr-[46px] pt-2 ${interactive ? "cursor-ew-resize" : ""}`}
+      >
         {dateLabels.map((k, i) => (
           <span key={i} className="tabular-nums text-[9px] text-foreground/30" style={{ fontFamily: SANS }}>
             {fmtDay(k.t)}
           </span>
         ))}
       </div>
+      )}
     </div>
   )
 }

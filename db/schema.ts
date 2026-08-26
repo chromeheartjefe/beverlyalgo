@@ -13,6 +13,13 @@ export const users = pgTable("users", {
   stripeCustomerId:       text("stripe_customer_id"),
   stripeSubscriptionId:   text("stripe_subscription_id"),
   stripeCurrentPeriodEnd: timestamp("stripe_current_period_end", { withTimezone: true }),
+  // Base64-encoded, server-optimized (256x256 WebP, EXIF stripped) avatar image.
+  // Stored inline rather than in object storage since the optimized size is
+  // small (~5-20KB) and it avoids needing a separate blob store/env var; kept
+  // out of the default GET /api/user select so normal profile fetches stay light.
+  avatar:           text("avatar"),
+  avatarType:       varchar("avatar_type", { length: 32 }),
+  avatarUpdatedAt:  timestamp("avatar_updated_at", { withTimezone: true }),
   tradingviewUsername:      varchar("tradingview_username", { length: 255 }),
   indicatorRequestedAt:     timestamp("indicator_requested_at", { withTimezone: true }),
   indicatorInvitedAt:       timestamp("indicator_invited_at", { withTimezone: true }),

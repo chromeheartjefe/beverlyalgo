@@ -387,7 +387,7 @@ export function AiChartAnalyserPreview() {
                *   />
                * ─────────────────────────────────────────────────────────────
                */}
-              <div className="w-full max-w-sm">
+              <div className="flex h-[440px] w-full max-w-sm flex-col justify-center overflow-hidden lg:h-auto lg:overflow-visible">
                 <AnimatePresence mode="wait">
                   {phase === "upload"    && <UploadPhase    key="upload" />}
                   {phase === "analyzing" && <AnalyzingPhase key="analyzing" />}
