@@ -16,6 +16,13 @@ import { UserFacingError } from "@/lib/user-error"
 // the window returns this same cached result at zero API/AI cost.
 const REFRESH_MS = 60 * 60 * 1000
 
+// At most one real scan per this window across all users and instances.
+// Without it, everyone who clicked Scan right after the hour expired ran
+// their own scan (3x the Alpha Vantage 25/day quota, the Twelve Data 8/min
+// cap and the AI cost), and a failed scan left the cache expired so every
+// following click retried the external APIs immediately.
+const SCAN_LOCK_MS = 5 * 60 * 1000
+
 export type ScreenerTicker = {
   symbol:         string
   assetType:      "stock" | "crypto"
@@ -110,6 +117,12 @@ export async function POST() {
       { error: "The AI Screener is temporarily unavailable due to high demand. Please try again later." },
       { status: 503 },
     )
+  }
+
+  const mayScan = await checkRateLimit("screener-scan", 1, SCAN_LOCK_MS)
+  if (!mayScan) {
+    if (cachedResult) return NextResponse.json({ result: { ...cachedResult, stale: true } })
+    return NextResponse.json({ error: "A market scan is already running. Please try again in a minute." }, { status: 503 })
   }
 
   try {
