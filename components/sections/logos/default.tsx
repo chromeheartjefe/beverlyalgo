@@ -107,7 +107,7 @@ function BacktestCard({ backtest }: { backtest: Backtest }) {
 
 export default function Logos({
   title = "Results speak for themselves",
-  description = "Four independent TradingView Strategy Tester backtests across BTC, ETH, SOL, and XRP — same signal engine every subscriber runs, unedited results over the same 19-day window.",
+  description = "Four independent TradingView Strategy Tester backtests across BTC, ETH, SOL, and XRP, all on the same signal engine every subscriber runs. Unedited results over the same 19-day window.",
   badge = (
     <Badge variant="outline" className="border-brand/30 text-brand">
       Backtested · Aug 3 – 22, 2026

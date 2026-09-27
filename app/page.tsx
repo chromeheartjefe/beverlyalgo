@@ -9,6 +9,7 @@ import { HeroSection } from "../components/ui/hero-section-1";
 const AiChartAnalyserPreview = dynamic(() => import("../components/ui/ai-chart-analyser-preview").then((m) => m.AiChartAnalyserPreview));
 const AiChatbotPreview       = dynamic(() => import("../components/ui/ai-chatbot-preview").then((m) => m.AiChatbotPreview));
 const AiIndicatorPreview     = dynamic(() => import("../components/ui/ai-indicator-preview").then((m) => m.AiIndicatorPreview));
+const AiScreenerPreview      = dynamic(() => import("../components/ui/ai-screener-preview").then((m) => m.AiScreenerPreview));
 const FeaturesGrid           = dynamic(() => import("../components/ui/features-grid").then((m) => m.FeaturesGrid));
 const Logos                  = dynamic(() => import("../components/sections/logos/default"));
 const QuickStartGuide        = dynamic(() => import("../components/sections/quick-start/default"));
@@ -32,6 +33,9 @@ export default function Home() {
 
       {/* AI Trading Indicator preview — mini looped candle chart with buy/sell signals */}
       <AiIndicatorPreview />
+
+      {/* AI Screener preview — radar scan into ranked crypto/stock picks */}
+      <AiScreenerPreview />
 
       <div id="features">
         <FeaturesGrid />

@@ -30,7 +30,7 @@ export default function FAQ({
       answer: (
         <>
           <p className="text-muted-foreground mb-4 max-w-[640px] text-balance">
-            EntrixAlgo is a web dashboard for traders — sign in from any browser, desktop or mobile.
+            EntrixAlgo is a web dashboard for traders that you can sign in to from any browser, desktop or mobile.
             It bundles AI chart analysis, a trade journal, and a risk calculator, plus an AI trading assistant to chat with.
           </p>
           <p className="text-muted-foreground mb-4 max-w-[640px] text-balance">
@@ -44,7 +44,7 @@ export default function FAQ({
       answer: (
         <>
           <p className="text-muted-foreground mb-4 max-w-[600px]">
-            Yes. Upload a screenshot of any chart — crypto, stocks, ETFs, or indices — and the AI reads it, no matter where the chart came from.
+            Yes. Upload a screenshot of any chart (crypto, stocks, ETFs, or indices) and the AI reads it, no matter where the chart came from.
           </p>
           <p className="text-muted-foreground mb-4 max-w-[600px]">
             It adapts well to different timeframes and asset classes.
@@ -92,7 +92,7 @@ export default function FAQ({
       answer: (
         <>
           <p className="text-muted-foreground mb-4 max-w-[580px]">
-          No, EntrixAlgo does not place trades for you. Chart analysis, the indicator, and the AI assistant all surface information and signals — you remain in full control of when and how you execute trades.
+          No, EntrixAlgo does not place trades for you. Chart analysis, the indicator, and the AI assistant all surface information and signals, while you remain in full control of when and how you execute trades.
           </p>
         </>
       ),

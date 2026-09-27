@@ -1,5 +1,6 @@
 import "@/app/globals.css";
 
+import { GoogleAnalytics } from "@next/third-parties/google";
 import type { Metadata } from "next";
 import { Toaster } from "sonner";
 
@@ -87,6 +88,11 @@ export default function RootLayout({
           }}
         />
       </body>
+      {/* Safe to leave unset locally, same as NEXT_PUBLIC_SENTRY_DSN — no-ops
+          (nothing rendered) when unset instead of sending dev-machine events. */}
+      {process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID && (
+        <GoogleAnalytics gaId={process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID} />
+      )}
     </html>
   );
 }

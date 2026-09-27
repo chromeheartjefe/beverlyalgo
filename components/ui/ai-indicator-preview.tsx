@@ -8,7 +8,7 @@ import { Reveal } from "@/components/ui/reveal"
 
 export function AiIndicatorPreview() {
   return (
-    <section className="relative bg-black pb-20 pt-3 md:pb-28 md:pt-4">
+    <section className="relative bg-black pb-3 pt-3 md:pb-4 md:pt-4">
       <div className="mx-auto max-w-7xl px-6">
         {/* Outer card */}
         <Reveal className="relative overflow-hidden rounded-3xl border border-white/[0.07] bg-[#070712] shadow-2xl shadow-black/60">
@@ -32,8 +32,8 @@ export function AiIndicatorPreview() {
               {/* Body copy */}
               <p className="mt-5 text-base leading-relaxed text-gray-400">
                 The invite-only TradingView script this whole product started with.
-                Buy and sell signals appear directly on your chart as price moves —
-                no tab switching, no manual analysis.
+                Buy and sell signals appear directly on your chart as price moves.
+                No tab switching, no manual analysis.
               </p>
 
               {/* Feature bullets */}

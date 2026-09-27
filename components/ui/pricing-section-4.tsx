@@ -17,7 +17,7 @@ const FEATURES = [
   "AI trading assistant chat",
   "Pattern recognition & signal detection",
   "Entry, target, and stop-loss levels",
-  "Trade journal & risk calculator, included free",
+  "AI Screener, trade journal & risk calculator, included free",
   "Priority support",
   "Early feature access",
 ];

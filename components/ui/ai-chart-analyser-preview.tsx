@@ -23,7 +23,8 @@ const RESULT_ROWS = [
   { label: "Entry",       value: "$68,420", accent: "text-gray-200" },
   { label: "Take Profit", value: "$78,500", accent: "text-emerald-400" },
   { label: "Stop Loss",   value: "$62,100", accent: "text-red-400" },
-  { label: "R:R Ratio",   value: "2.6",     accent: "text-gray-200" },
+  // (78,500 - 68,420) / (68,420 - 62,100) = 1.6
+  { label: "Risk : Reward", value: "1:1.6", accent: "text-gray-200" },
 ]
 
 // [x, bodyTop, bodyBottom, wickTop, wickBottom, isGreen]
@@ -124,7 +125,7 @@ function UploadPhase() {
       </motion.div>
 
       <p className="mt-4 text-sm font-semibold text-gray-300">Drop your chart here</p>
-      <p className="mt-1 text-xs text-gray-600">PNG, JPG — any timeframe</p>
+      <p className="mt-1 text-xs text-gray-600">PNG or JPG, any timeframe</p>
     </motion.div>
   )
 }

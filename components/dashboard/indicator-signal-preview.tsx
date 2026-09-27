@@ -104,7 +104,7 @@ export function IndicatorSignalPreview({
       </div>
 
       <p className="relative z-10 mt-4 text-center text-[11px] text-gray-600">
-        Live example — signals render directly on your TradingView chart
+        Live example of signals rendered directly on your TradingView chart
       </p>
     </div>
   )
