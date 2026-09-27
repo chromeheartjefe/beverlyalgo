@@ -190,6 +190,9 @@ export async function POST() {
         }
       })
       .filter((t): t is ScreenerTicker => t !== null)
+      // A symbol picked twice would show up as two cards (and duplicate React
+      // keys); keep only its first, highest-ranked occurrence.
+      .filter((t, i, all) => all.findIndex((o) => o.symbol === t.symbol) === i)
 
     // The UI always shows 5 crypto + 5 stocks side by side — if the AI came
     // back short on either side (non-compliance, or a duplicate pick), fill
