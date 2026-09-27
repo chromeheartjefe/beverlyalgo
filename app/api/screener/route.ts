@@ -150,6 +150,13 @@ export async function POST() {
       ],
     })
 
+    // Recorded before any check below can throw: a refused, truncated or
+    // unusable reply was still paid for, and the monthly budget must see it
+    // (same as Chart Analysis and the AI Trading Bot).
+    if (completion.usage) {
+      await recordAiUsage("screener", completion.usage.prompt_tokens, completion.usage.completion_tokens)
+    }
+
     const choice     = completion.choices[0]
     const raw        = choice?.message?.content
     const stopReason = choice?.finish_reason
@@ -223,10 +230,6 @@ export async function POST() {
 
     const result: ScreenerResult = { tickers, generatedAt: new Date().toISOString(), stale: false }
     await writeCache(result)
-
-    if (completion.usage) {
-      await recordAiUsage("screener", completion.usage.prompt_tokens, completion.usage.completion_tokens)
-    }
 
     return NextResponse.json({ result })
 
