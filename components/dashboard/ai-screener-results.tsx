@@ -430,6 +430,13 @@ function CategoryBlock({ children }: { children: React.ReactNode }) {
   )
 }
 
+function stocksAge(iso: string): string {
+  const mins = Math.max(0, Math.round((Date.now() - new Date(iso).getTime()) / 60000))
+  if (mins < 60) return `${mins}m ago`
+  const hours = Math.round(mins / 60)
+  return hours < 48 ? `${hours}h ago` : `${Math.round(hours / 24)}d ago`
+}
+
 export function ScreenerResults({ result }: { result: ScreenerResult }) {
   const crypto = result.tickers.filter((t) => t.assetType === "crypto")
   const stocks = result.tickers.filter((t) => t.assetType === "stock")
@@ -438,7 +445,7 @@ export function ScreenerResults({ result }: { result: ScreenerResult }) {
     <div className="space-y-4">
       {result.stale && (
         <div className="rounded-xl border border-amber-500/20 bg-amber-500/[0.06] px-4 py-2.5 text-xs text-amber-300">
-          Showing the last completed scan — a fresh scan couldn&apos;t complete just now, please try again shortly.
+          Showing the last completed scan. A fresh scan couldn&apos;t run just now, please try again shortly.
         </div>
       )}
 
@@ -454,6 +461,11 @@ export function ScreenerResults({ result }: { result: ScreenerResult }) {
 
         <CategoryBlock>
           <ColumnHeader label="Stocks" count={stocks.length} icon={LineChart} />
+          {result.stocksAsOf && stocks.length > 0 && (
+            <p className="-mt-1 mb-3 text-[11px] text-amber-300/80">
+              Stock prices from the previous scan, {stocksAge(result.stocksAsOf)}. Live stock data was unavailable this time.
+            </p>
+          )}
           {stocks.length === 0 ? (
             <p className="text-xs text-gray-600">
               Stock picks are temporarily unavailable. Crypto picks are still live, try scanning again later for stocks.

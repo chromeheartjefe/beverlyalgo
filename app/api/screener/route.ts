@@ -35,7 +35,9 @@ export type ScreenerTicker = {
 export type ScreenerResult = {
   tickers:     ScreenerTicker[]
   generatedAt: string
-  stale:       boolean // true when a fresh scan was skipped (missing key / budget hit) and this is a carried-over result
+  stale:       boolean // true when a fresh scan was skipped or failed and this is an older result
+  /** Set when the stock picks were carried over from an earlier scan: when those prices are from */
+  stocksAsOf?: string
 }
 
 const SYSTEM = `You are a market screener for a trading platform, picking which tickers are most worth a trader's attention right now. You are given real, already-computed 24h price/volume movers, not raw prices, do not invent tickers or numbers outside what is given.
@@ -105,14 +107,14 @@ export async function POST() {
   }
 
   if (!process.env.OPENAI_API_KEY) {
-    if (cachedResult) return NextResponse.json({ result: cachedResult })
+    if (cachedResult) return NextResponse.json({ result: { ...cachedResult, stale: true } })
     console.error("[/api/screener] OPENAI_API_KEY is not set")
     return NextResponse.json({ error: "The AI Screener is temporarily unavailable. Please try again later." }, { status: 503 })
   }
 
   // Shares the same monthly $ ceiling as Chart Analysis / chat — see lib/ai-budget.ts.
   if (await isBudgetExceeded()) {
-    if (cachedResult) return NextResponse.json({ result: cachedResult })
+    if (cachedResult) return NextResponse.json({ result: { ...cachedResult, stale: true } })
     return NextResponse.json(
       { error: "The AI Screener is temporarily unavailable due to high demand. Please try again later." },
       { status: 503 },
@@ -221,14 +223,22 @@ export async function POST() {
     // the stocks column to "no data" for the next hour, carry the previous
     // scan's stocks forward — same "never blank on a failed refresh"
     // principle lib/market-data.ts already uses for the index ticker.
+    // Carried-over stocks keep the time their prices are actually from, so the
+    // UI can say so instead of presenting old prices as just scanned.
     const previousStocks = cachedResult?.tickers.filter((t) => t.assetType === "stock") ?? []
-    const finalStockPicks = stockPicks.length > 0 ? stockPicks : previousStocks
+    const carryStocks = stockPicks.length === 0 && previousStocks.length > 0
+    const finalStockPicks = carryStocks ? previousStocks : stockPicks
 
     const tickers = [...cryptoPicks, ...finalStockPicks]
 
     if (tickers.length === 0) throw new UserFacingError("The scan couldn't find any picks right now. Please try again shortly.")
 
-    const result: ScreenerResult = { tickers, generatedAt: new Date().toISOString(), stale: false }
+    const result: ScreenerResult = {
+      tickers,
+      generatedAt: new Date().toISOString(),
+      stale: false,
+      ...(carryStocks ? { stocksAsOf: cachedResult?.stocksAsOf ?? cachedResult?.generatedAt } : {}),
+    }
     await writeCache(result)
 
     return NextResponse.json({ result })
