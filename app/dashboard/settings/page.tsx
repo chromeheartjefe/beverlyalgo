@@ -119,6 +119,7 @@ export default function SettingsPage() {
   const [pwSaving,         setPwSaving]        = useState(false)
   const [pwError,          setPwError]         = useState("")
   const [pwSaved,          setPwSaved]         = useState(false)
+  const [pwRelogin,        setPwRelogin]       = useState(false)
 
   useEffect(() => {
     // Wait for the session to resolve to an actual signed-in user before
@@ -297,10 +298,22 @@ export default function SettingsPage() {
       // The change signed out every session, this one included (see auth.ts),
       // so sign this browser back in with the new password.
       const email = savedEmail || session?.user?.email
-      if (email) await signIn("credentials", { email, password: newPassword, redirect: false })
+      const again = email
+        ? await signIn("credentials", { email, password: newPassword, redirect: false }).catch(() => null)
+        : null
       setCurrentPassword("")
       setNewPassword("")
       setConfirmPassword("")
+      if (!again || again.error) {
+        // The password IS changed; only this browser's automatic sign-in
+        // failed (e.g. rate limited or offline). Say so, then go to sign-in
+        // instead of looking signed in until the next request drops us.
+        setPwRelogin(true)
+        setTimeout(() => {
+          window.location.href = "/sign-in?callbackUrl=/dashboard/settings"
+        }, 3000)
+        return
+      }
       setPwSaved(true)
       setTimeout(() => setPwSaved(false), 2500)
     } catch {
@@ -579,6 +592,11 @@ export default function SettingsPage() {
                 {pwSaving ? "Updating…" : "Update Password"}
               </Button>
               {pwSaved && <span role="status" className="text-xs text-emerald-400">Password updated.</span>}
+              {pwRelogin && (
+                <span role="status" className="text-xs text-amber-300">
+                  Password changed. Please sign in again with your new password, redirecting…
+                </span>
+              )}
             </div>
           </div>
         </SectionCard>
