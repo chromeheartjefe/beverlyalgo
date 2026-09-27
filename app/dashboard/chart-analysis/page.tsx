@@ -1,13 +1,14 @@
 "use client"
 
 import { AnimatePresence, motion } from "framer-motion"
-import { Clock, CloudUpload, Loader2, XCircle, Zap } from "lucide-react"
+import { Clock, CloudUpload, Lightbulb, Loader2, Minus, Ruler, Tag, TrendingDown, TrendingUp, XCircle, Zap, ZoomIn } from "lucide-react"
 import dynamic from "next/dynamic"
 import { useSession } from "next-auth/react"
 import { useCallback, useMemo, useState } from "react"
 import useSWR from "swr"
 
 import { FeatureLock } from "@/components/dashboard/feature-lock"
+import { ApiError, requestJson, userMessage } from "@/lib/api-client"
 import { fetcher } from "@/lib/swr"
 import { cn } from "@/lib/utils"
 
@@ -48,6 +49,13 @@ export type AnalysisResult = {
   volatility:      "Low" | "Medium" | "High"
   patternStrength: "Low" | "Medium" | "High"
   trendAlignment:  "Weak" | "Moderate" | "Strong"
+  // v2 only (optional so dev-only v1 results still render)
+  entryType?:      "market" | "limit" | null
+  /** NEUTRAL: prices that would turn it into a long / short */
+  watch?:          { longAbove: number | null; shortBelow: number | null }
+  /** Non-blocking screenshot advice, e.g. Heikin Ashi or covered candles */
+  tips?:           string[]
+  checks?:         Record<string, boolean>
 }
 
 // ─── Recent analyses (DB-backed) ─────────────────────────────────────────────
@@ -85,13 +93,22 @@ function timeAgo(ts: number): string {
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
-const fmtPrice = (n: number | null) =>
-  n !== null ? `$${n.toLocaleString(undefined, { maximumFractionDigits: 2 })}` : "—"
+// Scales decimal precision with price magnitude so sub-$1 assets (e.g. ADA at
+// 0.2055) don't collapse into indistinguishable 2-decimal values in history.
+const fmtPrice = (n: number | null) => {
+  if (n === null) return "—"
+  const abs = Math.abs(n)
+  const decimals = abs >= 1 ? 2 : abs >= 0.01 ? 4 : abs >= 0.0001 ? 6 : 8
+  return `$${n.toLocaleString(undefined, { minimumFractionDigits: decimals, maximumFractionDigits: decimals })}`
+}
 
-// Downscale to ≤768 px on the longest edge and re-encode as JPEG 0.85.
-// 768 px still keeps price labels legible while halving tile count under
-// detail:"auto" (1–2 tiles, ~255–425 tokens vs ~425–765 at 1024 px).
-function resizeForUpload(file: File, maxPx = 768): Promise<Blob> {
+// Downscale to ≤1536 px on the longest edge and re-encode as JPEG 0.92.
+// 768 px used to be the cap here, but it crushed the Y-axis on sub-$1 pairs:
+// tightly packed 4-decimal labels (e.g. 0.2088/0.2086/0.2084 a few px apart)
+// blurred into illegibility, so the model guessed a "plausible" price from
+// training priors instead of reading the chart. Wrong entry/SL/TP costs real
+// money here, so legibility wins over shaving a bit of image-token cost.
+function resizeForUpload(file: File, maxPx = 1536): Promise<Blob> {
   return new Promise((resolve, reject) => {
     const img = new Image()
     const src = URL.createObjectURL(file)
@@ -102,7 +119,7 @@ function resizeForUpload(file: File, maxPx = 768): Promise<Blob> {
       canvas.width  = Math.round(img.width  * scale)
       canvas.height = Math.round(img.height * scale)
       canvas.getContext("2d")!.drawImage(img, 0, 0, canvas.width, canvas.height)
-      canvas.toBlob((blob) => blob ? resolve(blob) : reject(new Error("Resize failed")), "image/jpeg", 0.85)
+      canvas.toBlob((blob) => blob ? resolve(blob) : reject(new Error("Resize failed")), "image/jpeg", 0.92)
     }
     img.onerror = () => { URL.revokeObjectURL(src); reject(new Error("Image load failed")) }
     img.src = src
@@ -372,18 +389,160 @@ function AnalyzingView({ filename }: { filename: string }) {
 
 // ─── Visual tip cards ─────────────────────────────────────────────────────────
 
-function TipCard({ graphic, title, desc }: {
+// Same accent language as the landing features grid (hairline, corner glow,
+// gradient icon tile). Full class strings only, so Tailwind can see them.
+const TIP_ACCENTS = {
+  sky: {
+    line:    "via-sky-400/70",
+    blob:    "bg-sky-500/10 group-hover:bg-sky-500/20",
+    border:  "hover:border-sky-400/30",
+    tile:    "border-sky-400/30 bg-gradient-to-br from-sky-500/25 to-cyan-600/5",
+    icon:    "text-sky-300",
+    eyebrow: "text-sky-300/90",
+  },
+  violet: {
+    line:    "via-fuchsia-400/70",
+    blob:    "bg-fuchsia-500/10 group-hover:bg-fuchsia-500/20",
+    border:  "hover:border-fuchsia-400/30",
+    tile:    "border-fuchsia-400/30 bg-gradient-to-br from-fuchsia-500/25 to-violet-600/5",
+    icon:    "text-fuchsia-300",
+    eyebrow: "text-fuchsia-300/90",
+  },
+  emerald: {
+    line:    "via-emerald-400/70",
+    blob:    "bg-emerald-500/10 group-hover:bg-emerald-500/20",
+    border:  "hover:border-emerald-400/30",
+    tile:    "border-emerald-400/30 bg-gradient-to-br from-emerald-500/25 to-teal-600/5",
+    icon:    "text-emerald-300",
+    eyebrow: "text-emerald-300/90",
+  },
+} as const
+
+function TipCard({ step, accent, icon: Icon, graphic, title, desc }: {
+  step: string
+  accent: keyof typeof TIP_ACCENTS
+  icon: React.ComponentType<{ className?: string; strokeWidth?: number }>
   graphic: React.ReactNode
   title: string
   desc: string
 }) {
+  const a = TIP_ACCENTS[accent]
   return (
-    <div className="overflow-hidden rounded-lg border border-white/[0.07]">
-      <div className="bg-[#05050f] p-2">{graphic}</div>
-      <div className="border-t border-white/[0.04] px-2.5 py-1.5">
-        <p className="text-[10px] font-semibold tracking-wide text-white/90">{title}</p>
-        <p className="text-[9px] leading-snug text-white/30">{desc}</p>
+    <div className={cn(
+      "group relative overflow-hidden rounded-xl border border-white/[0.07] bg-[#070712] transition-colors duration-300",
+      a.border,
+    )}>
+      <span className={cn("pointer-events-none absolute inset-x-6 top-0 h-px bg-gradient-to-r from-transparent to-transparent", a.line)} />
+      <div className={cn("pointer-events-none absolute -right-12 -top-14 size-32 rounded-full blur-2xl transition-colors duration-500", a.blob)} />
+
+      <div className="relative flex items-start gap-3 px-3.5 pt-3.5">
+        <div className={cn("flex size-8 shrink-0 items-center justify-center rounded-lg border", a.tile)}>
+          <Icon className={cn("size-4", a.icon)} strokeWidth={1.75} />
+        </div>
+        <div className="min-w-0">
+          <span className={cn("text-[10px] font-semibold uppercase tracking-[0.18em]", a.eyebrow)}>Tip {step}</span>
+          <p className="text-[13px] font-semibold leading-snug text-white">{title}</p>
+        </div>
       </div>
+      <p className="relative px-3.5 pt-2 text-xs leading-relaxed text-gray-400">{desc}</p>
+
+      <div className="relative mx-3.5 mb-3.5 mt-3 rounded-lg border border-white/[0.05] bg-[#05050f] p-2">
+        {graphic}
+        {/* Columns line up with the SVG's two 80/168-wide panels */}
+        <div className="mt-1.5 grid grid-cols-2 gap-x-[4.8%] text-[10px] font-semibold uppercase tracking-wider">
+          <span className="text-red-400/80">Avoid</span>
+          <span className="text-emerald-400/90">Do this</span>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+// ─── Recent analysis cards ────────────────────────────────────────────────────
+// Same shell as the tip cards, but the accent follows the signal, not the step.
+
+const SIGNAL_ACCENTS = {
+  BUY: {
+    icon:  TrendingUp,
+    line:  "via-emerald-400/70",
+    blob:  "bg-emerald-500/10",
+    tile:  "border-emerald-400/30 bg-gradient-to-br from-emerald-500/25 to-teal-600/5 text-emerald-300",
+    badge: "border-emerald-400/25 bg-emerald-500/10 text-emerald-300",
+    bar:   "from-emerald-500 to-teal-300",
+  },
+  SELL: {
+    icon:  TrendingDown,
+    line:  "via-rose-400/70",
+    blob:  "bg-rose-500/10",
+    tile:  "border-rose-400/30 bg-gradient-to-br from-rose-500/25 to-red-600/5 text-rose-300",
+    badge: "border-rose-400/25 bg-rose-500/10 text-rose-300",
+    bar:   "from-rose-500 to-red-300",
+  },
+  NEUTRAL: {
+    icon:  Minus,
+    line:  "via-amber-400/70",
+    blob:  "bg-amber-500/10",
+    tile:  "border-amber-400/30 bg-gradient-to-br from-amber-500/25 to-yellow-600/5 text-amber-300",
+    badge: "border-amber-400/25 bg-amber-500/10 text-amber-300",
+    bar:   "from-amber-500 to-yellow-300",
+  },
+} as const
+
+function RecentCard({ r }: { r: RecentEntry }) {
+  const a = SIGNAL_ACCENTS[r.signal] ?? SIGNAL_ACCENTS.NEUTRAL
+  const Icon = a.icon
+  const conf = Math.max(0, Math.min(100, Math.round(r.confidence)))
+  return (
+    <div className="relative overflow-hidden rounded-xl border border-white/[0.07] bg-[#070712] px-3.5 py-3">
+      <span className={cn("pointer-events-none absolute inset-x-6 top-0 h-px bg-gradient-to-r from-transparent to-transparent", a.line)} />
+      <div className={cn("pointer-events-none absolute -right-10 -top-12 size-24 rounded-full blur-2xl", a.blob)} />
+
+      <div className="relative flex items-center gap-3">
+        <div className={cn("flex size-8 shrink-0 items-center justify-center rounded-lg border", a.tile)}>
+          <Icon className="size-4" strokeWidth={1.75} />
+        </div>
+
+        <div className="min-w-0 flex-1">
+          <div className="flex items-center gap-1.5">
+            <span className="truncate text-[13px] font-semibold text-white">{r.pair}</span>
+            <span className="shrink-0 rounded-md border border-white/[0.08] bg-white/[0.05] px-1.5 py-0.5 text-[10px] font-medium text-gray-400">
+              {r.timeframe}
+            </span>
+          </div>
+          <p className="mt-0.5 text-xs text-gray-500">
+            Entry{" "}
+            <span className="font-mono font-medium text-gray-200">{fmtPrice(r.entry)}</span>
+          </p>
+        </div>
+
+        <div className="flex shrink-0 flex-col items-end gap-1">
+          <span className={cn("rounded-full border px-2 py-0.5 text-[10px] font-bold leading-none tracking-wide", a.badge)}>
+            {r.signal}
+          </span>
+          <span className="text-[11px] text-gray-500">{timeAgo(r.ts)}</span>
+        </div>
+      </div>
+
+      {/* Confidence (NEUTRAL is "no trade" and has none) */}
+      {r.signal === "NEUTRAL" ? (
+        <p className="relative mt-3 text-[11px] text-amber-200/70">No trade, waiting for a better setup</p>
+      ) : (
+      <div className="relative mt-3 flex items-center gap-2.5">
+        <div
+          className="h-1 flex-1 overflow-hidden rounded-full bg-white/[0.06]"
+          role="meter"
+          aria-label="Confidence"
+          aria-valuemin={0}
+          aria-valuemax={100}
+          aria-valuenow={conf}
+        >
+          <div className={cn("h-full rounded-full bg-gradient-to-r", a.bar)} style={{ width: `${conf}%` }} />
+        </div>
+        <span className="w-16 text-right text-[11px] text-gray-500">
+          <span className="font-semibold text-gray-300">{conf}%</span> conf.
+        </span>
+      </div>
+      )}
     </div>
   )
 }
@@ -424,8 +583,8 @@ function CandleGroup({ ox, candles = ILL }: { ox: number; candles?: readonly Can
         const c = bull ? "#34d399" : "#f87171"
         return (
           <g key={i}>
-            <line x1={x + 1.5} y1={wT} x2={x + 1.5} y2={wB} stroke={c} strokeWidth="0.5" opacity="0.4" />
-            <rect x={x} y={bT} width="3" height={bB - bT} rx="0.4" fill={c} opacity="0.36" />
+            <line x1={x + 1.5} y1={wT} x2={x + 1.5} y2={wB} stroke={c} strokeWidth="0.5" opacity="0.6" />
+            <rect x={x} y={bT} width="3" height={bB - bT} rx="0.4" fill={c} opacity="0.62" />
           </g>
         )
       })}
@@ -459,7 +618,7 @@ function TipZoomSVG() {
       <rect x="0.5" y="0.5" width="79" height="42" rx="3" fill="#07070d" stroke="#ffffff0e" />
       <PanelGrid x={0.5} w={79} />
       <CandleGroup ox={3} />
-      <path d={MA_L} fill="none" stroke="#6d66f0" strokeWidth="0.65" opacity="0.3" strokeLinecap="round" />
+      <path d={MA_L} fill="none" stroke="#818cf8" strokeWidth="0.65" opacity="0.6" strokeLinecap="round" />
       <line x1="44" y1="3" x2="44" y2="41" stroke="#fff" strokeWidth="0.3" opacity="0.06" />
       {/* Actual numbers, just tiny + dim = unreadable at a glance */}
       <text x="46" y="12" fontSize="3.8" fontWeight="500" fill="#252850" fontFamily="monospace">1,919</text>
@@ -471,8 +630,8 @@ function TipZoomSVG() {
       <rect x="88.5" y="0.5" width="79" height="42" rx="3" fill="#07070d" stroke="#ffffff0e" />
       <PanelGrid x={88.5} w={79} />
       <CandleGroup ox={91} />
-      <path d={MA_R} fill="none" stroke="#6d66f0" strokeWidth="0.65" opacity="0.3" strokeLinecap="round" />
-      <line x1="88.5" y1="6" x2="132" y2="6" stroke="#a855f7" strokeWidth="0.3" strokeDasharray="1.5 1.5" opacity="0.18" />
+      <path d={MA_R} fill="none" stroke="#818cf8" strokeWidth="0.65" opacity="0.6" strokeLinecap="round" />
+      <line x1="88.5" y1="6" x2="132" y2="6" stroke="#a855f7" strokeWidth="0.3" strokeDasharray="1.5 1.5" opacity="0.4" />
       <line x1="132" y1="3" x2="132" y2="41" stroke="#fff" strokeWidth="0.3" opacity="0.06" />
       <line x1="130.5" y1="12" x2="132" y2="12" stroke="#fff" strokeWidth="0.3" opacity="0.18" />
       <line x1="130.5" y1="22" x2="132" y2="22" stroke="#fff" strokeWidth="0.3" opacity="0.18" />
@@ -505,7 +664,7 @@ function TipTickerSVG() {
       <rect x="0.5" y="0.5" width="79" height="42" rx="3" fill="#07070d" stroke="#ffffff0e" />
       <PanelGrid x={0.5} w={79} />
       <CandleGroup ox={3} />
-      <path d={MA_L} fill="none" stroke="#6d66f0" strokeWidth="0.65" opacity="0.3" strokeLinecap="round" />
+      <path d={MA_L} fill="none" stroke="#818cf8" strokeWidth="0.65" opacity="0.6" strokeLinecap="round" />
       <BadgeX x={2} y={2} />
 
       {/* ── ✓ Right: header — [✓] ETH/USDT [5m] ─── */}
@@ -530,7 +689,7 @@ function TipTickerSVG() {
       {/* Candles — start at y≥18, well below header bottom at y=13.5 */}
       <CandleGroup ox={91} candles={tickerIll} />
       <path d="M 92.5,39.6 C 95,36.7 98,33.8 100.5,30.9 C 103,29.5 106,28.1 108.5,26.6 C 111,25.2 114,24.5 116.5,23 C 119,22.3 122,20.9 124.5,20.2"
-        fill="none" stroke="#6d66f0" strokeWidth="0.65" opacity="0.3" strokeLinecap="round" />
+        fill="none" stroke="#818cf8" strokeWidth="0.65" opacity="0.6" strokeLinecap="round" />
 
     </svg>
   )
@@ -555,7 +714,7 @@ function TipPriceAxisSVG() {
       <PanelGrid x={0.5} w={79} />
       <CandleGroup ox={2} candles={wide} />
       <path d="M 3.5,8 C 6,12 9,15 11.5,19 C 14,16 17,14 19.5,11 C 22,15 25,18 27.5,22 C 30,20 33,17 35.5,15 C 38,19 41,22 43.5,26 C 46,24 49,21 51.5,19 C 54,18 57,16 59.5,15"
-        fill="none" stroke="#6d66f0" strokeWidth="0.65" opacity="0.3" strokeLinecap="round" />
+        fill="none" stroke="#818cf8" strokeWidth="0.65" opacity="0.6" strokeLinecap="round" />
       <defs>
         <linearGradient id="priceAxisFade" x1="0" y1="0" x2="1" y2="0">
           <stop offset="0%"   stopColor="#07070d" stopOpacity="0" />
@@ -569,8 +728,8 @@ function TipPriceAxisSVG() {
       <rect x="88.5" y="0.5" width="79" height="42" rx="3" fill="#07070d" stroke="#ffffff0e" />
       <PanelGrid x={88.5} w={79} />
       <CandleGroup ox={91} />
-      <path d={MA_R} fill="none" stroke="#6d66f0" strokeWidth="0.65" opacity="0.3" strokeLinecap="round" />
-      <line x1="88.5" y1="6" x2="132" y2="6" stroke="#a855f7" strokeWidth="0.3" strokeDasharray="1.5 1.5" opacity="0.18" />
+      <path d={MA_R} fill="none" stroke="#818cf8" strokeWidth="0.65" opacity="0.6" strokeLinecap="round" />
+      <line x1="88.5" y1="6" x2="132" y2="6" stroke="#a855f7" strokeWidth="0.3" strokeDasharray="1.5 1.5" opacity="0.4" />
       <line x1="132" y1="3" x2="132" y2="41" stroke="#fff" strokeWidth="0.3" opacity="0.06" />
       <line x1="130.5" y1="12" x2="132" y2="12" stroke="#fff" strokeWidth="0.3" opacity="0.18" />
       <line x1="130.5" y1="22" x2="132" y2="22" stroke="#fff" strokeWidth="0.3" opacity="0.18" />
@@ -586,6 +745,47 @@ function TipPriceAxisSVG() {
   )
 }
 
+// ─── Dev-only logic switch ────────────────────────────────────────────────────
+// Local `next dev` only: picks which lib/chart-analysis variant the API runs.
+// process.env.NODE_ENV is inlined at build time, so production builds drop
+// this entirely, and the API ignores the field outside development anyway.
+// Hidden by default even in dev; set NEXT_PUBLIC_SHOW_DEV_LOGIC_SWITCH=1 in
+// .env.local (and restart `next dev`) to compare v1 aggressive against v2.
+const SHOW_DEV_LOGIC_SWITCH =
+  process.env.NODE_ENV === "development" && process.env.NEXT_PUBLIC_SHOW_DEV_LOGIC_SWITCH === "1"
+
+const DEV_VARIANTS = [
+  { id: "v2",            label: "v2 (production)" },
+  { id: "v1-aggressive", label: "v1 aggressive" },
+] as const
+
+type DevVariantId = (typeof DEV_VARIANTS)[number]["id"]
+
+function DevLogicSwitch({ value, onChange }: { value: DevVariantId; onChange: (v: DevVariantId) => void }) {
+  return (
+    <div className="mt-4 inline-flex flex-wrap items-center gap-2 rounded-xl border border-dashed border-amber-400/40 bg-amber-500/[0.06] px-3 py-2">
+      <span className="text-xs font-semibold text-amber-300">Dev only</span>
+      <span className="text-xs text-amber-200/70">Analysis logic:</span>
+      <div className="flex gap-1">
+        {DEV_VARIANTS.map((v) => (
+          <button
+            key={v.id}
+            type="button"
+            onClick={() => onChange(v.id)}
+            aria-pressed={value === v.id}
+            className={cn(
+              "rounded-lg px-2.5 py-1 text-xs font-medium transition-colors",
+              value === v.id ? "bg-amber-400/20 text-amber-100" : "text-amber-200/60 hover:text-amber-100",
+            )}
+          >
+            {v.label}
+          </button>
+        ))}
+      </div>
+    </div>
+  )
+}
+
 // ─── Main page ────────────────────────────────────────────────────────────────
 
 export default function ChartAnalysisPage() {
@@ -594,6 +794,7 @@ export default function ChartAnalysisPage() {
   const locked = plan === "free"
 
   const [phase,    setPhase]    = useState<Phase>("idle")
+  const [devVariant, setDevVariant] = useState<DevVariantId>("v2")
   const [file,     setFile]     = useState<File | null>(null)
   const [preview,  setPreview]  = useState<string | null>(null)
   const [result,   setResult]   = useState<AnalysisResult | null>(null)
@@ -649,20 +850,19 @@ export default function ChartAnalysisPage() {
     setApiError(null)
 
     try {
-      // Downscale client-side before sending: reduces upload size and
-      // keeps image ≤800 px so detail:"low" (512 px tile, 85 tokens) is optimal.
-      const resized = await resizeForUpload(file)
+      // Downscale client-side before sending, mainly to cap upload size —
+      // see resizeForUpload for why the cap itself is 1536 px, not smaller.
+      const resized = await resizeForUpload(file).catch(() => {
+        throw new ApiError("We couldn't read that image file. Please upload a PNG or JPG screenshot.")
+      })
       const form = new FormData()
       form.append("image", resized, file.name.replace(/\.[^.]+$/, ".jpg"))
+      if (SHOW_DEV_LOGIC_SWITCH) form.append("variant", devVariant)
 
-      const res = await fetch("/api/analyze", { method: "POST", body: form })
-      const data = await res.json()
+      const data = await requestJson<{ analysis?: AnalysisResult }>("/api/analyze", { method: "POST", body: form })
+      if (!data.analysis?.signal) throw new ApiError("We couldn't complete the analysis. Please try again.")
 
-      if (!res.ok) {
-        throw new Error(data.error ?? "Analysis failed. Please try again.")
-      }
-
-      const analysis = data.analysis as AnalysisResult
+      const analysis = data.analysis
       setResult(analysis)
 
       const row: RawAnalysisRow = {
@@ -677,8 +877,7 @@ export default function ChartAnalysisPage() {
       mutateAnalyses((prev) => [row, ...(prev ?? [])], { revalidate: false })
       setPhase("results")
     } catch (err) {
-      const msg = err instanceof Error ? err.message : "Something went wrong."
-      setApiError(msg)
+      setApiError(userMessage(err))
       setPhase("selected")
     }
   }
@@ -704,6 +903,7 @@ export default function ChartAnalysisPage() {
         <p className="mt-1 text-sm text-gray-500">
           Upload any chart screenshot for instant AI-powered pattern recognition and entry/exit signals.
         </p>
+        {SHOW_DEV_LOGIC_SWITCH && <DevLogicSwitch value={devVariant} onChange={setDevVariant} />}
       </div>
 
       {/* 2-column layout */}
@@ -757,87 +957,83 @@ export default function ChartAnalysisPage() {
         {/* Sidebar */}
         <div className="space-y-5">
           <div className="rounded-2xl border border-white/[0.07] bg-white/[0.025] p-5">
-            <h2 className="mb-4 flex items-center gap-2 text-sm font-semibold text-white">
-              <Clock className="size-4 text-gray-500" />
-              Recent Analyses
-            </h2>
+            <div className="mb-4 flex items-center gap-2.5">
+              <div className="flex size-8 items-center justify-center rounded-lg border border-sky-400/30 bg-gradient-to-br from-sky-500/25 to-cyan-600/5">
+                <Clock className="size-4 text-sky-300" strokeWidth={1.75} />
+              </div>
+              <div>
+                <h2 className="text-sm font-semibold text-white">Recent Analyses</h2>
+                <p className="text-xs text-gray-500">Your latest AI signals.</p>
+              </div>
+            </div>
 
             {recentLoading ? (
               <div className="space-y-2.5" aria-hidden="true">
                 {[0, 1, 2].map((i) => (
-                  <div key={i} className="space-y-2 rounded-xl border border-white/[0.05] bg-white/[0.02] px-3.5 py-3">
-                    <div className="flex items-center justify-between">
-                      <div className="h-3.5 w-16 animate-pulse rounded bg-white/[0.06]" />
+                  <div key={i} className="rounded-xl border border-white/[0.07] bg-[#070712] px-3.5 py-3">
+                    <div className="flex items-center gap-3">
+                      <div className="size-8 shrink-0 animate-pulse rounded-lg bg-white/[0.06]" />
+                      <div className="flex-1 space-y-1.5">
+                        <div className="h-3.5 w-20 animate-pulse rounded bg-white/[0.06]" />
+                        <div className="h-3 w-28 animate-pulse rounded bg-white/[0.04]" />
+                      </div>
                       <div className="h-4 w-10 animate-pulse rounded-full bg-white/[0.06]" />
                     </div>
-                    <div className="h-3 w-24 animate-pulse rounded bg-white/[0.04]" />
+                    <div className="mt-3 h-1 w-full animate-pulse rounded-full bg-white/[0.04]" />
                   </div>
                 ))}
               </div>
             ) : recent.length === 0 ? (
-              <div className="flex flex-col items-center gap-2 py-6 text-center">
-                <div className="flex size-10 items-center justify-center rounded-xl border border-white/[0.07] bg-white/[0.03]">
-                  <Clock className="size-4 text-gray-600" />
+              <div className="relative flex flex-col items-center gap-2 overflow-hidden rounded-xl border border-dashed border-white/[0.08] bg-[#070712] py-7 text-center">
+                <div className="flex size-10 items-center justify-center rounded-xl border border-sky-400/20 bg-gradient-to-br from-sky-500/15 to-cyan-600/5">
+                  <Clock className="size-4 text-sky-300/80" strokeWidth={1.75} />
                 </div>
-                <p className="text-xs text-gray-600">No recent analyses yet.</p>
-                <p className="text-[11px] text-gray-700">Your results will appear here.</p>
+                <p className="text-xs font-medium text-gray-400">No recent analyses yet.</p>
+                <p className="text-xs text-gray-600">Your results will appear here.</p>
               </div>
             ) : (
               <div className="space-y-2.5">
                 {recent.map((r) => (
-                  <div
-                    key={r.id}
-                    className="rounded-xl border border-white/[0.05] bg-white/[0.02] px-3.5 py-3"
-                  >
-                    {/* Top row: pair + signal badge */}
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-1.5">
-                        <span className="text-xs font-semibold text-white">{r.pair}</span>
-                        <span className="rounded-md border border-white/[0.08] bg-white/[0.05] px-1.5 py-0.5 text-[10px] text-gray-500">
-                          {r.timeframe}
-                        </span>
-                      </div>
-                      <span className={cn(
-                        "inline-flex items-center justify-center rounded-full px-2 py-0.5 text-[10px] font-bold leading-none",
-                        r.signal === "BUY"     ? "bg-emerald-500/10 text-emerald-400"
-                        : r.signal === "SELL"  ? "bg-red-500/10 text-red-400"
-                        : "bg-yellow-500/10 text-yellow-400",
-                      )}>
-                        {r.signal}
-                      </span>
-                    </div>
-
-                    {/* Bottom row: entry price + time */}
-                    <div className="mt-1.5 flex items-center justify-between">
-                      <span className="text-[11px] text-gray-500">
-                        Entry{" "}
-                        <span className="font-medium text-gray-300">{fmtPrice(r.entry)}</span>
-                      </span>
-                      <span className="text-[10px] text-gray-700">{timeAgo(r.ts)}</span>
-                    </div>
-                  </div>
+                  <RecentCard key={r.id} r={r} />
                 ))}
               </div>
             )}
           </div>
 
-          <div className="rounded-2xl border border-white/[0.07] bg-white/[0.025] p-4">
-            <h2 className="mb-3 text-[11px] font-semibold uppercase tracking-widest text-gray-500">Tips for best results</h2>
-            <div className="space-y-2">
+          <div className="rounded-2xl border border-white/[0.07] bg-white/[0.025] p-5">
+            <div className="mb-4 flex items-center gap-2.5">
+              <div className="flex size-8 items-center justify-center rounded-lg border border-purple-400/30 bg-gradient-to-br from-purple-500/25 to-fuchsia-600/5">
+                <Lightbulb className="size-4 text-purple-300" strokeWidth={1.75} />
+              </div>
+              <div>
+                <h2 className="text-sm font-semibold text-white">Tips for best results</h2>
+                <p className="text-xs text-gray-500">Sharper screenshots, more accurate levels.</p>
+              </div>
+            </div>
+            <div className="space-y-3">
               <TipCard
+                step="01"
+                accent="sky"
+                icon={ZoomIn}
                 graphic={<TipZoomSVG />}
                 title="Zoom price text to 125%+"
                 desc="Press Ctrl+= in TradingView until price numbers are clearly legible."
               />
               <TipCard
+                step="02"
+                accent="violet"
+                icon={Tag}
                 graphic={<TipTickerSVG />}
                 title="Show ticker name & timeframe"
                 desc="Make sure the pair (e.g. ETH/USDT) and timeframe (5m, 1H…) labels are visible."
               />
               <TipCard
+                step="03"
+                accent="emerald"
+                icon={Ruler}
                 graphic={<TipPriceAxisSVG />}
                 title="Keep price axis on screen"
-                desc="Don't scroll the Y-axis off screen — price numbers let the AI calculate exact levels."
+                desc="Don't scroll the Y-axis off screen. Price numbers let the AI calculate exact levels."
               />
             </div>
           </div>

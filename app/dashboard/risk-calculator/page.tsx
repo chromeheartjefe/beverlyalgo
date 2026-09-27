@@ -1,10 +1,11 @@
 "use client"
 
-import { AlertTriangle, CheckCircle, DollarSign, Info, TrendingUp } from "lucide-react"
+import { AlertTriangle, BadgeCheck, CheckCircle, DollarSign, Info, TrendingUp } from "lucide-react"
 import { useSession } from "next-auth/react"
 import { useEffect, useState } from "react"
 
 import { markVisited } from "@/lib/onboarding"
+import { breakevenWinRate, RR_TIERS, type RRTier,rrTier } from "@/lib/risk-reward"
 import { cn } from "@/lib/utils"
 
 function InputField({
@@ -53,42 +54,64 @@ function ResultRow({
   value,
   accent,
   large,
+  tag,
 }: {
   label: string
   value: string
   accent?: string
   large?: boolean
+  tag?: React.ReactNode
 }) {
   return (
     <div className="flex items-center justify-between py-3">
       <span className="text-sm text-gray-500">{label}</span>
-      <span className={cn("font-semibold", large ? "text-lg" : "text-sm", accent ?? "text-white")}>
-        {value}
+      <span className="flex items-center gap-2">
+        {tag}
+        <span className={cn("font-semibold", large ? "text-lg" : "text-sm", accent ?? "text-white")}>
+          {value}
+        </span>
       </span>
     </div>
   )
 }
 
+const RR_FEEDBACK: Record<RRTier, { Icon: typeof CheckCircle; text: (rr: string, win: string) => string }> = {
+  excellent: {
+    Icon: BadgeCheck,
+    text: (rr, win) => `Risk : Reward of ${rr} is excellent. A high-quality setup: you only need to win more than ${win} of trades like this to come out ahead.`,
+  },
+  good: {
+    Icon: CheckCircle,
+    text: (rr, win) => `Risk : Reward of ${rr} is good. A solid setup that clears the 1:1.5 minimum: winning more than ${win} of trades like this keeps you profitable.`,
+  },
+  acceptable: {
+    Icon: Info,
+    text: (rr, win) => `Risk : Reward of ${rr} is acceptable, but you'd need to win more than ${win} of trades like this. Consider a better entry or a further target.`,
+  },
+  poor: {
+    Icon: AlertTriangle,
+    text: (rr, win) => `Risk : Reward of ${rr} is poor. The potential reward doesn't justify the risk: you'd need to win more than ${win} of trades like this just to break even.`,
+  },
+}
+
 function RRBadge({ ratio }: { ratio: number }) {
-  if (ratio >= 2)
-    return (
-      <div className="flex items-center gap-2 rounded-xl bg-emerald-500/10 p-3 text-sm text-emerald-400">
-        <CheckCircle className="size-4 shrink-0" />
-        R:R of {ratio.toFixed(2)} is excellent. This is a high-quality setup.
-      </div>
-    )
-  if (ratio >= 1)
-    return (
-      <div className="flex items-center gap-2 rounded-xl bg-yellow-500/10 p-3 text-sm text-yellow-400">
-        <Info className="size-4 shrink-0" />
-        R:R of {ratio.toFixed(2)} is acceptable but consider improving your target.
-      </div>
-    )
+  const tier = rrTier(ratio)
+  const { Icon, text } = RR_FEEDBACK[tier]
+  const style = RR_TIERS[tier]
   return (
-    <div className="flex items-center gap-2 rounded-xl bg-red-500/10 p-3 text-sm text-red-400">
-      <AlertTriangle className="size-4 shrink-0" />
-      R:R of {ratio.toFixed(2)} is poor. The potential reward doesn&apos;t justify the risk.
+    <div className={cn("flex items-center gap-2 rounded-xl p-3 text-sm", style.bg, style.text)}>
+      <Icon className="size-4 shrink-0" />
+      {text(`1:${ratio.toFixed(2)}`, `${Math.round(breakevenWinRate(ratio))}%`)}
     </div>
+  )
+}
+
+function RRTag({ ratio }: { ratio: number }) {
+  const style = RR_TIERS[rrTier(ratio)]
+  return (
+    <span className={cn("rounded-full border px-2 py-0.5 text-[11px] font-semibold", style.bg, style.border, style.text)}>
+      {style.label}
+    </span>
   )
 }
 
@@ -186,7 +209,7 @@ export default function RiskCalculatorPage() {
             value={takeProfit}
             onChange={setTakeProfit}
             prefix="$"
-            hint="Leave blank to skip R:R calculation"
+            hint="Leave blank to skip the Risk : Reward calculation"
           />
         </div>
 
@@ -210,15 +233,16 @@ export default function RiskCalculatorPage() {
                 accent={potentialProfit > 0 ? "text-emerald-400" : undefined}
               />
               <ResultRow
-                label="Risk:Reward Ratio"
-                value={rrRatio > 0 ? `${rrRatio.toFixed(2)}:1` : "—"}
-                accent={rrRatio >= 2 ? "text-emerald-400" : rrRatio >= 1 ? "text-yellow-400" : "text-red-400"}
+                label="Risk : Reward"
+                value={rrRatio > 0 ? `1:${rrRatio.toFixed(2)}` : "—"}
+                accent={rrRatio > 0 ? RR_TIERS[rrTier(rrRatio)].text : undefined}
+                tag={rrRatio > 0 ? <RRTag ratio={rrRatio} /> : undefined}
                 large
               />
             </div>
           </div>
 
-          {/* R:R feedback */}
+          {/* Risk : Reward feedback */}
           {rrRatio > 0 && (
             <RRBadge ratio={rrRatio} />
           )}

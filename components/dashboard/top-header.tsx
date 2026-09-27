@@ -219,7 +219,7 @@ export function DashboardHeader() {
                           <span className="font-mono font-semibold text-white">{n.pair}</span>
                         </p>
                         <p className="mt-0.5 text-xs text-gray-500">
-                          {n.timeframe} · {n.confidence}% confidence · {timeAgo(n.createdAt)}
+                          {n.timeframe} · {n.signal === "NEUTRAL" ? "no trade" : `${n.confidence}% confidence`} · {timeAgo(n.createdAt)}
                         </p>
                       </div>
                     </Link>

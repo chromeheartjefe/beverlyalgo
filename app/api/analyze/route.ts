@@ -1,49 +1,48 @@
-import { and, count, eq, gt } from "drizzle-orm"
+import { eq } from "drizzle-orm"
 import { NextRequest, NextResponse } from "next/server"
 import OpenAI from "openai"
 
 import { auth } from "@/auth"
 import { db } from "@/db"
-import { chartAnalyses } from "@/db/schema"
+import { chartAnalyses, users } from "@/db/schema"
 import { isBudgetExceeded, recordAiUsage } from "@/lib/ai-budget"
-import { checkRateLimit } from "@/lib/rate-limit"
+import { resolveVariant } from "@/lib/chart-analysis"
+import { checkRateLimit, countHits } from "@/lib/rate-limit"
+import { UserFacingError } from "@/lib/user-error"
 
 const DAILY_ANALYSIS_LIMIT = 30
+const DAY_MS = 24 * 60 * 60 * 1000
 
-// ─── System prompt ────────────────────────────────────────────────────────────
-// Validate the image first; only run full analysis when it passes.
-// Keeps tokens low on bad images and produces useful errors for the user.
-// OpenAI requires the word "json" to appear in messages when using response_format json_object.
-const SYSTEM = `You are a professional trading analyst. Return JSON only, no prose outside it.
-Validate first: not a chart→{"error":"NOT_A_CHART"} no ticker→{"error":"NO_TICKER"} no timeframe→{"error":"NO_TIMEFRAME"} price axis unreadable→{"error":"NO_PRICE"} blurry→{"error":"LOW_QUALITY"}
-Otherwise return:
-{"signal":"BUY|SELL|NEUTRAL","confidence":0-100,"pair":"str","timeframe":"str","entry":num,"tp1":num,"tp2":num,"sl":num,"rrRatio":num|null,"patterns":["exactly 4, from list below"],"structure":"≤2 sentences","risk":"Low|Moderate|High","volatility":"Low|Medium|High","patternStrength":"Low|Medium|High","trendAlignment":"Weak|Moderate|Strong"}
-Pattern list, pick exactly 4, most relevant first, never invent others: head and shoulders, inverse head and shoulders, double top, double bottom, ascending triangle, descending triangle, symmetrical triangle, rising wedge, falling wedge, bull flag, bear flag, cup and handle, channel breakout, trendline break, support bounce, resistance rejection, liquidity sweep, order block, fair value gap, break of structure.
-Trade logic, apply professional risk management, only null if price axis is unreadable (caught by validation above):
-entry: last candle close (right Y-axis)
-tp1: nearest visible support (BUY) or resistance (SELL)
-tp2: next major support/resistance beyond tp1
-sl: beyond the nearest swing low (BUY) or swing high (SELL), sized to invalidate the setup, not tight noise
-rrRatio: round((tp1-entry)/(entry-sl),1) BUY; round((entry-tp1)/(sl-entry),1) SELL
-signal: BUY or SELL only when structure, trend, and pattern align; use NEUTRAL when signals conflict or price is ranging
-Writing style: sentence case, capitalize only the first letter of each sentence, lowercase all other words except tickers and standard acronyms (BTC, USDT, RSI, EMA). Never use em dashes, en dashes, or double hyphens, use commas or periods instead.`
+// ─── Analysis logic ───────────────────────────────────────────────────────────
+// Prompt, model and image settings live in lib/chart-analysis (production v2,
+// plus the frozen dev-only "v1 aggressive" snapshot for comparison testing).
 
 // ─── Validation error messages ────────────────────────────────────────────────
 const VALIDATION_ERRORS: Record<string, string> = {
   NOT_A_CHART:  "This doesn't look like a trading chart. Please upload a chart screenshot.",
   NO_TICKER:    "Ticker or pair name isn't visible on the chart. Make sure the symbol (e.g. BTC/USDT) is shown.",
   NO_TIMEFRAME: "Timeframe label isn't visible. Make sure the chart timeframe (e.g. 1H, 15m) is displayed.",
-  NO_PRICE:     "Price numbers aren't readable. Zoom in so the Y-axis labels are clearly legible — press Ctrl+= in TradingView.",
+  NO_PRICE:     "Price numbers aren't readable. Zoom in so the Y-axis labels are clearly legible, for example with Ctrl+= in TradingView.",
   LOW_QUALITY:  "Image quality is too low to analyze. Try a clearer, higher-resolution screenshot.",
+  TOO_FEW_CANDLES: "Too few candles are visible to read the market structure. Zoom out so at least 30 to 40 candles are on screen.",
+  MULTIPLE_CHARTS: "This screenshot has several charts. Upload one chart at a time so the analysis reads the right one.",
 }
 
 export async function POST(req: NextRequest) {
   const session = await auth()
   if (!session?.user?.id) return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
 
+  // Pro-only. The page's FeatureLock is just UI; this is the real gate.
+  // Read from the DB, not the session, so a lapsed plan applies immediately.
+  const [user] = await db.select({ plan: users.plan }).from(users).where(eq(users.id, session.user.id)).limit(1)
+  if (!user || user.plan === "free") {
+    return NextResponse.json({ error: "Chart Analysis is a Pro feature." }, { status: 403 })
+  }
+
   if (!process.env.OPENAI_API_KEY) {
+    console.error("[/api/analyze] OPENAI_API_KEY is not set")
     return NextResponse.json(
-      { error: "AI service not configured. Add OPENAI_API_KEY to .env.local." },
+      { error: "Chart Analysis is temporarily unavailable. Please try again later." },
       { status: 503 },
     )
   }
@@ -52,20 +51,11 @@ export async function POST(req: NextRequest) {
   // allowance from being spent in a tight loop within seconds.
   const burstAllowed = await checkRateLimit(`analyze-burst:${session.user.id}`, 5, 60 * 1000)
   if (!burstAllowed) {
-    return NextResponse.json({ error: "Too many requests. Please slow down." }, { status: 429 })
+    return NextResponse.json({ error: "You're sending requests too quickly. Please wait a moment and try again." }, { status: 429 })
   }
 
-  const [{ value: recentCount }] = await db
-    .select({ value: count() })
-    .from(chartAnalyses)
-    .where(
-      and(
-        eq(chartAnalyses.userId, session.user.id),
-        gt(chartAnalyses.createdAt, new Date(Date.now() - 24 * 60 * 60 * 1000)),
-      ),
-    )
-
-  if (recentCount >= DAILY_ANALYSIS_LIMIT) {
+  const dailyKey = `analyze-daily:${session.user.id}`
+  if ((await countHits(dailyKey, DAY_MS)) >= DAILY_ANALYSIS_LIMIT) {
     return NextResponse.json(
       { error: `You've hit the daily analysis limit (${DAILY_ANALYSIS_LIMIT}/day). Try again later.` },
       { status: 429 },
@@ -75,7 +65,7 @@ export async function POST(req: NextRequest) {
   // Real dollar ceiling shared with the AI Trading Bot — see lib/ai-budget.ts.
   if (await isBudgetExceeded()) {
     return NextResponse.json(
-      { error: "Chart Analysis is temporarily unavailable — this month's AI usage budget has been reached. It resets next month." },
+      { error: "Chart Analysis is temporarily unavailable due to high demand. Please try again later." },
       { status: 503 },
     )
   }
@@ -83,35 +73,60 @@ export async function POST(req: NextRequest) {
   try {
     const form = await req.formData()
     const file = form.get("image") as File | null
+    // Dev server only: the hidden logic switch on the Chart Analysis page.
+    // Production ignores this field and always runs the production variant.
+    const variant = resolveVariant(form.get("variant") as string | null)
 
-    if (!file)                           return NextResponse.json({ error: "No image provided."        }, { status: 400 })
-    if (file.size > 5 * 1024 * 1024)    return NextResponse.json({ error: "Image must be under 5 MB." }, { status: 400 })
-    if (!file.type.startsWith("image/")) return NextResponse.json({ error: "File must be an image."    }, { status: 400 })
+    if (!file)                           return NextResponse.json({ error: "Please choose a chart screenshot to analyze." }, { status: 400 })
+    if (file.size > 5 * 1024 * 1024)    return NextResponse.json({ error: "That image is too large. Please upload a screenshot under 5 MB." }, { status: 400 })
+    if (!file.type.startsWith("image/")) return NextResponse.json({ error: "Please upload an image file, such as a PNG or JPG screenshot." }, { status: 400 })
 
     const base64 = Buffer.from(await file.arrayBuffer()).toString("base64")
     const mime   = file.type || "image/jpeg"
 
+    // Every AI call counts toward the daily cap, including screenshots the
+    // model rejects (not a chart, blurry, ...). Those cost the same as a full
+    // analysis, and used to be free to repeat because only saved analyses
+    // were counted. The early countHits check above just fails fast; this
+    // atomic reserve is what actually enforces the cap under parallel requests.
+    if (!(await checkRateLimit(dailyKey, DAILY_ANALYSIS_LIMIT, DAY_MS))) {
+      return NextResponse.json(
+        { error: `You've hit the daily analysis limit (${DAILY_ANALYSIS_LIMIT}/day). Try again later.` },
+        { status: 429 },
+      )
+    }
+
     const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY })
 
     const completion = await openai.chat.completions.create({
-      model: "gpt-5.6-luna",
+      model: variant.model,
       response_format: { type: "json_object" },
-      max_completion_tokens: 1200,
+      max_completion_tokens: variant.maxCompletionTokens,
       messages: [
-        { role: "system", content: SYSTEM },
+        { role: "system", content: variant.system },
         {
           role: "user",
           content: [
             {
               type: "image_url",
-              // detail:"auto" lets OpenAI pick tile count based on image dimensions.
-              // Client resizes to ≤768 px before upload, so "auto" stays at 1–2 tiles.
-              image_url: { url: `data:${mime};base64,${base64}`, detail: "auto" },
+              // Forced "high" rather than "auto": low-detail mode caps the
+              // image at a 512px tile, which was blurring tightly packed
+              // Y-axis labels on sub-$1 pairs (e.g. ADA's 0.2088/0.2086/...)
+              // into unreadable text, and the model was guessing a price
+              // from training priors instead. Costs more tokens, but a wrong
+              // price read means a wrong entry/SL/TP on a paid signal.
+              image_url: { url: `data:${mime};base64,${base64}`, detail: variant.imageDetail },
             },
           ],
         },
       ],
     })
+
+    // Recorded before any check below can bail out: rejected or malformed
+    // replies are real spend too, and the monthly budget has to see them.
+    if (completion.usage) {
+      await recordAiUsage("chart_analysis", completion.usage.prompt_tokens, completion.usage.completion_tokens)
+    }
 
     const choice     = completion.choices[0]
     const raw        = choice?.message?.content
@@ -120,38 +135,41 @@ export async function POST(req: NextRequest) {
 
     if (refusal) {
       console.error("[/api/analyze] Model refused:", refusal)
-      throw new Error("Model refused to analyze this image.")
+      throw new UserFacingError("We couldn't analyze this image. Please try a different chart screenshot.")
     }
     if (stopReason === "length") {
       console.error("[/api/analyze] Response truncated — increase max_completion_tokens")
-      throw new Error("Analysis was truncated. Please try again.")
+      throw new UserFacingError("The analysis took too long to finish. Please try again.")
     }
     if (!raw) {
       console.error("[/api/analyze] Null content — finish_reason:", stopReason, "usage:", completion.usage)
-      throw new Error("Empty response from AI.")
+      throw new UserFacingError("We couldn't complete the analysis. Please try again.")
     }
 
-    const data = JSON.parse(raw)
+    const parsed = JSON.parse(raw)
 
     // AI returned a validation error — map to user-facing message
-    if (data.error && typeof data.error === "string") {
-      const msg = VALIDATION_ERRORS[data.error]
+    if (parsed.error && typeof parsed.error === "string") {
+      const msg = VALIDATION_ERRORS[parsed.error]
         ?? "Image could not be analyzed. Please try a different screenshot."
       return NextResponse.json({ error: msg }, { status: 422 })
     }
 
     // Enforce Sentence case regardless of what casing the model used
-    if (Array.isArray(data.patterns)) {
-      data.patterns = data.patterns.map((p: unknown) => {
+    if (Array.isArray(parsed.patterns)) {
+      parsed.patterns = parsed.patterns.map((p: unknown) => {
         const s = String(p).trim()
         return s.charAt(0).toUpperCase() + s.slice(1)
       })
     }
 
     // Sanity-check the analysis shape before returning it
-    if (!["BUY", "SELL", "NEUTRAL"].includes(data.signal)) {
-      throw new Error("Unexpected AI response shape.")
+    if (!["BUY", "SELL", "NEUTRAL"].includes(parsed.signal)) {
+      throw new UserFacingError("We couldn't complete the analysis. Please try again.")
     }
+
+    // v2+: server-side grading, reward:risk math and level checks
+    const data = variant.finalize ? variant.finalize(parsed) : parsed
 
     await db.insert(chartAnalyses).values({
       userId:     session.user.id,
@@ -166,11 +184,9 @@ export async function POST(req: NextRequest) {
       rrRatio:    data.rrRatio ?? null,
     })
 
-    if (completion.usage) {
-      await recordAiUsage("chart_analysis", completion.usage.prompt_tokens, completion.usage.completion_tokens)
-    }
-
-    return NextResponse.json({ analysis: data })
+    return NextResponse.json(
+      process.env.NODE_ENV === "development" ? { analysis: data, variant: variant.id } : { analysis: data },
+    )
 
   } catch (err) {
     console.error("[/api/analyze]", err)
@@ -180,13 +196,13 @@ export async function POST(req: NextRequest) {
     if (err instanceof OpenAI.APIError) {
       const msg = err.status < 500
         ? "Our servers are experiencing heavy load. Please wait a moment and try again."
-        : "Analysis failed due to a temporary service issue. Please try again."
+        : "Chart Analysis hit a temporary problem. Please try again in a moment."
       return NextResponse.json({ error: msg }, { status: 503 })
     }
 
     const message =
-      err instanceof SyntaxError ? "AI returned an unexpected format. Please try again."
-      : err instanceof Error     ? err.message
+      err instanceof SyntaxError ? "We couldn't complete the analysis. Please try again."
+      : err instanceof UserFacingError ? err.message
       : "Analysis failed. Please try again."
 
     return NextResponse.json({ error: message }, { status: 500 })

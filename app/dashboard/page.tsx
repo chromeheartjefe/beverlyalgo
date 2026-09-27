@@ -188,8 +188,14 @@ function timeAgo(ts: number): string {
   return `${Math.floor(hrs / 24)}d ago`
 }
 
-const fmtPrice = (n: number | null) =>
-  n !== null ? `$${n.toLocaleString(undefined, { maximumFractionDigits: 2 })}` : "—"
+// Scales decimal precision with price magnitude so sub-$1 assets (e.g. ADA at
+// 0.2055) don't collapse into indistinguishable 2-decimal values here either.
+const fmtPrice = (n: number | null) => {
+  if (n === null) return "—"
+  const abs = Math.abs(n)
+  const decimals = abs >= 1 ? 2 : abs >= 0.01 ? 4 : abs >= 0.0001 ? 6 : 8
+  return `$${n.toLocaleString(undefined, { minimumFractionDigits: decimals, maximumFractionDigits: decimals })}`
+}
 
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
@@ -236,8 +242,10 @@ export default function DashboardPage() {
   }, [recentTrades])
 
   const avgConfidence = useMemo(() => {
-    if (recentAnalyses.length === 0) return null
-    return recentAnalyses.reduce((s, a) => s + a.confidence, 0) / recentAnalyses.length
+    // NEUTRAL is "no trade" and carries no confidence grade
+    const graded = recentAnalyses.filter((a) => a.signal !== "NEUTRAL")
+    if (graded.length === 0) return null
+    return graded.reduce((s, a) => s + a.confidence, 0) / graded.length
   }, [recentAnalyses])
 
   const STATS: Stat[] = [
@@ -496,8 +504,14 @@ export default function DashboardPage() {
                         </p>
                       </div>
                       <div className="text-right">
-                        <p className="font-semibold text-purple-400">{a.confidence}%</p>
-                        <p className="text-[11px] text-gray-600">Confidence</p>
+                        {a.signal === "NEUTRAL" ? (
+                          <p className="text-sm font-semibold text-amber-300/80">No trade</p>
+                        ) : (
+                          <>
+                            <p className="font-semibold text-purple-400">{a.confidence}%</p>
+                            <p className="text-[11px] text-gray-600">Confidence</p>
+                          </>
+                        )}
                       </div>
                     </div>
                   </div>
