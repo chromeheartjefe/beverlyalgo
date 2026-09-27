@@ -1,4 +1,4 @@
-import { and, count, desc, eq, gt } from "drizzle-orm"
+import { desc, eq } from "drizzle-orm"
 import { NextRequest, NextResponse } from "next/server"
 import OpenAI from "openai"
 
@@ -9,6 +9,7 @@ import { isBudgetExceeded, recordAiUsage } from "@/lib/ai-budget"
 import { formatSnapshotForPrompt, getMarketSnapshot } from "@/lib/market-data"
 import { fetchNews, formatNewsForPrompt, pickNewsQuery } from "@/lib/news"
 import { checkRateLimit } from "@/lib/rate-limit"
+import { UserFacingError } from "@/lib/user-error"
 
 const DAILY_MESSAGE_LIMIT   = 40
 const MAX_INPUT_CHARS       = 400
@@ -69,8 +70,9 @@ export async function POST(req: NextRequest) {
   }
 
   if (!process.env.OPENAI_API_KEY) {
+    console.error("[/api/chat] OPENAI_API_KEY is not set")
     return NextResponse.json(
-      { error: "AI service not configured. Add OPENAI_API_KEY to .env.local." },
+      { error: "The AI Trading Bot is temporarily unavailable. Please try again later." },
       { status: 503 },
     )
   }
@@ -79,7 +81,7 @@ export async function POST(req: NextRequest) {
   // allowance from being spent in a tight loop within seconds.
   const burstAllowed = await checkRateLimit(`chat-burst:${session.user.id}`, 10, 60 * 1000)
   if (!burstAllowed) {
-    return NextResponse.json({ error: "Too many requests. Please slow down." }, { status: 429 })
+    return NextResponse.json({ error: "You're sending messages too quickly. Please wait a moment and try again." }, { status: 429 })
   }
 
   const { message } = await req.json().catch(() => ({ message: null }))
@@ -91,30 +93,23 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: `Keep messages under ${MAX_INPUT_CHARS} characters.` }, { status: 400 })
   }
 
-  const [{ value: recentCount }] = await db
-    .select({ value: count() })
-    .from(chatMessages)
-    .where(
-      and(
-        eq(chatMessages.userId, session.user.id),
-        eq(chatMessages.role, "user"),
-        gt(chatMessages.createdAt, new Date(Date.now() - 24 * 60 * 60 * 1000)),
-      ),
-    )
-
-  if (recentCount >= DAILY_MESSAGE_LIMIT) {
-    return NextResponse.json(
-      { error: `You've hit today's message limit (${DAILY_MESSAGE_LIMIT}/day). Try again tomorrow.` },
-      { status: 429 },
-    )
-  }
-
   // Real dollar ceiling across chat + chart analysis combined — see
   // lib/ai-budget.ts. Checked before spending anything on this request.
   if (await isBudgetExceeded()) {
     return NextResponse.json(
-      { error: "The AI Trading Bot is temporarily unavailable — this month's usage budget has been reached. It resets next month." },
+      { error: "The AI Trading Bot is temporarily unavailable due to high demand. Please try again later." },
       { status: 503 },
+    )
+  }
+
+  // Daily cap, counted in rate_limit_hits rather than chat_messages: users
+  // can clear their chat history (DELETE below), which used to reset this
+  // counter and allow unlimited paid AI calls.
+  const dailyAllowed = await checkRateLimit(`chat-daily:${session.user.id}`, DAILY_MESSAGE_LIMIT, 24 * 60 * 60 * 1000)
+  if (!dailyAllowed) {
+    return NextResponse.json(
+      { error: `You've hit today's message limit (${DAILY_MESSAGE_LIMIT}/day). Try again tomorrow.` },
+      { status: 429 },
     )
   }
 
@@ -157,6 +152,12 @@ export async function POST(req: NextRequest) {
       ],
     })
 
+    // Recorded before any checks below can throw: every completed call is
+    // real spend, whether or not we end up showing the reply.
+    if (completion.usage) {
+      await recordAiUsage("chat", completion.usage.prompt_tokens, completion.usage.completion_tokens)
+    }
+
     const choice     = completion.choices[0]
     const refusal    = choice?.message?.refusal
     const stopReason = choice?.finish_reason
@@ -166,17 +167,13 @@ export async function POST(req: NextRequest) {
     if (stopReason === "length" && reply) reply = reply.trim()
     if (!reply) {
       console.error("[/api/chat] Empty content — finish_reason:", stopReason, "usage:", completion.usage)
-      throw new Error("Empty response from AI.")
+      throw new UserFacingError("The assistant couldn't answer that. Please try again.")
     }
 
     await db.insert(chatMessages).values([
       { userId: session.user.id, role: "user",      content: trimmed },
       { userId: session.user.id, role: "assistant", content: reply },
     ])
-
-    if (completion.usage) {
-      await recordAiUsage("chat", completion.usage.prompt_tokens, completion.usage.completion_tokens)
-    }
 
     return NextResponse.json({ reply })
 
@@ -186,11 +183,11 @@ export async function POST(req: NextRequest) {
     if (err instanceof OpenAI.APIError) {
       const msg = err.status < 500
         ? "Our servers are experiencing heavy load. Please wait a moment and try again."
-        : "The assistant failed due to a temporary service issue. Please try again."
+        : "The assistant hit a temporary problem. Please try again in a moment."
       return NextResponse.json({ error: msg }, { status: 503 })
     }
 
-    const message = err instanceof Error ? err.message : "Something went wrong. Please try again."
+    const message = err instanceof UserFacingError ? err.message : "Something went wrong. Please try again."
     return NextResponse.json({ error: message }, { status: 500 })
   }
 }

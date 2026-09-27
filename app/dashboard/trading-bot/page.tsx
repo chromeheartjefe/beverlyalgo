@@ -6,6 +6,7 @@ import { useEffect, useMemo, useRef, useState } from "react"
 import useSWR from "swr"
 
 import { FeatureLock } from "@/components/dashboard/feature-lock"
+import { ApiError, requestJson, userMessage } from "@/lib/api-client"
 import { fetcher } from "@/lib/swr"
 import { cn } from "@/lib/utils"
 
@@ -82,18 +83,17 @@ export default function TradingBotPage() {
     setSending(true)
 
     try {
-      const res  = await fetch("/api/chat", {
+      const data = await requestJson<{ reply?: string }>("/api/chat", {
         method:  "POST",
         headers: { "Content-Type": "application/json" },
         body:    JSON.stringify({ message: trimmed }),
       })
-      const data = await res.json()
+      const reply = data.reply
+      if (!reply) throw new ApiError("The assistant couldn't answer that. Please try again.")
 
-      if (!res.ok) throw new Error(data.error ?? "Something went wrong.")
-
-      mutateChat((prev) => [...(prev ?? []), { id: crypto.randomUUID(), role: "assistant", content: data.reply }], { revalidate: false })
+      mutateChat((prev) => [...(prev ?? []), { id: crypto.randomUUID(), role: "assistant", content: reply }], { revalidate: false })
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Something went wrong.")
+      setError(userMessage(err))
     } finally {
       setSending(false)
     }
@@ -105,11 +105,11 @@ export default function TradingBotPage() {
 
     setClearing(true)
     try {
-      const res = await fetch("/api/chat", { method: "DELETE" })
-      if (res.ok) {
-        mutateChat([], { revalidate: false })
-        setError(null)
-      }
+      await requestJson("/api/chat", { method: "DELETE" })
+      mutateChat([], { revalidate: false })
+      setError(null)
+    } catch (err) {
+      setError(userMessage(err, "Couldn't clear the conversation. Please try again."))
     } finally {
       setClearing(false)
     }

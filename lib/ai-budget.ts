@@ -13,7 +13,7 @@ const OUTPUT_COST_PER_TOKEN = 1.20 / 1_000_000
 // but don't bound total spend as the user base grows; this does, by
 // checking real cumulative cost before every call and refusing once the
 // month's spend nears the budget instead of continuing to draw it down.
-const MONTHLY_BUDGET_USD = Number(process.env.AI_MONTHLY_BUDGET_USD ?? 10)
+const MONTHLY_BUDGET_USD = Number(process.env.AI_MONTHLY_BUDGET_USD ?? 50)
 
 function monthStartUTC(): Date {
   const now = new Date()
@@ -36,6 +36,6 @@ export async function isBudgetExceeded(): Promise<boolean> {
   return (await getMonthlySpendUSD()) >= MONTHLY_BUDGET_USD
 }
 
-export async function recordAiUsage(feature: "chat" | "chart_analysis", promptTokens: number, completionTokens: number) {
+export async function recordAiUsage(feature: "chat" | "chart_analysis" | "screener", promptTokens: number, completionTokens: number) {
   await db.insert(aiUsage).values({ feature, promptTokens, completionTokens })
 }
