@@ -1,11 +1,11 @@
 import bcrypt from "bcryptjs"
-import crypto from "crypto"
 import { eq } from "drizzle-orm"
 import { NextRequest, NextResponse } from "next/server"
 import { z } from "zod"
 
 import { db } from "@/db"
 import { authTokens, users } from "@/db/schema"
+import { newAuthToken } from "@/lib/auth-tokens"
 import { sendVerificationEmail } from "@/lib/email"
 import { checkRateLimit, clientIp } from "@/lib/rate-limit"
 
@@ -43,10 +43,10 @@ export async function POST(req: NextRequest) {
     .returning({ id: users.id })
 
   try {
-    const token = crypto.randomBytes(32).toString("hex")
+    const { token, hash } = newAuthToken()
     await db.insert(authTokens).values({
       userId:    created.id,
-      token,
+      token:     hash,
       type:      "email_verify",
       expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000),
     })

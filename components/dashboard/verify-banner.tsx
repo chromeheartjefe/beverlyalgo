@@ -9,6 +9,7 @@ export function VerifyBanner() {
   const [dismissed, setDismissed] = useState(false)
   const [sending,   setSending]   = useState(false)
   const [sent,      setSent]      = useState(false)
+  const [limited,   setLimited]   = useState(false)
 
   if (dismissed || !session?.user || session.user.emailVerified) return null
 
@@ -17,6 +18,7 @@ export function VerifyBanner() {
     try {
       const res = await fetch("/api/auth/resend-verification", { method: "POST" })
       if (res.ok) setSent(true)
+      else if (res.status === 429) setLimited(true)
     } finally {
       setSending(false)
     }
@@ -33,6 +35,11 @@ export function VerifyBanner() {
             <CheckCircle className="size-3.5" />
             <span className="sm:hidden">Sent</span>
             <span className="hidden sm:inline">Sent — check your inbox</span>
+          </span>
+        ) : limited ? (
+          <span className="shrink-0 text-amber-200/80">
+            <span className="sm:hidden">Try later</span>
+            <span className="hidden sm:inline">Resend limit reached, check your spam folder</span>
           </span>
         ) : (
           <button

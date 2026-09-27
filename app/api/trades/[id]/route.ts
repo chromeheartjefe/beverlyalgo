@@ -5,15 +5,9 @@ import { z } from "zod"
 import { auth } from "@/auth"
 import { db } from "@/db"
 import { trades } from "@/db/schema"
+import { tradeInput } from "@/lib/trade-validation"
 
-const patchSchema = z.object({
-  date:      z.coerce.date().optional(),
-  pair:      z.string().trim().min(1).max(32).optional(),
-  direction: z.enum(["Buy", "Sell"]).optional(),
-  entry:     z.number().positive().optional(),
-  exit:      z.number().positive().optional(),
-  pnl:       z.number().optional(),
-})
+const patchSchema = z.object(tradeInput).partial()
 
 export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const session = await auth()
@@ -23,7 +17,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
   const body    = await req.json().catch(() => null)
   const parsed  = patchSchema.safeParse(body)
   if (!parsed.success) {
-    return NextResponse.json({ error: "Invalid input." }, { status: 400 })
+    return NextResponse.json({ error: parsed.error.issues[0]?.message ?? "Invalid input." }, { status: 400 })
   }
 
   const updates = parsed.data

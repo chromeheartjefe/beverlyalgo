@@ -1,5 +1,5 @@
 import bcrypt from "bcryptjs"
-import { eq } from "drizzle-orm"
+import { eq, sql } from "drizzle-orm"
 import { NextRequest, NextResponse } from "next/server"
 import { z } from "zod"
 
@@ -44,7 +44,12 @@ export async function POST(req: NextRequest) {
   }
 
   const passwordHash = await bcrypt.hash(parsed.data.newPassword, 10)
-  await db.update(users).set({ passwordHash }).where(eq(users.id, session.user.id))
+  // Bumping sessionVersion signs out every other session (see auth.ts);
+  // the settings page signs this browser straight back in with the new password.
+  await db
+    .update(users)
+    .set({ passwordHash, sessionVersion: sql`${users.sessionVersion} + 1` })
+    .where(eq(users.id, session.user.id))
 
   return NextResponse.json({ success: true })
 }

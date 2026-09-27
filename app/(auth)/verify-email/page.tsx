@@ -18,6 +18,7 @@ function VerifyEmailContent() {
   const [message, setMessage] = useState("")
   const [resent,  setResent]  = useState(false)
   const [resending, setResending] = useState(false)
+  const [limited,   setLimited]   = useState(false)
 
   useEffect(() => {
     if (!token) {
@@ -51,6 +52,7 @@ function VerifyEmailContent() {
     try {
       const res = await fetch("/api/auth/resend-verification", { method: "POST" })
       if (res.ok) setResent(true)
+      else if (res.status === 429) setLimited(true)
     } finally {
       setResending(false)
     }
@@ -119,6 +121,8 @@ function VerifyEmailContent() {
               {sessionStatus === "authenticated" && (
                 resent ? (
                   <p className="mt-2 text-sm text-emerald-400">New verification email sent — check your inbox.</p>
+                ) : limited ? (
+                  <p className="mt-2 text-sm text-amber-300">Too many requests. Check your inbox and spam folder, or try again in an hour.</p>
                 ) : (
                   <button
                     onClick={handleResend}

@@ -1,4 +1,4 @@
-import { bigserial, boolean, doublePrecision, index, integer, pgTable, text, timestamp, varchar } from "drizzle-orm/pg-core"
+import { bigserial, boolean, doublePrecision, index, integer, pgTable, text, timestamp, uniqueIndex, varchar } from "drizzle-orm/pg-core"
 
 export const users = pgTable("users", {
   id:           text("id").primaryKey().$defaultFn(() => crypto.randomUUID()),
@@ -23,6 +23,10 @@ export const users = pgTable("users", {
   tradingviewUsername:      varchar("tradingview_username", { length: 255 }),
   indicatorRequestedAt:     timestamp("indicator_requested_at", { withTimezone: true }),
   indicatorInvitedAt:       timestamp("indicator_invited_at", { withTimezone: true }),
+  // Bumped on password change/reset. Each login stores the value it saw, and
+  // the jwt callback in auth.ts ends any session whose value is older, so a
+  // stolen session stops working once the owner changes their password.
+  sessionVersion:           integer("session_version").notNull().default(0),
   createdAt:    timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 })
 
@@ -50,6 +54,22 @@ export const trades = pgTable("trades", {
 
 export type Trade = typeof trades.$inferSelect
 export type NewTrade = typeof trades.$inferInsert
+
+// Trade Calendar monthly P&L goals — one row per user per calendar month
+// ("YYYY-MM"). A month with no row of its own carries forward the most
+// recent earlier goal (resolved client-side), so users set it once and only
+// touch it again when they want to change it.
+export const tradingGoals = pgTable("trading_goals", {
+  id:        text("id").primaryKey().$defaultFn(() => crypto.randomUUID()),
+  userId:    text("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  month:     varchar("month", { length: 7 }).notNull(),
+  amount:    doublePrecision("amount").notNull(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+}, (table) => [
+  uniqueIndex("trading_goals_user_month_idx").on(table.userId, table.month),
+])
+
+export type TradingGoal = typeof tradingGoals.$inferSelect
 
 export const chartAnalyses = pgTable("chart_analyses", {
   id:         text("id").primaryKey().$defaultFn(() => crypto.randomUUID()),
@@ -91,7 +111,7 @@ export type NewChatMessage = typeof chatMessages.$inferInsert
 
 export const aiUsage = pgTable("ai_usage", {
   id:               text("id").primaryKey().$defaultFn(() => crypto.randomUUID()),
-  feature:          varchar("feature", { length: 32 }).notNull(), // "chat" | "chart_analysis"
+  feature:          varchar("feature", { length: 32 }).notNull(), // "chat" | "chart_analysis" | "screener"
   promptTokens:     integer("prompt_tokens").notNull(),
   completionTokens: integer("completion_tokens").notNull(),
   createdAt:        timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
@@ -137,3 +157,34 @@ export const processedStripeEvents = pgTable("processed_stripe_events", {
 })
 
 export type ProcessedStripeEvent = typeof processedStripeEvents.$inferSelect
+
+// Single-row cache for the AI Screener's hourly scan result. DB-backed
+// because the stock-movers source (Alpha Vantage) caps out at 25 req/day —
+// a purely in-memory cache resets on every serverless cold start, and on
+// Vercel those can happen often enough on a low-traffic dashboard to blow
+// through that budget in a single day. Persisting the hourly gate to
+// Postgres makes it survive cold starts and hold across every
+// instance/user, so a real re-scan truly happens at most once/hour no
+// matter how many people or instances hit the route.
+export const screenerCache = pgTable("screener_cache", {
+  id:          text("id").primaryKey(), // always "singleton" — one row total
+  data:        text("data").notNull(),  // JSON-encoded ScreenerResult
+  generatedAt: timestamp("generated_at", { withTimezone: true }).notNull(),
+})
+
+export type ScreenerCache = typeof screenerCache.$inferSelect
+
+// Same singleton-row pattern for lib/market-data.ts's index/forex ticker
+// snapshot. Originally an in-memory module variable, which had the same
+// cold-start problem as screenerCache above — worse, actually: it shares
+// Twelve Data's account-wide 8-credits/minute cap with AI Screener's stock
+// verification, so every unintended extra fetch (each restart/cold start)
+// risked colliding with a screener scan and blowing the per-minute limit
+// for both features at once. Persisting this closes that gap the same way.
+export const indexTickerCache = pgTable("index_ticker_cache", {
+  id:          text("id").primaryKey(), // always "singleton" — one row total
+  data:        text("data").notNull(),  // JSON-encoded TickerItem[]
+  generatedAt: timestamp("generated_at", { withTimezone: true }).notNull(),
+})
+
+export type IndexTickerCache = typeof indexTickerCache.$inferSelect

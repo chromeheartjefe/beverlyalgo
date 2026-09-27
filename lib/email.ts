@@ -75,3 +75,27 @@ export async function sendPasswordResetEmail(to: string, token: string) {
     ),
   })
 }
+
+const escapeHtml = (v: string) =>
+  v.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;")
+
+// Sent to the OLD address after an email change, so the real owner finds out
+// if someone else changed it.
+export async function sendEmailChangedNotice(to: string, newEmail: string) {
+  const resendClient = client()
+  if (!resendClient) {
+    console.warn("[email] RESEND_API_KEY not set — skipping email-changed notice to", to)
+    return
+  }
+  await resendClient.emails.send({
+    from:    fromAddress(),
+    to,
+    subject: "Your EntrixAlgo email was changed",
+    html: wrapper(
+      "Your account email was changed",
+      `The email on your EntrixAlgo account was just changed to ${escapeHtml(newEmail)}. If you made this change, no action is needed. If you didn't, contact EntrixAlgo support right away so we can secure your account.`,
+      "Open EntrixAlgo",
+      `${baseUrl()}/sign-in`
+    ),
+  })
+}

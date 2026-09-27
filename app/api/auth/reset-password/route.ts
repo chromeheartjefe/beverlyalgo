@@ -1,10 +1,11 @@
 import bcrypt from "bcryptjs"
-import { and, eq, gt } from "drizzle-orm"
+import { and, eq, gt, inArray, sql } from "drizzle-orm"
 import { NextRequest, NextResponse } from "next/server"
 import { z } from "zod"
 
 import { db } from "@/db"
 import { authTokens, users } from "@/db/schema"
+import { authTokenLookup } from "@/lib/auth-tokens"
 
 const schema = z.object({
   token:    z.string().min(1),
@@ -23,7 +24,7 @@ export async function POST(req: NextRequest) {
     .from(authTokens)
     .where(
       and(
-        eq(authTokens.token, parsed.data.token),
+        inArray(authTokens.token, authTokenLookup(parsed.data.token)),
         eq(authTokens.type, "password_reset"),
         gt(authTokens.expiresAt, new Date())
       )
@@ -35,7 +36,11 @@ export async function POST(req: NextRequest) {
   }
 
   const passwordHash = await bcrypt.hash(parsed.data.password, 10)
-  await db.update(users).set({ passwordHash }).where(eq(users.id, row.userId))
+  // Bumping sessionVersion signs out every existing session (see auth.ts)
+  await db
+    .update(users)
+    .set({ passwordHash, sessionVersion: sql`${users.sessionVersion} + 1` })
+    .where(eq(users.id, row.userId))
   await db.delete(authTokens).where(and(eq(authTokens.userId, row.userId), eq(authTokens.type, "password_reset")))
 
   return NextResponse.json({ success: true })

@@ -13,6 +13,16 @@ const MAX_UPLOAD_BYTES = 8 * 1024 * 1024 // raw upload ceiling before we even de
 const AVATAR_PX        = 256              // stored/served square size
 const WEBP_QUALITY      = 82
 
+// JPEG and PNG only, judged by the file's actual first bytes rather than its
+// claimed type, before sharp decodes anything. libvips picks its decoder by
+// sniffing content, so this keeps every other decoder (HEIF, TIFF, SVG, ...)
+// and whatever bugs they carry away from user uploads entirely.
+function isJpegOrPng(buf: Buffer): boolean {
+  const jpeg = buf.length > 3 && buf[0] === 0xff && buf[1] === 0xd8 && buf[2] === 0xff
+  const png  = buf.length > 8 && buf.subarray(0, 8).equals(Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]))
+  return jpeg || png
+}
+
 export async function POST(req: NextRequest) {
   const session = await auth()
   if (!session?.user?.id) return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
@@ -35,13 +45,19 @@ export async function POST(req: NextRequest) {
   if (file.size > MAX_UPLOAD_BYTES)    return NextResponse.json({ error: "Image must be under 8 MB." }, { status: 413 })
   if (!file.type.startsWith("image/")) return NextResponse.json({ error: "File must be an image." }, { status: 400 })
 
+  const input = Buffer.from(await file.arrayBuffer())
+  if (!isJpegOrPng(input)) {
+    return NextResponse.json({ error: "Please upload a JPEG or PNG image." }, { status: 400 })
+  }
+
   let optimized: Buffer
   try {
-    const input = Buffer.from(await file.arrayBuffer())
     // Center-crop to a square then re-encode as WebP. sharp strips EXIF/ICC
     // metadata by default (no .withMetadata() call), which also drops any
     // embedded GPS location data from phone photos.
-    optimized = await sharp(input)
+    // limitInputPixels guards against decompression bombs (a tiny file that
+    // decodes to a gigantic image); 50 MP covers any real phone photo.
+    optimized = await sharp(input, { limitInputPixels: 50_000_000 })
       .rotate() // apply EXIF orientation before it gets stripped, so rotated phone photos don't end up sideways
       .resize(AVATAR_PX, AVATAR_PX, { fit: "cover", position: "attention" })
       .webp({ quality: WEBP_QUALITY })

@@ -3,7 +3,7 @@
 import { AnimatePresence, motion } from "framer-motion"
 import { Bell, Camera, Eye, EyeOff, Loader2, Lock, LogOut, Moon, Shield, Trash2, User } from "lucide-react"
 import Link from "next/link"
-import { signOut, useSession } from "next-auth/react"
+import { signIn, signOut, useSession } from "next-auth/react"
 import { useEffect, useRef, useState } from "react"
 import { toast } from "sonner"
 
@@ -86,6 +86,11 @@ export default function SettingsPage() {
 
   const [nameInput,  setNameInput]  = useState("")
   const [emailInput, setEmailInput] = useState("")
+  // Email as saved on the server. Changing it requires the current password.
+  const [savedEmail,       setSavedEmail]       = useState("")
+  const [emailPassword,    setEmailPassword]    = useState("")
+  const [emailChangedNote, setEmailChangedNote] = useState("")
+  const emailEdited = emailInput.trim().toLowerCase() !== savedEmail.toLowerCase()
   const displayName = nameInput  || session?.user?.name  || "User"
 
   const userId        = session?.user?.id
@@ -128,6 +133,7 @@ export default function SettingsPage() {
         if (cancelled || !data) return
         setNameInput(data.name)
         setEmailInput(data.email)
+        setSavedEmail(data.email)
         setNotifSignals(data.notifSignals)
         setNotifJournal(data.notifJournal)
         setNotifUpdates(data.notifUpdates)
@@ -147,11 +153,21 @@ export default function SettingsPage() {
     setSaving(true)
     setSaveError("")
     setSaved(false)
+    setEmailChangedNote("")
+    if (emailEdited && !emailPassword) {
+      setSaveError("Enter your current password to change your email.")
+      setSaving(false)
+      return
+    }
     try {
       const res  = await fetch("/api/user", {
         method:  "PATCH",
         headers: { "Content-Type": "application/json" },
-        body:    JSON.stringify({ name: nameInput, email: emailInput }),
+        body:    JSON.stringify({
+          name:  nameInput,
+          email: emailInput,
+          ...(emailEdited ? { currentPassword: emailPassword } : {}),
+        }),
       })
       const data = await res.json()
       if (!res.ok) {
@@ -159,6 +175,12 @@ export default function SettingsPage() {
         return
       }
       await updateSession({ name: data.name, email: data.email })
+      setSavedEmail(data.email)
+      setEmailInput(data.email)
+      setEmailPassword("")
+      if (data.emailChanged) {
+        setEmailChangedNote(`Email changed. We sent a verification link to ${data.email}.`)
+      }
       setSaved(true)
       setTimeout(() => setSaved(false), 2500)
     } catch {
@@ -175,8 +197,8 @@ export default function SettingsPage() {
 
     setAvatarError("")
 
-    if (!file.type.startsWith("image/")) {
-      setAvatarError("File must be an image.")
+    if (file.type !== "image/jpeg" && file.type !== "image/png") {
+      setAvatarError("Please choose a JPEG or PNG image.")
       return
     }
     if (file.size > MAX_AVATAR_SOURCE_BYTES) {
@@ -272,6 +294,10 @@ export default function SettingsPage() {
         setPwError(data.error ?? "Something went wrong. Please try again.")
         return
       }
+      // The change signed out every session, this one included (see auth.ts),
+      // so sign this browser back in with the new password.
+      const email = savedEmail || session?.user?.email
+      if (email) await signIn("credentials", { email, password: newPassword, redirect: false })
       setCurrentPassword("")
       setNewPassword("")
       setConfirmPassword("")
@@ -342,7 +368,7 @@ export default function SettingsPage() {
               <input
                 ref={avatarInputRef}
                 type="file"
-                accept="image/*"
+                accept="image/jpeg,image/png"
                 onChange={handleAvatarSelect}
                 className="hidden"
               />
@@ -406,6 +432,25 @@ export default function SettingsPage() {
               />
             </div>
 
+            {emailEdited && (
+              <div>
+                <label htmlFor="emailChangePassword" className="mb-1.5 block text-xs font-medium text-gray-500">
+                  Current password
+                </label>
+                <input
+                  id="emailChangePassword"
+                  type="password"
+                  autoComplete="current-password"
+                  value={emailPassword}
+                  onChange={(e) => setEmailPassword(e.target.value)}
+                  className="w-full rounded-xl border border-white/[0.07] bg-white/[0.04] px-3.5 py-2.5 text-sm text-white placeholder:text-gray-600 focus:border-purple-500/50 focus:outline-none focus:ring-1 focus:ring-purple-500/50"
+                />
+                <p className="mt-1.5 text-xs text-gray-600">
+                  Needed to change your email. You&apos;ll verify the new address, and we&apos;ll let your old address know.
+                </p>
+              </div>
+            )}
+
             {saveError && (
               <p role="alert" className="rounded-lg border border-red-500/20 bg-red-500/[0.08] px-3.5 py-2.5 text-sm text-red-400">
                 {saveError}
@@ -422,7 +467,7 @@ export default function SettingsPage() {
                 {saving && <Loader2 className="size-3.5 animate-spin" />}
                 {saving ? "Saving…" : "Save Changes"}
               </Button>
-              {saved && <span role="status" className="text-xs text-emerald-400">Saved.</span>}
+              {saved && <span role="status" className="text-xs text-emerald-400">{emailChangedNote || "Saved."}</span>}
             </div>
           </div>
         </SectionCard>

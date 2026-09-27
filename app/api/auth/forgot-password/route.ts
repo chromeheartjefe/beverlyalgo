@@ -1,10 +1,10 @@
-import crypto from "crypto"
 import { eq } from "drizzle-orm"
 import { NextRequest, NextResponse } from "next/server"
 import { z } from "zod"
 
 import { db } from "@/db"
 import { authTokens, users } from "@/db/schema"
+import { newAuthToken } from "@/lib/auth-tokens"
 import { sendPasswordResetEmail } from "@/lib/email"
 import { checkRateLimit, clientIp } from "@/lib/rate-limit"
 
@@ -35,12 +35,16 @@ export async function POST(req: NextRequest) {
     .where(eq(users.email, parsed.data.email))
     .limit(1)
 
-  if (row) {
+  // Per-email cap on top of the per-IP one above: rotating IPs could
+  // otherwise flood one person's inbox with reset emails.
+  const emailAllowed = row ? await checkRateLimit(`forgot-password-email:${row.id}`, 3, 60 * 60 * 1000) : false
+
+  if (row && emailAllowed) {
     try {
-      const token = crypto.randomBytes(32).toString("hex")
+      const { token, hash } = newAuthToken()
       await db.insert(authTokens).values({
         userId:    row.id,
-        token,
+        token:     hash,
         type:      "password_reset",
         expiresAt: new Date(Date.now() + 60 * 60 * 1000),
       })

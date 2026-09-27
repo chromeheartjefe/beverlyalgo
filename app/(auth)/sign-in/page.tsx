@@ -11,10 +11,18 @@ import { Suspense, useEffect, useState } from "react"
 
 import { cn } from "@/lib/utils"
 
+// Only same-site paths. A full URL (https://evil.site) or protocol-relative
+// one (//evil.site, /\evil.site) would turn the sign-in page into a phishing
+// redirect after a successful login.
+function safeCallbackUrl(raw: string | null): string {
+  if (!raw || !raw.startsWith("/") || raw.startsWith("//") || raw.startsWith("/\\")) return "/dashboard"
+  return raw
+}
+
 function SignInForm() {
   const router       = useRouter()
   const searchParams = useSearchParams()
-  const callbackUrl  = searchParams.get("callbackUrl") ?? "/dashboard"
+  const callbackUrl  = safeCallbackUrl(searchParams.get("callbackUrl"))
 
   const { status } = useSession()
 
@@ -41,7 +49,9 @@ function SignInForm() {
         redirect: false,
       })
 
-      if (result?.error) {
+      if (result?.code === "rate_limited") {
+        setError("Too many sign-in attempts. Wait 15 minutes and try again, or reset your password.")
+      } else if (result?.error) {
         setError("Invalid email or password.")
       } else {
         router.push(callbackUrl)
