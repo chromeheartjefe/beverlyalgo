@@ -7,12 +7,17 @@ import { db } from "@/db"
 import { users } from "@/db/schema"
 import { clientIp, countHits, releaseHit, reserveHit } from "@/lib/rate-limit"
 
-// Brute-force protection: failed sign-ins are counted per email (stops
-// guessing one account's password) and per IP (stops one machine spraying
-// many accounts). Only failures count, so normal users never hit it.
-const LOGIN_WINDOW_MS     = 15 * 60 * 1000
-const MAX_FAILS_PER_EMAIL = 10
-const MAX_FAILS_PER_IP    = 30
+// Brute-force protection, counting failed sign-ins only:
+// - per email + IP: stops one source guessing one account's password;
+// - per IP: stops one machine spraying many accounts;
+// - per email from anywhere: a much higher ceiling for distributed attacks.
+// A plain per-email limit let anyone who knew an address lock its owner out
+// with a few wrong passwords; now another source's failures don't block the
+// owner's own connection unless an attack spans many IPs.
+const LOGIN_WINDOW_MS          = 15 * 60 * 1000
+const MAX_FAILS_PER_EMAIL_IP   = 10
+const MAX_FAILS_PER_IP         = 30
+const MAX_FAILS_PER_EMAIL_ALL  = 100
 
 // bcrypt hash of a random string nobody knows. Compared against when the
 // email doesn't exist, so an unknown email takes as long as a wrong password
@@ -33,23 +38,21 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       async authorize(credentials, request) {
         if (!credentials?.email || !credentials?.password) return null
 
-        const email    = String(credentials.email).toLowerCase()
-        const emailKey = `login-fail:email:${email}`
-        const ipKey    = `login-fail:ip:${request ? clientIp(request) : "unknown"}`
+        const email   = String(credentials.email).toLowerCase()
+        const ip      = request ? clientIp(request) : "unknown"
+        const keys    = [`login-fail:email-ip:${email}|${ip}`, `login-fail:ip:${ip}`, `login-fail:email:${email}`]
+        const limits  = [MAX_FAILS_PER_EMAIL_IP, MAX_FAILS_PER_IP, MAX_FAILS_PER_EMAIL_ALL]
 
         // Reserve this attempt BEFORE the slow bcrypt compare, then count
         // including it. Counting first let hundreds of parallel guesses all
         // pass the check before any failure was written. Blocked attempts and
         // successful sign-ins take their reservation back, so only real
         // failures count toward the limit.
-        const hitIds = await Promise.all([reserveHit(emailKey), reserveHit(ipKey)])
+        const hitIds  = await Promise.all(keys.map(reserveHit))
         const release = () => Promise.all(hitIds.map(releaseHit))
 
-        const [emailFails, ipFails] = await Promise.all([
-          countHits(emailKey, LOGIN_WINDOW_MS),
-          countHits(ipKey, LOGIN_WINDOW_MS),
-        ])
-        if (emailFails > MAX_FAILS_PER_EMAIL || ipFails > MAX_FAILS_PER_IP) {
+        const counts = await Promise.all(keys.map((k) => countHits(k, LOGIN_WINDOW_MS)))
+        if (counts.some((n, i) => n > limits[i])) {
           await release()
           throw new TooManyAttempts()
         }
