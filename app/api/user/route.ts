@@ -81,6 +81,13 @@ export async function PATCH(req: NextRequest) {
   const emailChanging = updates.email !== undefined && updates.email !== current.email
   if (!emailChanging) delete updates.email
 
+  // Only the unchanged email was sent: nothing to write (an empty .set()
+  // throws in Drizzle), so answer with the current profile as a no-op.
+  if (Object.keys(updates).length === 0) {
+    const [row] = await db.select(PUBLIC_FIELDS).from(users).where(eq(users.id, userId)).limit(1)
+    return NextResponse.json({ ...row, emailChanged: false })
+  }
+
   if (emailChanging) {
     if (!currentPassword) {
       return NextResponse.json(
