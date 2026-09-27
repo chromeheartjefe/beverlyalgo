@@ -339,3 +339,75 @@
     @apply bg-black text-foreground;
   }
 }
+
+/* ─── Trade Calendar view transitions ─────────────────────────────────────────
+   Driven by lib/view-transition.ts (native document.startViewTransition).
+   Only the calendar body, period title and the drilled-into month animate;
+   the rest of the page stays still. Recipes follow the
+   vercel-react-view-transitions skill's css-recipes. */
+:root {
+  --vt-exit: 150ms;
+  --vt-enter: 210ms;
+  --vt-move: 380ms;
+}
+
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+}
+
+@keyframes vt-fade {
+  from { filter: blur(3px); opacity: 0; }
+  to   { filter: blur(0);   opacity: 1; }
+}
+@keyframes vt-rise {
+  from { transform: translateY(10px) scale(0.985); }
+  to   { transform: translateY(0) scale(1); }
+}
+@keyframes vt-sink {
+  from { transform: translateY(0) scale(1); }
+  to   { transform: translateY(-6px) scale(0.985); }
+}
+
+::view-transition-old(cal-body) {
+  animation:
+    var(--vt-exit) ease-in both vt-fade reverse,
+    var(--vt-exit) ease-in both vt-sink;
+}
+::view-transition-new(cal-body) {
+  animation:
+    var(--vt-enter) ease-out var(--vt-exit) both vt-fade,
+    var(--vt-move) cubic-bezier(0.22, 1, 0.36, 1) both vt-rise;
+}
+
+/* Period title: new text at full resolution, no raster scaling ghost */
+::view-transition-group(cal-title) {
+  animation-duration: var(--vt-move);
+  animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+}
+::view-transition-old(cal-title) {
+  animation: var(--vt-exit) ease-in both vt-fade reverse;
+}
+::view-transition-new(cal-title) {
+  animation: var(--vt-enter) ease-out both vt-fade;
+}
+
+/* Drill-down: the clicked month tile morphs into the full month grid */
+::view-transition-group(cal-focus) {
+  animation-duration: var(--vt-move);
+  animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+}
+::view-transition-image-pair(cal-focus) {
+  animation-name: vt-via-blur;
+}
+@keyframes vt-via-blur {
+  30% { filter: blur(3px); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation: none !important;
+  }
+}

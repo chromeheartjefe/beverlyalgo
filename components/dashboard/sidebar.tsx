@@ -1,7 +1,7 @@
 "use client"
 
 import * as Dialog from "@radix-ui/react-dialog"
-import { Activity, BookOpen, Bot, Calculator, LayoutDashboard, Lock, Settings, TrendingUp, X, Zap } from "lucide-react"
+import { Activity, BookOpen, Bot, Calculator, CalendarDays, Flame, LayoutDashboard, Lock, Settings, TrendingUp, X, Zap } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
@@ -17,7 +17,13 @@ export const NAV_MAIN = [
   { label: "Chart Analysis",  href: "/dashboard/chart-analysis",  icon: Zap,             lockable: true  },
   { label: "AI Trading Indicator", href: "/dashboard/indicator",  icon: Activity,        lockable: true  },
   { label: "AI Trading Bot",  href: "/dashboard/trading-bot",     icon: Bot,             lockable: true  },
+]
+
+// Hands-on tools for finding, planning and logging your own trades
+export const NAV_TRADING = [
+  { label: "AI Screener",     href: "/dashboard/ai-screener",     icon: Flame,           lockable: false },
   { label: "Trade Journal",   href: "/dashboard/trade-journal",   icon: BookOpen,        lockable: false },
+  { label: "Trade Calendar",  href: "/dashboard/trade-calendar",  icon: CalendarDays,    lockable: false },
   { label: "Risk Calculator", href: "/dashboard/risk-calculator", icon: Calculator,      lockable: false },
 ]
 
@@ -51,6 +57,29 @@ function SidebarBody({ onNavigate }: { onNavigate?: () => void }) {
   const isActive = (href: string) =>
     href === "/dashboard" ? pathname === href : pathname.startsWith(href)
 
+  const renderItem = ({ label, href, icon: Icon, lockable }: (typeof NAV_MAIN)[number]) => {
+    const active = isActive(href)
+    const locked = lockable && isFree
+    return (
+      <Link
+        key={href}
+        href={href}
+        onClick={onNavigate}
+        onMouseEnter={() => router.prefetch(href)}
+        className={cn(
+          "flex items-center gap-3 rounded-xl px-3 py-3 text-sm font-medium transition-all duration-150 lg:py-2.5",
+          active
+            ? "bg-purple-500/[0.12] text-purple-400"
+            : "text-gray-500 hover:bg-white/[0.04] hover:text-gray-200"
+        )}
+      >
+        <Icon className={cn("size-4 shrink-0", active ? "text-purple-400" : "text-gray-500")} />
+        <span className="flex-1">{label}</span>
+        {locked && <Lock className="size-3 shrink-0 text-gray-600" />}
+      </Link>
+    )
+  }
+
   return (
     <>
       {/* Navigation */}
@@ -58,28 +87,14 @@ function SidebarBody({ onNavigate }: { onNavigate?: () => void }) {
         <p className="mb-2 mt-3 px-3 text-[10px] font-semibold uppercase tracking-widest text-gray-600">
           Main Menu
         </p>
-        {NAV_MAIN.map(({ label, href, icon: Icon, lockable }) => {
-          const active = isActive(href)
-          const locked = lockable && isFree
-          return (
-            <Link
-              key={href}
-              href={href}
-              onClick={onNavigate}
-              onMouseEnter={() => router.prefetch(href)}
-              className={cn(
-                "flex items-center gap-3 rounded-xl px-3 py-3 text-sm font-medium transition-all duration-150 lg:py-2.5",
-                active
-                  ? "bg-purple-500/[0.12] text-purple-400"
-                  : "text-gray-500 hover:bg-white/[0.04] hover:text-gray-200"
-              )}
-            >
-              <Icon className={cn("size-4 shrink-0", active ? "text-purple-400" : "text-gray-500")} />
-              <span className="flex-1">{label}</span>
-              {locked && <Lock className="size-3 shrink-0 text-gray-600" />}
-            </Link>
-          )
-        })}
+        {NAV_MAIN.map(renderItem)}
+
+        <div className="mx-3 my-4 border-t border-white/[0.07]" />
+
+        <p className="mb-2 px-3 text-[10px] font-semibold uppercase tracking-widest text-gray-600">
+          Trading Desk
+        </p>
+        {NAV_TRADING.map(renderItem)}
 
         <div className="mx-3 my-4 border-t border-white/[0.07]" />
 
