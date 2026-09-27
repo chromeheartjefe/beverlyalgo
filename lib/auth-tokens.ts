@@ -15,11 +15,7 @@ export function newAuthToken(): { token: string; hash: string } {
   return { token, hash: hashAuthToken(token) }
 }
 
-/**
- * Values to match auth_tokens.token against for an incoming link. Links sent
- * before hashing was introduced stored the raw token, and they stay valid
- * until they expire (24h at most), so both forms are accepted for now.
- */
-export function authTokenLookup(token: string): string[] {
-  return [hashAuthToken(token), token]
-}
+// Lookups compare ONLY hashAuthToken(submitted) against the column. Also
+// accepting the raw submitted value (as a migration fallback once did) would
+// let the stored hash itself work as a token, which defeats hashing against
+// a leaked database. Links issued before hashing just need a resend.
