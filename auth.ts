@@ -5,7 +5,7 @@ import Credentials from "next-auth/providers/credentials"
 
 import { db } from "@/db"
 import { users } from "@/db/schema"
-import { clientIp, countHits, recordHit } from "@/lib/rate-limit"
+import { clientIp, countHits, releaseHit, reserveHit } from "@/lib/rate-limit"
 
 // Brute-force protection: failed sign-ins are counted per email (stops
 // guessing one account's password) and per IP (stops one machine spraying
@@ -37,15 +37,21 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         const emailKey = `login-fail:email:${email}`
         const ipKey    = `login-fail:ip:${request ? clientIp(request) : "unknown"}`
 
+        // Reserve this attempt BEFORE the slow bcrypt compare, then count
+        // including it. Counting first let hundreds of parallel guesses all
+        // pass the check before any failure was written. Blocked attempts and
+        // successful sign-ins take their reservation back, so only real
+        // failures count toward the limit.
+        const hitIds = await Promise.all([reserveHit(emailKey), reserveHit(ipKey)])
+        const release = () => Promise.all(hitIds.map(releaseHit))
+
         const [emailFails, ipFails] = await Promise.all([
           countHits(emailKey, LOGIN_WINDOW_MS),
           countHits(ipKey, LOGIN_WINDOW_MS),
         ])
-        if (emailFails >= MAX_FAILS_PER_EMAIL || ipFails >= MAX_FAILS_PER_IP) throw new TooManyAttempts()
-
-        const fail = async () => {
-          await Promise.all([recordHit(emailKey), recordHit(ipKey)])
-          return null
+        if (emailFails > MAX_FAILS_PER_EMAIL || ipFails > MAX_FAILS_PER_IP) {
+          await release()
+          throw new TooManyAttempts()
         }
 
         const [row] = await db
@@ -56,11 +62,13 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
 
         if (!row) {
           await bcrypt.compare(String(credentials.password), DUMMY_HASH)
-          return fail()
+          return null // reserved hits stay recorded as this failure
         }
 
         const valid = await bcrypt.compare(String(credentials.password), row.passwordHash)
-        if (!valid) return fail()
+        if (!valid) return null // reserved hits stay recorded as this failure
+
+        await release()
 
         return {
           id:            row.id,

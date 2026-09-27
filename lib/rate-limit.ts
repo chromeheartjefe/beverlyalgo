@@ -35,9 +35,20 @@ export async function countHits(key: string, windowMs: number): Promise<number> 
   return value
 }
 
-export async function recordHit(key: string): Promise<void> {
-  await db.insert(rateLimitHits).values({ key })
+/**
+ * Records a hit now and returns its id, for callers that must count an
+ * attempt BEFORE slow work (e.g. a bcrypt compare) and may take it back
+ * afterwards with releaseHit. Counting only after the slow part let parallel
+ * requests all pass the check first.
+ */
+export async function reserveHit(key: string): Promise<string> {
+  const [hit] = await db.insert(rateLimitHits).values({ key }).returning({ id: rateLimitHits.id })
   scheduleCleanup()
+  return hit.id
+}
+
+export async function releaseHit(id: string): Promise<void> {
+  await db.delete(rateLimitHits).where(eq(rateLimitHits.id, id))
 }
 
 export function clientIp(req: Request): string {
