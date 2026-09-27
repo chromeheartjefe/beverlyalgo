@@ -1,3 +1,8 @@
+import { eq } from "drizzle-orm"
+
+import { db } from "@/db"
+import { indexTickerCache } from "@/db/schema"
+
 export type TickerItem = { label: string; price: number; changePercent: number }
 
 const CRYPTO_LABELS: Record<string, string> = {
@@ -43,30 +48,43 @@ const PROMPT_NOTES: Record<string, string> = {
   "TLT":       "20yr+ Treasury ETF, moves inversely to long-term yields — TLT up means yields falling, TLT down means yields rising",
 }
 
-// Twelve Data's free tier caps out at 800 calls/day and 8/min, shared across
-// every visitor on the site (and every chatbot message, which also reads
-// this same cache). This module-level cache is the gate that keeps us far
-// under that regardless of traffic: at most one upstream call every
-// INDEX_REFRESH_MS across ALL concurrent requests hitting this server
-// instance, plus a hard daily call-count budget as a second safety net, plus
-// a last-known-good fallback so a rate-limited/failed call never blanks the
-// data — it just keeps the last real price until the next refresh succeeds.
-// (Caveat: on serverless, this state is per warm instance and resets on cold
-// start — not a perfectly global counter — but combined with the 10-minute
-// refresh window and the daily budget, it keeps real-world usage a small
-// fraction of the free-tier limit even at high traffic.)
-const INDEX_REFRESH_MS   = 10 * 60 * 1000 // 10 min -> max 144 calls/day per warm instance
-const INDEX_DAILY_BUDGET = 200            // hard stop well under the 800/day free-tier cap
-
-let cachedIndices: TickerItem[] = []
-let lastIndexFetchAt = 0
-let indexCallsToday = 0
-let indexCallDay = ""
+// Twelve Data's free tier caps out at 800 calls/day and 8 credits/minute,
+// shared with AI Screener's stock-quote verification (lib/screener-data.ts)
+// on the same key — a same-minute collision between the two can blow the
+// per-minute cap on its own. This cache used to be a module-level variable,
+// which reset on every dev-server restart or serverless cold start and
+// fired an immediate fresh call each time — exactly the kind of unintended
+// extra call that risks colliding with a screener scan. DB-backed via
+// db/schema.ts's indexTickerCache instead: the "once per 10 minutes" gate
+// now actually holds across every instance/restart (≤144 calls/day, well
+// under the 800/day cap on its own, so the old separate daily-budget
+// counter is redundant and dropped), and a rate-limited/failed call falls
+// back to the last cached row rather than blanking the data.
+const INDEX_REFRESH_MS = 10 * 60 * 1000
 
 let cachedCrypto: TickerItem[] = []
 
-function todayKey() {
-  return new Date().toISOString().slice(0, 10)
+async function readIndexCache() {
+  try {
+    const [row] = await db.select().from(indexTickerCache).where(eq(indexTickerCache.id, "singleton"))
+    return row ?? null
+  } catch {
+    return null
+  }
+}
+
+async function writeIndexCache(data: TickerItem[]) {
+  try {
+    await db
+      .insert(indexTickerCache)
+      .values({ id: "singleton", data: JSON.stringify(data), generatedAt: new Date() })
+      .onConflictDoUpdate({
+        target: indexTickerCache.id,
+        set: { data: JSON.stringify(data), generatedAt: new Date() },
+      })
+  } catch {
+    // Best-effort — a failed write just means the next request re-checks staleness itself.
+  }
 }
 
 async function fetchCrypto(): Promise<TickerItem[]> {
@@ -90,20 +108,12 @@ async function fetchCrypto(): Promise<TickerItem[]> {
 
 async function fetchIndices(): Promise<TickerItem[]> {
   const apiKey = process.env.TWELVE_DATA_API_KEY
-  if (!apiKey) return cachedIndices
+  if (!apiKey) return []
 
-  const day = todayKey()
-  if (day !== indexCallDay) {
-    indexCallDay = day
-    indexCallsToday = 0
-  }
-
-  const cacheIsFresh   = Date.now() - lastIndexFetchAt < INDEX_REFRESH_MS
-  const budgetExceeded = indexCallsToday >= INDEX_DAILY_BUDGET
-  if (cacheIsFresh || budgetExceeded) return cachedIndices
-
-  indexCallsToday += 1
-  lastIndexFetchAt = Date.now()
+  const cached     = await readIndexCache()
+  const cachedData: TickerItem[] = cached ? JSON.parse(cached.data) : []
+  const cacheIsFresh = cached ? Date.now() - new Date(cached.generatedAt).getTime() < INDEX_REFRESH_MS : false
+  if (cacheIsFresh) return cachedData
 
   try {
     const symbols = Object.keys(INDEX_LABELS)
@@ -111,7 +121,7 @@ async function fetchIndices(): Promise<TickerItem[]> {
       `https://api.twelvedata.com/quote?symbol=${encodeURIComponent(symbols.join(","))}&apikey=${apiKey}`,
       { cache: "no-store" }
     )
-    if (!res.ok) return cachedIndices
+    if (!res.ok) return cachedData
     const data = await res.json()
 
     const next = symbols
@@ -126,10 +136,12 @@ async function fetchIndices(): Promise<TickerItem[]> {
       })
       .filter((item): item is TickerItem => item !== null)
 
-    if (next.length > 0) cachedIndices = next
-    return cachedIndices
+    if (next.length === 0) return cachedData
+
+    await writeIndexCache(next)
+    return next
   } catch {
-    return cachedIndices
+    return cachedData
   }
 }
 
