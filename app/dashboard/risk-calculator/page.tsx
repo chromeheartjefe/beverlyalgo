@@ -26,9 +26,9 @@ function InputField({
   return (
     <div>
       <label className="mb-1.5 block text-xs font-medium text-gray-400">{label}</label>
-      <div className="flex overflow-hidden rounded-xl border border-white/[0.08] bg-white/[0.04] focus-within:border-purple-500/40 focus-within:ring-1 focus-within:ring-purple-500/20">
+      <div className="flex overflow-hidden rounded-xl border border-white/15 bg-white/[0.04] focus-within:border-purple-500/40 focus-within:ring-1 focus-within:ring-purple-500/20">
         {prefix && (
-          <span className="flex items-center border-r border-white/[0.07] bg-white/[0.03] px-3 text-sm text-gray-500">
+          <span className="flex items-center border-r border-white/15 bg-white/[0.03] px-3 text-sm text-gray-500">
             {prefix}
           </span>
         )}
@@ -39,7 +39,7 @@ function InputField({
           className="flex-1 bg-transparent px-3.5 py-2.5 text-sm text-white focus:outline-none"
         />
         {suffix && (
-          <span className="flex items-center border-l border-white/[0.07] bg-white/[0.03] px-3 text-sm text-gray-500">
+          <span className="flex items-center border-l border-white/15 bg-white/[0.03] px-3 text-sm text-gray-500">
             {suffix}
           </span>
         )}
@@ -155,7 +155,7 @@ export default function RiskCalculatorPage() {
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
         {/* Inputs */}
-        <div className="space-y-5 rounded-2xl border border-white/[0.07] bg-white/[0.03] p-6">
+        <div className="space-y-5 rounded-2xl border border-white/25 bg-white/[0.03] p-6">
           <div className="flex items-center gap-2.5">
             <div className="flex size-8 items-center justify-center rounded-lg bg-purple-500/15">
               <DollarSign className="size-4 text-purple-400" />
@@ -189,7 +189,7 @@ export default function RiskCalculatorPage() {
             </div>
           </div>
 
-          <div className="border-t border-white/[0.07] pt-2" />
+          <div className="border-t border-white/15 pt-2" />
 
           <InputField
             label="Entry Price"
@@ -215,7 +215,7 @@ export default function RiskCalculatorPage() {
 
         {/* Results */}
         <div className="space-y-5">
-          <div className="rounded-2xl border border-white/[0.07] bg-white/[0.03] p-6">
+          <div className="rounded-2xl border border-white/25 bg-white/[0.03] p-6">
             <div className="flex items-center gap-2.5 mb-4">
               <div className="flex size-8 items-center justify-center rounded-lg bg-emerald-500/15">
                 <TrendingUp className="size-4 text-emerald-400" />
@@ -248,7 +248,7 @@ export default function RiskCalculatorPage() {
           )}
 
           {/* Risk summary card */}
-          <div className="rounded-2xl border border-white/[0.07] bg-white/[0.03] p-5">
+          <div className="rounded-2xl border border-white/25 bg-white/[0.03] p-5">
             <p className="mb-3 text-xs font-semibold uppercase tracking-widest text-gray-600">Summary</p>
             <p className="text-sm leading-relaxed text-gray-400">
               Risking{" "}

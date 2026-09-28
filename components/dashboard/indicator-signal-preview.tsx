@@ -70,7 +70,7 @@ export function IndicatorSignalPreview({
   buyTop?: string
 }) {
   return (
-    <div className={`relative flex h-full flex-col justify-center overflow-hidden rounded-2xl border border-white/[0.07] bg-gradient-to-b from-purple-500/[0.06] to-transparent p-5 ${className ?? ""}`}>
+    <div className={`relative flex h-full flex-col justify-center overflow-hidden rounded-2xl border border-white/25 bg-gradient-to-b from-purple-500/[0.06] to-transparent p-5 ${className ?? ""}`}>
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_70%_20%,rgba(168,85,247,0.12),transparent_60%)]" />
 
       {/* CandleChart's `fill` mode measures this box in 1:1 px (ResizeObserver)

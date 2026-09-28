@@ -18,7 +18,7 @@ export function FeatureLock({
     <div className="relative">
       <div className="pointer-events-none select-none opacity-40 grayscale">{children}</div>
       <div className="absolute inset-0 flex items-center justify-center bg-[#09090f]/60 backdrop-blur-sm">
-        <div className="mx-4 max-w-sm rounded-2xl border border-white/[0.07] bg-white/[0.04] p-6 text-center">
+        <div className="mx-4 max-w-sm rounded-2xl border border-white/25 bg-white/[0.04] p-6 text-center">
           <div className="mx-auto mb-3 flex size-12 items-center justify-center rounded-2xl border border-purple-500/20 bg-purple-500/10">
             <Lock className="size-5 text-purple-400" />
           </div>

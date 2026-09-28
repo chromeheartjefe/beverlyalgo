@@ -1,5 +1,6 @@
 import type { Metadata } from "next"
 
+import { AnnouncementBanner } from "@/components/dashboard/announcement-banner"
 import { MobileNavProvider } from "@/components/dashboard/mobile-nav-context"
 import { DashboardSidebar } from "@/components/dashboard/sidebar"
 import { DashboardHeader } from "@/components/dashboard/top-header"
@@ -18,6 +19,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         <div className="flex min-w-0 flex-1 flex-col">
           <DashboardHeader />
           <VerifyBanner />
+          <AnnouncementBanner />
           <main id="main-content" className="flex-1 overflow-y-auto">
             {children}
           </main>

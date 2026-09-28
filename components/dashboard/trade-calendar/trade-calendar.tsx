@@ -281,7 +281,7 @@ export function TradeCalendar() {
         <div className="flex items-center gap-2">
           <Link
             href="/dashboard/trade-journal"
-            className="inline-flex items-center gap-2 rounded-xl border border-white/[0.08] bg-white/[0.03] px-3.5 py-2.5 text-sm font-medium text-gray-300 transition-colors hover:bg-white/[0.06]"
+            className="inline-flex items-center gap-2 rounded-xl border border-white/15 bg-white/[0.03] px-3.5 py-2.5 text-sm font-medium text-gray-300 transition-colors hover:bg-white/[0.06]"
           >
             <BookOpen className="size-4" />
             Journal
@@ -307,7 +307,7 @@ export function TradeCalendar() {
                 onClick={() => step(-1)}
                 disabled={mode === "all"}
                 aria-label={`Previous ${mode}`}
-                className="flex size-10 items-center justify-center rounded-xl border border-white/[0.07] bg-white/[0.03] text-gray-400 transition-colors hover:bg-white/[0.07] hover:text-white disabled:pointer-events-none disabled:opacity-30"
+                className="flex size-10 items-center justify-center rounded-xl border border-white/15 bg-white/[0.03] text-gray-400 transition-colors hover:bg-white/[0.07] hover:text-white disabled:pointer-events-none disabled:opacity-30"
               >
                 <ChevronLeft className="size-4" />
               </button>
@@ -327,7 +327,7 @@ export function TradeCalendar() {
                 onClick={() => step(1)}
                 disabled={mode === "all"}
                 aria-label={`Next ${mode}`}
-                className="flex size-10 items-center justify-center rounded-xl border border-white/[0.07] bg-white/[0.03] text-gray-400 transition-colors hover:bg-white/[0.07] hover:text-white disabled:pointer-events-none disabled:opacity-30"
+                className="flex size-10 items-center justify-center rounded-xl border border-white/15 bg-white/[0.03] text-gray-400 transition-colors hover:bg-white/[0.07] hover:text-white disabled:pointer-events-none disabled:opacity-30"
               >
                 <ChevronRight className="size-4" />
               </button>
@@ -361,7 +361,7 @@ export function TradeCalendar() {
 
       {/* Summary + goal */}
       <div className="mb-5 grid grid-cols-1 gap-4 lg:grid-cols-5">
-        <div className="relative overflow-hidden rounded-2xl border border-white/[0.07] bg-[#070712] p-5 lg:col-span-2">
+        <div className="relative overflow-hidden rounded-2xl border border-white/25 bg-[#070712] p-5 lg:col-span-2">
           <div
             className={cn(
               "pointer-events-none absolute -left-16 -top-20 size-56 rounded-full blur-3xl transition-colors duration-700",
@@ -459,7 +459,7 @@ export function TradeCalendar() {
       </AnimatePresence>
 
       {/* Calendar body */}
-      <div className="rounded-2xl border border-white/[0.07] bg-white/[0.025] p-2.5 sm:p-4" style={{ viewTransitionName: "cal-body" }}>
+      <div className="rounded-2xl border border-white/25 bg-white/[0.025] p-2.5 sm:p-4" style={{ viewTransitionName: "cal-body" }}>
         {loading ? (
           <div className="grid grid-cols-5 gap-2 sm:grid-cols-7" aria-busy="true" aria-label="Loading trades">
             {Array.from({ length: 35 }, (_, i) => (

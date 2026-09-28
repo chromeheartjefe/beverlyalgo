@@ -99,8 +99,8 @@ export function MonthView({ y, m, dayMap, today, weekends, selectedKey, onSelect
                   className={cn(
                     "group relative flex min-h-[60px] flex-col justify-between rounded-lg border p-1.5 text-left transition-[border-color,background-color,box-shadow] sm:min-h-[84px] sm:rounded-xl sm:p-2.5 xl:min-h-[96px]",
                     focusRing,
-                    s ? "hover:brightness-110" : "border-white/[0.05] bg-white/[0.015] hover:border-white/[0.12] hover:bg-white/[0.04]",
-                    s && s.pnl === 0 && "border-white/[0.12] bg-white/[0.05]",
+                    s ? "hover:brightness-110" : "border-white/15 bg-white/[0.015] hover:border-white/30 hover:bg-white/[0.04]",
+                    s && s.pnl === 0 && "border-white/25 bg-white/[0.05]",
                     future && !s && "opacity-45",
                     selectedKey === key && "ring-2 ring-purple-400/80 ring-offset-2 ring-offset-[#07070d]",
                   )}
@@ -135,7 +135,7 @@ export function MonthView({ y, m, dayMap, today, weekends, selectedKey, onSelect
             }),
             <div
               key={`wk-${wi}`}
-              className="hidden flex-col justify-between rounded-xl border border-dashed border-white/[0.07] bg-transparent p-2.5 lg:flex"
+              className="hidden flex-col justify-between rounded-xl border border-dashed border-white/20 bg-transparent p-2.5 lg:flex"
             >
               <span className="text-xs text-gray-500">Week {wi + 1}</span>
               <div>
@@ -188,7 +188,7 @@ export function WeekView({ anchor, dayMap, today, weekends, selectedKey, onSelec
           <div
             key={key}
             className={cn(
-              "flex flex-col overflow-hidden rounded-xl border border-white/[0.07] bg-[#070712] xl:min-h-[280px]",
+              "flex flex-col overflow-hidden rounded-xl border border-white/15 bg-[#070712] xl:min-h-[280px]",
               selectedKey === key && "ring-2 ring-purple-400/80 ring-offset-2 ring-offset-[#07070d]",
             )}
           >
@@ -196,7 +196,7 @@ export function WeekView({ anchor, dayMap, today, weekends, selectedKey, onSelec
               onClick={() => onSelectDay(key)}
               aria-label={cellLabel(d, s)}
               style={heat(s?.pnl ?? 0, maxAbs)}
-              className={cn("border-b border-white/[0.06] p-3 text-left transition-[filter] hover:brightness-110", focusRing, !s && "bg-white/[0.02]")}
+              className={cn("border-b border-white/15 p-3 text-left transition-[filter] hover:brightness-110", focusRing, !s && "bg-white/[0.02]")}
             >
               <div className="flex items-center justify-between">
                 <span className="text-xs font-medium text-gray-400">{WEEKDAYS[weekdayIndex(d)]}</span>
@@ -241,7 +241,7 @@ export function WeekView({ anchor, dayMap, today, weekends, selectedKey, onSelec
             <button
               onClick={() => onAdd(key)}
               className={cn(
-                "m-2 mt-auto inline-flex items-center justify-center gap-1.5 rounded-lg border border-dashed border-white/[0.08] py-2 text-xs font-medium text-gray-500 transition-colors hover:border-purple-400/40 hover:bg-purple-500/[0.06] hover:text-purple-200",
+                "m-2 mt-auto inline-flex items-center justify-center gap-1.5 rounded-lg border border-dashed border-white/20 py-2 text-xs font-medium text-gray-500 transition-colors hover:border-purple-400/40 hover:bg-purple-500/[0.06] hover:text-purple-200",
                 focusRing,
               )}
             >
@@ -293,7 +293,7 @@ export function YearView({ year, dayMap, months, today, weekends, goals, onOpenM
             className={cn(
               "group rounded-2xl border bg-[#070712] p-4 text-left transition-colors",
               focusRing,
-              current ? "border-purple-400/40 shadow-[0_0_30px_-12px_rgba(168,85,247,0.6)]" : "border-white/[0.07] hover:border-white/[0.14]",
+              current ? "border-purple-400/40 shadow-[0_0_30px_-12px_rgba(168,85,247,0.6)]" : "border-white/15 hover:border-white/30",
               future && "opacity-55",
             )}
           >
@@ -350,7 +350,7 @@ export function AllTimeView({ years, months, today, onOpenMonth, onOpenYear }: {
   for (const v of months.values()) maxAbs = Math.max(maxAbs, Math.abs(v.pnl))
 
   return (
-    <div className="overflow-hidden rounded-2xl border border-white/[0.07] bg-[#070712]">
+    <div className="overflow-hidden rounded-2xl border border-white/25 bg-[#070712]">
       <div className="overflow-x-auto">
         <table className="w-full min-w-[820px] border-separate border-spacing-1.5 p-2 text-sm">
           <caption className="sr-only">Monthly P&amp;L by year</caption>
@@ -391,8 +391,8 @@ export function AllTimeView({ years, months, today, onOpenMonth, onOpenYear }: {
                           className={cn(
                             "flex h-12 w-full items-center justify-center rounded-lg border text-xs font-semibold tabular-nums transition-[filter,border-color]",
                             focusRing,
-                            agg ? cn(pnlText(agg.pnl), "hover:brightness-125") : "border-white/[0.04] bg-white/[0.015] text-gray-700 hover:border-white/[0.1]",
-                            future && "cursor-default opacity-30 hover:border-white/[0.04]",
+                            agg ? cn(pnlText(agg.pnl), "hover:brightness-125") : "border-white/15 bg-white/[0.015] text-gray-700 hover:border-white/30",
+                            future && "cursor-default opacity-30 hover:border-white/15",
                           )}
                         >
                           {agg ? fmtMoney(agg.pnl, { signed: true, compact: true }) : "–"}

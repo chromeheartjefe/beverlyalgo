@@ -138,7 +138,7 @@ type Stat = {
 
 function StatCard({ label, value, format, delta, icon: Icon, iconBg, iconCol, pos, noArrow, loading }: Stat) {
   return (
-    <div className="flex flex-col gap-4 rounded-2xl border border-white/[0.07] bg-white/[0.035] p-5">
+    <div className="flex flex-col gap-4 rounded-2xl border border-white/25 bg-white/[0.035] p-5">
       <div className="flex items-center justify-between">
         <p className="text-xs text-gray-500">{label}</p>
         <div className={cn("flex size-9 items-center justify-center rounded-xl", iconBg)}>
@@ -367,7 +367,7 @@ export default function DashboardPage() {
             initial={reveal ? { opacity: 0, y: 16 } : false}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.2 }}
-            className="overflow-hidden rounded-2xl border border-white/[0.07] bg-gradient-to-br from-[#0f0f1e] to-[#0a0a12]"
+            className="overflow-hidden rounded-2xl border border-white/25 bg-gradient-to-br from-[#0f0f1e] to-[#0a0a12]"
           >
             <div className="p-6">
               <div className="flex items-start justify-between gap-4">
@@ -391,11 +391,11 @@ export default function DashboardPage() {
 
               {/* Drop zone preview */}
               <Link href="/dashboard/chart-analysis">
-                <div className="mt-5 flex h-36 cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed border-white/[0.10] bg-white/[0.02] transition-colors hover:border-purple-500/40 hover:bg-purple-500/[0.03]">
+                <div className="mt-5 flex h-36 cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed border-white/20 bg-white/[0.02] transition-colors hover:border-purple-500/40 hover:bg-purple-500/[0.03]">
                   <Zap className="size-7 text-gray-600" />
                   <p className="mt-2 text-sm text-gray-600">Drag and drop your chart image here</p>
                   <p className="mt-0.5 text-xs text-gray-700">Supports PNG, JPG (Max 5MB)</p>
-                  <span className="mt-3 inline-flex items-center gap-1.5 rounded-full border border-white/[0.08] bg-white/[0.04] px-3 py-1 text-xs text-gray-500">
+                  <span className="mt-3 inline-flex items-center gap-1.5 rounded-full border border-white/15 bg-white/[0.04] px-3 py-1 text-xs text-gray-500">
                     or click to Browse Files →
                   </span>
                 </div>
@@ -408,7 +408,7 @@ export default function DashboardPage() {
             initial={reveal ? { opacity: 0, y: 16 } : false}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.2 }}
-            className="rounded-2xl border border-white/[0.07] bg-white/[0.025] p-6"
+            className="rounded-2xl border border-white/25 bg-white/[0.025] p-6"
           >
             <div className="mb-5 flex items-center justify-between">
               <div>
@@ -452,9 +452,9 @@ export default function DashboardPage() {
           transition={{ duration: 0.2 }}
           className="xl:col-span-2"
         >
-          <div className="rounded-2xl border border-white/[0.07] bg-white/[0.025]">
+          <div className="rounded-2xl border border-white/25 bg-white/[0.025]">
             {/* Header */}
-            <div className="flex items-center justify-between border-b border-white/[0.07] px-5 py-4">
+            <div className="flex items-center justify-between border-b border-white/15 px-5 py-4">
               <div>
                 <h2 className="font-semibold text-white">Recent AI Analyses</h2>
                 <p className="mt-0.5 text-xs text-gray-500">Your latest chart analyses</p>
@@ -479,7 +479,7 @@ export default function DashboardPage() {
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
                         <span className="font-mono text-sm font-bold text-white">{a.pair}</span>
-                        <span className="rounded-md border border-white/[0.08] bg-white/[0.05] px-1.5 py-0.5 text-[10px] text-gray-500">
+                        <span className="rounded-md border border-white/15 bg-white/[0.05] px-1.5 py-0.5 text-[10px] text-gray-500">
                           {a.timeframe}
                         </span>
                       </div>
@@ -519,7 +519,7 @@ export default function DashboardPage() {
               </div>
             ) : (
               <div className="flex flex-col items-center gap-2 px-5 py-10 text-center">
-                <div className="flex size-10 items-center justify-center rounded-xl border border-white/[0.07] bg-white/[0.03]">
+                <div className="flex size-10 items-center justify-center rounded-xl border border-white/15 bg-white/[0.03]">
                   <Zap className="size-4 text-gray-600" />
                 </div>
                 <p className="text-xs text-gray-500">No analyses yet.</p>
@@ -528,7 +528,7 @@ export default function DashboardPage() {
             )}
 
             {/* Footer */}
-            <div className="border-t border-white/[0.07] px-5 py-3">
+            <div className="border-t border-white/15 px-5 py-3">
               <Link
                 href="/dashboard/chart-analysis"
                 className="flex items-center gap-1 text-xs font-medium text-purple-400 hover:text-purple-300"

@@ -138,13 +138,13 @@ export function DashboardHeader() {
   }
 
   return (
-    <header className="flex h-16 shrink-0 items-center gap-2 border-b border-white/[0.07] bg-[#07070d] px-4 sm:px-6">
+    <header className="flex h-16 shrink-0 items-center gap-2 border-b border-white/15 bg-[#07070d] px-4 sm:px-6">
       {/* Mobile nav trigger — sidebar is hidden below lg, this opens the drawer */}
       <Tooltip>
         <TooltipTrigger asChild>
           <button
             onClick={() => setMobileNavOpen(true)}
-            className="flex size-10 shrink-0 items-center justify-center rounded-xl border border-white/[0.07] bg-white/[0.03] text-gray-400 transition-colors hover:text-gray-200 lg:hidden"
+            className="flex size-10 shrink-0 items-center justify-center rounded-xl border border-white/15 bg-white/[0.03] text-gray-400 transition-colors hover:text-gray-200 lg:hidden"
             aria-label="Open navigation menu"
           >
             <Menu className="size-5" />
@@ -182,7 +182,7 @@ export function DashboardHeader() {
           <Tooltip>
             <TooltipTrigger asChild>
               <DropdownMenuTrigger asChild>
-                <button className="relative flex size-9 shrink-0 items-center justify-center rounded-xl border border-white/[0.07] bg-white/[0.03] text-gray-500 transition-colors hover:text-gray-200">
+                <button className="relative flex size-9 shrink-0 items-center justify-center rounded-xl border border-white/15 bg-white/[0.03] text-gray-500 transition-colors hover:text-gray-200">
                   <Bell className="size-4" />
                   {unread && <span className="absolute right-2 top-2 size-1.5 rounded-full bg-purple-400" />}
                 </button>
@@ -190,7 +190,7 @@ export function DashboardHeader() {
             </TooltipTrigger>
             <TooltipContent>Notifications</TooltipContent>
           </Tooltip>
-          <DropdownMenuContent align="end" className="w-80 border-white/[0.08] bg-[#0d0d1c] p-0 text-white">
+          <DropdownMenuContent align="end" className="w-80 border-white/25 bg-[#0d0d1c] p-0 text-white">
             <DropdownMenuLabel className="px-4 py-3 text-xs font-semibold uppercase tracking-widest text-gray-500">
               Recent Signals
             </DropdownMenuLabel>
@@ -249,7 +249,7 @@ export function DashboardHeader() {
               <ChevronDown className="hidden size-3.5 text-gray-600 md:block" />
             </button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-64 border-white/[0.08] bg-[#0d0d1c] p-1.5 text-white">
+          <DropdownMenuContent align="end" className="w-64 border-white/25 bg-[#0d0d1c] p-1.5 text-white">
             <DropdownMenuLabel className="px-2.5 py-2">
               <p className="truncate text-sm font-semibold text-white">{name}</p>
               <p className="truncate text-xs text-gray-500">{email}</p>
@@ -283,7 +283,7 @@ export function DashboardHeader() {
             )}
             <DropdownMenuSeparator className="bg-white/[0.07]" />
             <DropdownMenuItem
-              onSelect={() => signOut({ callbackUrl: "/" })}
+              onSelect={() => signOut({ redirect: false }).then(() => window.location.assign("/"))}
               className="cursor-pointer gap-2.5 rounded-lg px-2.5 py-2 text-sm text-red-400 focus:bg-red-500/10 focus:text-red-300"
             >
               <LogOut className="size-4" />

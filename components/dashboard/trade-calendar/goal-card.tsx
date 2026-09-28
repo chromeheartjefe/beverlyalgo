@@ -25,7 +25,7 @@ const EASE = [0.22, 1, 0.36, 1] as const
 
 function Shell({ children, className }: { children: React.ReactNode; className?: string }) {
   return (
-    <div className={cn("relative overflow-hidden rounded-2xl border border-white/[0.07] bg-[#070712] p-5", className)}>
+    <div className={cn("relative overflow-hidden rounded-2xl border border-white/25 bg-[#070712] p-5", className)}>
       <span className="pointer-events-none absolute inset-x-10 top-0 h-px bg-gradient-to-r from-transparent via-purple-400/60 to-transparent" />
       <div className="pointer-events-none absolute -right-20 -top-24 size-56 rounded-full bg-purple-500/10 blur-3xl" />
       <div className="relative">{children}</div>
@@ -112,7 +112,7 @@ function GoalEditor({ initial, canClear, onSave, onCancel }: {
             placeholder="750"
             aria-invalid={!!error}
             aria-describedby={error ? "monthlyGoalError" : "monthlyGoalHelp"}
-            className="w-full rounded-xl border border-white/[0.08] bg-white/[0.04] py-2.5 pl-7 pr-3 text-sm text-white tabular-nums placeholder:text-gray-600 focus:border-purple-500/40 focus:outline-none focus:ring-1 focus:ring-purple-500/50"
+            className="w-full rounded-xl border border-white/15 bg-white/[0.04] py-2.5 pl-7 pr-3 text-sm text-white tabular-nums placeholder:text-gray-600 focus:border-purple-500/40 focus:outline-none focus:ring-1 focus:ring-purple-500/50"
           />
         </div>
         <button
@@ -316,7 +316,7 @@ export function MonthGoalCard({ y, m, dayMap, monthPnl, goal, today, weekends, o
           !editing && (
             <button
               onClick={() => setEditing(true)}
-              className="inline-flex items-center gap-1.5 rounded-lg border border-white/[0.08] bg-white/[0.03] px-2.5 py-1.5 text-xs font-medium text-gray-300 transition-colors hover:bg-white/[0.07] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-purple-400/60"
+              className="inline-flex items-center gap-1.5 rounded-lg border border-white/15 bg-white/[0.03] px-2.5 py-1.5 text-xs font-medium text-gray-300 transition-colors hover:bg-white/[0.07] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-purple-400/60"
             >
               <Pencil className="size-3.5" />
               {amount ? "Edit goal" : "Set goal"}
@@ -463,7 +463,7 @@ export function GoalRecordCard({ title, sub, bars, onSelect, className }: {
                 </div>
                 {/* below zero */}
                 {hasNeg && (
-                  <div className="absolute inset-x-0 bottom-0 border-t border-white/[0.08]" style={{ height: `${(1 - upShare) * 100}%` }}>
+                  <div className="absolute inset-x-0 bottom-0 border-t border-white/15" style={{ height: `${(1 - upShare) * 100}%` }}>
                     {b.pnl < 0 && (
                       <motion.div
                         className={cn("w-full rounded-b-[5px] bg-gradient-to-b transition-[filter] group-hover:brightness-125", tone)}
@@ -474,7 +474,7 @@ export function GoalRecordCard({ title, sub, bars, onSelect, className }: {
                     )}
                   </div>
                 )}
-                {!hasNeg && <span className="absolute inset-x-0 bottom-0 border-t border-white/[0.08]" />}
+                {!hasNeg && <span className="absolute inset-x-0 bottom-0 border-t border-white/15" />}
               </div>
               <span className={cn("mt-1.5 truncate text-center text-[11px]", b.future ? "text-gray-700" : "text-gray-500 group-hover:text-gray-300")}>
                 {b.label}

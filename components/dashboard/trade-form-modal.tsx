@@ -43,7 +43,7 @@ function emptyForm(date?: string): TradeFormState {
 }
 
 const inputCls =
-  "w-full rounded-xl border border-white/[0.08] bg-white/[0.04] px-3.5 py-2.5 text-sm text-white placeholder:text-gray-600 focus:border-purple-500/40 focus:outline-none focus:ring-1 focus:ring-purple-500/50"
+  "w-full rounded-xl border border-white/15 bg-white/[0.04] px-3.5 py-2.5 text-sm text-white placeholder:text-gray-600 focus:border-purple-500/40 focus:outline-none focus:ring-1 focus:ring-purple-500/50"
 
 // ─── Modal ────────────────────────────────────────────────────────────────────
 
@@ -96,7 +96,7 @@ export function TradeFormModal({
             if (!editing && defaultDate) pairInputRef.current?.focus()
             else dateInputRef.current?.focus()
           }}
-          className="fixed left-1/2 top-1/2 z-[60] max-h-[85vh] w-[92vw] max-w-md -translate-x-1/2 -translate-y-1/2 overflow-y-auto rounded-2xl border border-white/[0.08] bg-[#0d0d1c] p-5 shadow-2xl sm:p-6"
+          className="fixed left-1/2 top-1/2 z-[60] max-h-[85vh] w-[92vw] max-w-md -translate-x-1/2 -translate-y-1/2 overflow-y-auto rounded-2xl border border-white/25 bg-[#0d0d1c] p-5 shadow-2xl sm:p-6"
         >
           <div className="mb-5 flex items-center justify-between">
             <Dialog.Title className="text-sm font-semibold text-white">

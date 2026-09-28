@@ -47,7 +47,7 @@ const MODES: { id: Mode; label: string }[] = [
 
 export function ModeSwitcher({ mode, onChange }: { mode: Mode; onChange: (m: Mode) => void }) {
   return (
-    <div role="tablist" aria-label="Calendar range" className="relative grid w-full grid-cols-4 rounded-xl border border-white/[0.07] bg-white/[0.03] p-1 sm:w-auto">
+    <div role="tablist" aria-label="Calendar range" className="relative grid w-full grid-cols-4 rounded-xl border border-white/15 bg-white/[0.03] p-1 sm:w-auto">
       {MODES.map(({ id, label }) => {
         const active = id === mode
         return (
@@ -84,13 +84,13 @@ export function WeekendSwitch({ on, onChange }: { on: boolean; onChange: (v: boo
       role="switch"
       aria-checked={on}
       onClick={() => onChange(!on)}
-      className="group inline-flex items-center gap-2.5 rounded-xl border border-white/[0.07] bg-white/[0.03] py-2 pl-3 pr-2 text-sm font-medium text-gray-300 transition-colors hover:bg-white/[0.06] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-purple-400/60"
+      className="group inline-flex items-center gap-2.5 rounded-xl border border-white/15 bg-white/[0.03] py-2 pl-3 pr-2 text-sm font-medium text-gray-300 transition-colors hover:bg-white/[0.06] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-purple-400/60"
     >
       Weekends
       <span
         className={cn(
           "relative flex h-5 w-9 items-center rounded-full border p-0.5 transition-colors duration-200",
-          on ? "justify-end border-purple-400/40 bg-purple-500/40" : "justify-start border-white/10 bg-white/[0.06]",
+          on ? "justify-end border-purple-400/40 bg-purple-500/40" : "justify-start border-white/20 bg-white/[0.06]",
         )}
       >
         <motion.span
@@ -116,8 +116,8 @@ export function MiniStat({ label, value, sub, onClick }: {
     <Tag
       onClick={onClick}
       className={cn(
-        "min-w-0 rounded-xl border border-white/[0.05] bg-white/[0.02] px-3 py-2.5 text-left",
-        onClick && "transition-colors hover:border-white/[0.1] hover:bg-white/[0.04] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-purple-400/60",
+        "min-w-0 rounded-xl border border-white/15 bg-white/[0.02] px-3 py-2.5 text-left",
+        onClick && "transition-colors hover:border-white/30 hover:bg-white/[0.04] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-purple-400/60",
       )}
     >
       <p className="truncate text-xs text-gray-500">{label}</p>

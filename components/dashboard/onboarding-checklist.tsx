@@ -43,7 +43,7 @@ export function OnboardingChecklist({
   if (doneCount === steps.length) return null
 
   return (
-    <div className="mb-8 rounded-2xl border border-white/[0.07] bg-white/[0.025] p-5">
+    <div className="mb-8 rounded-2xl border border-white/25 bg-white/[0.025] p-5">
       <div className="mb-4 flex items-center justify-between">
         <div>
           <h2 className="text-sm font-semibold text-white">Get started with EntrixAlgo</h2>
@@ -67,7 +67,7 @@ export function OnboardingChecklist({
               "flex items-center gap-3 rounded-xl border px-3.5 py-3 transition-colors",
               done
                 ? "border-emerald-500/[0.15] bg-emerald-500/[0.04]"
-                : "border-white/[0.06] bg-white/[0.02] hover:bg-white/[0.04]"
+                : "border-white/15 bg-white/[0.02] hover:bg-white/[0.04]"
             )}
           >
             {done

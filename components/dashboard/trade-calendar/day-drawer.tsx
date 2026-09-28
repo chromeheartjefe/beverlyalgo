@@ -85,7 +85,7 @@ export function DayDrawer({ dayKey, stat, onClose, onStep, onAdd, onEdit, onDele
                 {...(reduce ? { initial: { opacity: 0 }, animate: { opacity: 1 }, exit: { opacity: 0 } } : panel)}
                 transition={{ type: "spring", stiffness: 380, damping: 38 }}
                 className={cn(
-                  "fixed z-50 flex flex-col border-white/[0.08] bg-[#0b0b18] shadow-2xl outline-none",
+                  "fixed z-50 flex flex-col border-white/15 bg-[#0b0b18] shadow-2xl outline-none",
                   desktop
                     ? "inset-y-0 right-0 w-[420px] max-w-[92vw] border-l"
                     : "inset-x-0 bottom-0 max-h-[88vh] rounded-t-3xl border-t",
@@ -94,7 +94,7 @@ export function DayDrawer({ dayKey, stat, onClose, onStep, onAdd, onEdit, onDele
                 {!desktop && <div className="mx-auto mt-2.5 h-1 w-10 rounded-full bg-white/15" aria-hidden="true" />}
 
                 {/* Header */}
-                <div className="flex items-center gap-1 border-b border-white/[0.07] px-4 py-3 sm:px-5">
+                <div className="flex items-center gap-1 border-b border-white/15 px-4 py-3 sm:px-5">
                   <Tooltip>
                     <TooltipTrigger asChild>
                       <button onClick={() => onStep(-1)} className={iconBtn} aria-label="Previous day">
@@ -123,7 +123,7 @@ export function DayDrawer({ dayKey, stat, onClose, onStep, onAdd, onEdit, onDele
 
                 <div className="flex-1 overflow-y-auto px-4 py-5 sm:px-5">
                   {/* Day summary */}
-                  <div className="relative overflow-hidden rounded-2xl border border-white/[0.07] bg-[#070712] p-4">
+                  <div className="relative overflow-hidden rounded-2xl border border-white/25 bg-[#070712] p-4">
                     <div
                       className={cn(
                         "pointer-events-none absolute -right-16 -top-20 size-48 rounded-full blur-3xl",
@@ -152,7 +152,7 @@ export function DayDrawer({ dayKey, stat, onClose, onStep, onAdd, onEdit, onDele
                   <div className="mt-5">
                     <h3 className="mb-2 text-sm font-semibold text-white">Trades</h3>
                     {trades.length === 0 ? (
-                      <div className="rounded-xl border border-dashed border-white/[0.08] px-4 py-8 text-center">
+                      <div className="rounded-xl border border-dashed border-white/20 px-4 py-8 text-center">
                         <p className="text-sm text-gray-400">No trades on {formatShortDate(shownKey)}.</p>
                         <p className="mt-1 text-xs text-gray-600">Add one and it will show up here and in your Trade Journal.</p>
                       </div>
@@ -166,7 +166,7 @@ export function DayDrawer({ dayKey, stat, onClose, onStep, onAdd, onEdit, onDele
                               initial={{ opacity: 0, y: 6 }}
                               animate={{ opacity: 1, y: 0 }}
                               exit={{ opacity: 0, x: 24, transition: { duration: 0.18 } }}
-                              className="group flex items-center gap-3 rounded-xl border border-white/[0.06] bg-white/[0.02] px-3 py-2.5"
+                              className="group flex items-center gap-3 rounded-xl border border-white/15 bg-white/[0.02] px-3 py-2.5"
                             >
                               <span
                                 className={cn(
@@ -215,10 +215,10 @@ export function DayDrawer({ dayKey, stat, onClose, onStep, onAdd, onEdit, onDele
                 </div>
 
                 {/* Footer */}
-                <div className="flex items-center gap-2 border-t border-white/[0.07] px-4 py-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] sm:px-5">
+                <div className="flex items-center gap-2 border-t border-white/15 px-4 py-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] sm:px-5">
                   <Link
                     href="/dashboard/trade-journal"
-                    className="inline-flex items-center gap-2 rounded-xl border border-white/[0.08] bg-white/[0.03] px-3.5 py-2.5 text-sm font-medium text-gray-300 transition-colors hover:bg-white/[0.06]"
+                    className="inline-flex items-center gap-2 rounded-xl border border-white/15 bg-white/[0.03] px-3.5 py-2.5 text-sm font-medium text-gray-300 transition-colors hover:bg-white/[0.06]"
                   >
                     <BookOpen className="size-4" />
                     Journal

@@ -247,7 +247,7 @@ export default function TradeJournalPage() {
         <div className="flex items-center gap-2">
           <Link
             href="/dashboard/trade-calendar"
-            className="inline-flex items-center gap-2 rounded-xl border border-white/[0.08] bg-white/[0.03] px-3.5 py-2.5 text-sm font-medium text-gray-300 transition-colors hover:bg-white/[0.06]"
+            className="inline-flex items-center gap-2 rounded-xl border border-white/15 bg-white/[0.03] px-3.5 py-2.5 text-sm font-medium text-gray-300 transition-colors hover:bg-white/[0.06]"
           >
             <CalendarDays className="size-4" />
             <span className="hidden sm:inline">Calendar view</span>
@@ -256,7 +256,7 @@ export default function TradeJournalPage() {
           <button
             onClick={exportCsv}
             disabled={trades.length === 0}
-            className="inline-flex items-center gap-2 rounded-xl border border-white/[0.08] bg-white/[0.03] px-3.5 py-2.5 text-sm font-medium text-gray-300 transition-colors hover:bg-white/[0.06] disabled:cursor-not-allowed disabled:opacity-40"
+            className="inline-flex items-center gap-2 rounded-xl border border-white/15 bg-white/[0.03] px-3.5 py-2.5 text-sm font-medium text-gray-300 transition-colors hover:bg-white/[0.06] disabled:cursor-not-allowed disabled:opacity-40"
           >
             <Download className="size-4" />
             Export CSV
@@ -295,7 +295,7 @@ export default function TradeJournalPage() {
             bg: totals.pnl >= 0 ? "bg-emerald-500/[0.12]" : "bg-red-500/[0.12]",
           },
         ].map(({ label, value, icon: Icon, color, bg }) => (
-          <div key={label} className="flex items-center gap-4 rounded-2xl border border-white/[0.07] bg-white/[0.035] p-5">
+          <div key={label} className="flex items-center gap-4 rounded-2xl border border-white/25 bg-white/[0.035] p-5">
             <div className={cn("flex size-10 shrink-0 items-center justify-center rounded-xl", bg)}>
               <Icon className={cn("size-5", color)} />
             </div>
@@ -309,7 +309,7 @@ export default function TradeJournalPage() {
 
       {/* Filter tabs + search */}
       <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <div className="flex gap-1 rounded-xl border border-white/[0.07] bg-white/[0.03] p-1 w-fit">
+        <div className="flex gap-1 rounded-xl border border-white/15 bg-white/[0.03] p-1 w-fit">
           {(["all", "wins", "losses"] as FilterType[]).map((f) => (
             <button
               key={f}
@@ -334,17 +334,17 @@ export default function TradeJournalPage() {
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search by pair..."
             aria-label="Search trades by pair"
-            className="w-full rounded-xl border border-white/[0.08] bg-white/[0.03] py-2 pl-9 pr-3 text-sm text-white placeholder:text-gray-600 focus:border-purple-500/40 focus:outline-none focus:ring-1 focus:ring-purple-500/50"
+            className="w-full rounded-xl border border-white/15 bg-white/[0.03] py-2 pl-9 pr-3 text-sm text-white placeholder:text-gray-600 focus:border-purple-500/40 focus:outline-none focus:ring-1 focus:ring-purple-500/50"
           />
         </div>
       </div>
 
       {/* Table */}
-      <div className="overflow-hidden rounded-2xl border border-white/[0.07] bg-white/[0.025]">
+      <div className="overflow-hidden rounded-2xl border border-white/25 bg-white/[0.025]">
         <div className="overflow-x-auto">
           <table className="w-full min-w-[780px] text-sm">
             <thead>
-              <tr className="border-b border-white/[0.07]">
+              <tr className="border-b border-white/15">
                 <th className="w-11 px-5 py-3.5">
                   <input
                     ref={selectAllRef}

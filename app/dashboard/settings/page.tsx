@@ -9,6 +9,7 @@ import { toast } from "sonner"
 
 import { Avatar } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
+import { siteConfig } from "@/config/site"
 import { markVisited } from "@/lib/onboarding"
 import { cn } from "@/lib/utils"
 
@@ -68,7 +69,7 @@ function Toggle({ checked, onChange }: { checked: boolean; onChange: (v: boolean
 
 function SectionCard({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <div className="rounded-2xl border border-white/[0.07] bg-white/[0.03] p-6">
+    <div className="rounded-2xl border border-white/25 bg-white/[0.03] p-6">
       <h2 className="mb-5 text-sm font-semibold text-white">{title}</h2>
       {children}
     </div>
@@ -431,7 +432,7 @@ export default function SettingsPage() {
                 id="displayName"
                 value={nameInput}
                 onChange={(e) => setNameInput(e.target.value)}
-                className="w-full rounded-xl border border-white/[0.07] bg-white/[0.04] px-3.5 py-2.5 text-sm text-white placeholder:text-gray-600 focus:border-purple-500/50 focus:outline-none focus:ring-1 focus:ring-purple-500/50"
+                className="w-full rounded-xl border border-white/15 bg-white/[0.04] px-3.5 py-2.5 text-sm text-white placeholder:text-gray-600 focus:border-purple-500/50 focus:outline-none focus:ring-1 focus:ring-purple-500/50"
               />
             </div>
             <div>
@@ -441,7 +442,7 @@ export default function SettingsPage() {
                 type="email"
                 value={emailInput}
                 onChange={(e) => setEmailInput(e.target.value)}
-                className="w-full rounded-xl border border-white/[0.07] bg-white/[0.04] px-3.5 py-2.5 text-sm text-white placeholder:text-gray-600 focus:border-purple-500/50 focus:outline-none focus:ring-1 focus:ring-purple-500/50"
+                className="w-full rounded-xl border border-white/15 bg-white/[0.04] px-3.5 py-2.5 text-sm text-white placeholder:text-gray-600 focus:border-purple-500/50 focus:outline-none focus:ring-1 focus:ring-purple-500/50"
               />
             </div>
 
@@ -456,7 +457,7 @@ export default function SettingsPage() {
                   autoComplete="current-password"
                   value={emailPassword}
                   onChange={(e) => setEmailPassword(e.target.value)}
-                  className="w-full rounded-xl border border-white/[0.07] bg-white/[0.04] px-3.5 py-2.5 text-sm text-white placeholder:text-gray-600 focus:border-purple-500/50 focus:outline-none focus:ring-1 focus:ring-purple-500/50"
+                  className="w-full rounded-xl border border-white/15 bg-white/[0.04] px-3.5 py-2.5 text-sm text-white placeholder:text-gray-600 focus:border-purple-500/50 focus:outline-none focus:ring-1 focus:ring-purple-500/50"
                 />
                 <p className="mt-1.5 text-xs text-gray-600">
                   Needed to change your email. You&apos;ll verify the new address, and we&apos;ll let your old address know.
@@ -529,7 +530,7 @@ export default function SettingsPage() {
                   value={currentPassword}
                   onChange={(e) => setCurrentPassword(e.target.value)}
                   placeholder="••••••••"
-                  className="w-full rounded-xl border border-white/[0.07] bg-white/[0.04] py-2.5 pl-10 pr-4 text-sm text-white placeholder:text-gray-600 focus:border-purple-500/50 focus:outline-none focus:ring-1 focus:ring-purple-500/50"
+                  className="w-full rounded-xl border border-white/15 bg-white/[0.04] py-2.5 pl-10 pr-4 text-sm text-white placeholder:text-gray-600 focus:border-purple-500/50 focus:outline-none focus:ring-1 focus:ring-purple-500/50"
                 />
               </div>
             </div>
@@ -545,7 +546,7 @@ export default function SettingsPage() {
                   value={newPassword}
                   onChange={(e) => setNewPassword(e.target.value)}
                   placeholder="••••••••"
-                  className="w-full rounded-xl border border-white/[0.07] bg-white/[0.04] py-2.5 pl-10 pr-11 text-sm text-white placeholder:text-gray-600 focus:border-purple-500/50 focus:outline-none focus:ring-1 focus:ring-purple-500/50"
+                  className="w-full rounded-xl border border-white/15 bg-white/[0.04] py-2.5 pl-10 pr-11 text-sm text-white placeholder:text-gray-600 focus:border-purple-500/50 focus:outline-none focus:ring-1 focus:ring-purple-500/50"
                 />
                 <button
                   type="button"
@@ -570,7 +571,7 @@ export default function SettingsPage() {
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
                   placeholder="••••••••"
-                  className="w-full rounded-xl border border-white/[0.07] bg-white/[0.04] py-2.5 pl-10 pr-4 text-sm text-white placeholder:text-gray-600 focus:border-purple-500/50 focus:outline-none focus:ring-1 focus:ring-purple-500/50"
+                  className="w-full rounded-xl border border-white/15 bg-white/[0.04] py-2.5 pl-10 pr-4 text-sm text-white placeholder:text-gray-600 focus:border-purple-500/50 focus:outline-none focus:ring-1 focus:ring-purple-500/50"
                 />
               </div>
             </div>
@@ -613,7 +614,7 @@ export default function SettingsPage() {
                 <p className="text-xs text-gray-500">EntrixAlgo always runs in dark mode</p>
               </div>
             </div>
-            <span className="rounded-full border border-white/10 bg-white/[0.05] px-2.5 py-1 text-xs text-gray-500">
+            <span className="rounded-full border border-white/15 bg-white/[0.05] px-2.5 py-1 text-xs text-gray-500">
               Always on
             </span>
           </div>
@@ -654,19 +655,29 @@ export default function SettingsPage() {
               {portalError}
             </p>
           )}
+          <p className="mt-4 border-t border-white/15 pt-4 text-xs text-gray-500">
+            Questions about billing or a payment?{" "}
+            <a href={siteConfig.links.email} className="font-medium text-purple-400 hover:text-purple-300">
+              Contact support
+            </a>
+          </p>
         </SectionCard>
 
         {/* Danger zone */}
         <div className="rounded-2xl border border-red-500/20 bg-red-500/[0.04] p-6">
           <h2 className="mb-1 text-sm font-semibold text-red-400">Danger Zone</h2>
           <p className="mb-4 text-xs text-gray-500">
-            Signing out will end your current session.
+            Signing out will end your current session. To delete your account and its data, email{" "}
+            <a href={siteConfig.links.email} className="text-gray-400 underline-offset-2 hover:text-gray-200 hover:underline">
+              {siteConfig.supportEmail}
+            </a>
+            .
           </p>
           <Button
             variant="destructive"
             size="sm"
             className="gap-2 bg-red-500/15 text-red-400 hover:bg-red-500/25"
-            onClick={() => signOut({ callbackUrl: "/" })}
+            onClick={() => signOut({ redirect: false }).then(() => window.location.assign("/"))}
           >
             <LogOut className="size-3.5" />
             Sign Out
@@ -683,7 +694,7 @@ export default function SettingsPage() {
               transition={{ duration: 0.3 }}
               className="absolute inset-0 flex items-start justify-center pt-24"
             >
-              <div className="flex flex-col items-center gap-3 rounded-2xl border border-white/[0.08] bg-[#0d0d1c]/80 px-8 py-6 shadow-2xl backdrop-blur-sm">
+              <div className="flex flex-col items-center gap-3 rounded-2xl border border-white/25 bg-[#0d0d1c]/80 px-8 py-6 shadow-2xl backdrop-blur-sm">
                 <Loader2 className="size-6 animate-spin text-purple-400" />
                 <p className="text-xs text-gray-500">Loading your settings…</p>
               </div>
