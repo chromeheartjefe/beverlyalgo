@@ -6,6 +6,7 @@ import { z } from "zod"
 import { db } from "@/db"
 import { authTokens, users } from "@/db/schema"
 import { hashAuthToken } from "@/lib/auth-tokens"
+import { logEvent } from "@/lib/events"
 
 const schema = z.object({
   token:    z.string().min(1),
@@ -42,6 +43,7 @@ export async function POST(req: NextRequest) {
     .set({ passwordHash, sessionVersion: sql`${users.sessionVersion} + 1` })
     .where(eq(users.id, row.userId))
   await db.delete(authTokens).where(and(eq(authTokens.userId, row.userId), eq(authTokens.type, "password_reset")))
+  await logEvent(row.userId, "password_reset")
 
   return NextResponse.json({ success: true })
 }

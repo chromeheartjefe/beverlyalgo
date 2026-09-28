@@ -2,7 +2,7 @@ import { and, count, eq, gt, lt } from "drizzle-orm"
 import { after } from "next/server"
 
 import { db } from "@/db"
-import { authTokens, processedStripeEvents, rateLimitHits } from "@/db/schema"
+import { authTokens, processedStripeEvents, rateLimitHits, userEvents } from "@/db/schema"
 
 /**
  * Allows the call if fewer than `limit` hits were recorded for `key` within
@@ -56,12 +56,13 @@ export function clientIp(req: Request): string {
 }
 
 // ─── Housekeeping ─────────────────────────────────────────────────────────────
-// rate_limit_hits, expired auth tokens and old Stripe event ids only ever
-// grew. About 1 in 100 recorded hits also prunes them, after the response is
+// rate_limit_hits, expired auth tokens, old Stripe event ids and old
+// user_events only ever grew. About 1 in 100 recorded hits also prunes them, after the response is
 // sent (next/server `after`), so no cron job or extra latency is needed.
 
 const HIT_RETENTION_MS    = 48 * 60 * 60 * 1000       // longest window in use is 24h
 const STRIPE_RETENTION_MS = 60 * 24 * 60 * 60 * 1000  // Stripe retries for up to 3 days
+const EVENT_RETENTION_MS  = 365 * 24 * 60 * 60 * 1000 // user_events: 12 months (privacy policy)
 
 function scheduleCleanup() {
   if (Math.random() >= 0.01) return
@@ -73,6 +74,7 @@ function scheduleCleanup() {
           db.delete(rateLimitHits).where(lt(rateLimitHits.createdAt, new Date(now - HIT_RETENTION_MS))),
           db.delete(authTokens).where(lt(authTokens.expiresAt, new Date(now))),
           db.delete(processedStripeEvents).where(lt(processedStripeEvents.createdAt, new Date(now - STRIPE_RETENTION_MS))),
+          db.delete(userEvents).where(lt(userEvents.createdAt, new Date(now - EVENT_RETENTION_MS))),
         ])
       } catch (err) {
         console.error("[rate-limit] cleanup failed:", err)

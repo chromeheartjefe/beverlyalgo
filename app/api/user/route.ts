@@ -8,6 +8,7 @@ import { db } from "@/db"
 import { authTokens, users } from "@/db/schema"
 import { newAuthToken } from "@/lib/auth-tokens"
 import { sendEmailChangedNotice, sendVerificationEmail } from "@/lib/email"
+import { logEvent } from "@/lib/events"
 import { checkRateLimit } from "@/lib/rate-limit"
 
 // Force dynamic + no-store: this response is per-user, never safe to cache
@@ -125,6 +126,7 @@ export async function PATCH(req: NextRequest) {
     .returning(PUBLIC_FIELDS)
 
   if (emailChanging) {
+    await logEvent(userId, "email_changed", { from: current.email, to: updated.email })
     try {
       await db.delete(authTokens).where(and(eq(authTokens.userId, userId), eq(authTokens.type, "email_verify")))
       const { token, hash } = newAuthToken()

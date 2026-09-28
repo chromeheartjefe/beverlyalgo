@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev --turbopack",
+    "admin": "next dev admin -p 3100 -H 127.0.0.1",
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
@@ -61,6 +62,8 @@
     "postcss": "^8.5.28",
     "prettier": "^3.3.3",
     "prettier-plugin-tailwindcss": "^0.6.11",
+    "recharts": "^3.10.1",
+    "server-only": "^0.0.1",
     "tailwindcss": "^4.1.14",
     "tsx": "^4.23.12",
     "typescript": "^5.9.3"

@@ -6,6 +6,7 @@ import { z } from "zod"
 import { auth } from "@/auth"
 import { db } from "@/db"
 import { users } from "@/db/schema"
+import { logEvent } from "@/lib/events"
 import { checkRateLimit } from "@/lib/rate-limit"
 
 const schema = z.object({
@@ -51,5 +52,6 @@ export async function POST(req: NextRequest) {
     .set({ passwordHash, sessionVersion: sql`${users.sessionVersion} + 1` })
     .where(eq(users.id, session.user.id))
 
+  await logEvent(session.user.id, "password_changed")
   return NextResponse.json({ success: true })
 }

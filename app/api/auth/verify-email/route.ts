@@ -5,6 +5,7 @@ import { z } from "zod"
 import { db } from "@/db"
 import { authTokens, users } from "@/db/schema"
 import { hashAuthToken } from "@/lib/auth-tokens"
+import { logEvent } from "@/lib/events"
 
 const schema = z.object({ token: z.string().min(1) })
 
@@ -33,6 +34,7 @@ export async function POST(req: NextRequest) {
 
   await db.update(users).set({ emailVerified: new Date() }).where(eq(users.id, row.userId))
   await db.delete(authTokens).where(eq(authTokens.id, row.id))
+  await logEvent(row.userId, "email_verified")
 
   return NextResponse.json({ success: true })
 }

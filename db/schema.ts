@@ -27,6 +27,11 @@ export const users = pgTable("users", {
   // the jwt callback in auth.ts ends any session whose value is older, so a
   // stolen session stops working once the owner changes their password.
   sessionVersion:           integer("session_version").notNull().default(0),
+  // Activity, for the admin console. last_seen_at is written at most once
+  // every 10 minutes per user (auth.ts jwt callback), not on every request.
+  lastSeenAt:               timestamp("last_seen_at", { withTimezone: true }),
+  lastLoginAt:              timestamp("last_login_at", { withTimezone: true }),
+  loginCount:               integer("login_count").notNull().default(0),
   createdAt:    timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 })
 
@@ -83,6 +88,13 @@ export const chartAnalyses = pgTable("chart_analyses", {
   tp2:        doublePrecision("tp2"),
   sl:         doublePrecision("sl"),
   rrRatio:    doublePrecision("rr_ratio"),
+  // Admin console / debugging. Null on rows from before 2026-09-28.
+  variant:          varchar("variant", { length: 32 }),
+  model:            varchar("model", { length: 64 }),
+  result:           text("result"), // JSON of the full analysis the user saw (never the screenshot)
+  promptTokens:     integer("prompt_tokens"),
+  completionTokens: integer("completion_tokens"),
+  costUsd:          doublePrecision("cost_usd"),
   createdAt:  timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 }, (table) => [
   index("chart_analyses_user_id_idx").on(table.userId),
@@ -114,8 +126,18 @@ export const aiUsage = pgTable("ai_usage", {
   feature:          varchar("feature", { length: 32 }).notNull(), // "chat" | "chart_analysis" | "screener"
   promptTokens:     integer("prompt_tokens").notNull(),
   completionTokens: integer("completion_tokens").notNull(),
+  // Who and what, for per-user spend in the admin console. Null on rows from
+  // before 2026-09-28. "set null" (not cascade) so deleting an account keeps
+  // its spend in the monthly budget.
+  userId:           text("user_id").references(() => users.id, { onDelete: "set null" }),
+  model:            varchar("model", { length: 64 }),
+  reasoningEffort:  varchar("reasoning_effort", { length: 16 }),
+  costUsd:          doublePrecision("cost_usd"),
   createdAt:        timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
-})
+}, (table) => [
+  index("ai_usage_created_at_idx").on(table.createdAt),
+  index("ai_usage_user_id_created_at_idx").on(table.userId, table.createdAt),
+])
 
 export type AiUsage = typeof aiUsage.$inferSelect
 export type NewAiUsage = typeof aiUsage.$inferInsert
@@ -188,3 +210,34 @@ export const indexTickerCache = pgTable("index_ticker_cache", {
 })
 
 export type IndexTickerCache = typeof indexTickerCache.$inferSelect
+
+// Account activity timeline for the admin console: actions not already
+// recorded elsewhere (analyses, trades, chat messages and goals have their
+// own tables). type is e.g. "login", "login_failed", "screener_scan".
+// Kept 12 months (cleanup in lib/rate-limit.ts).
+export const userEvents = pgTable("user_events", {
+  id:        text("id").primaryKey().$defaultFn(() => crypto.randomUUID()),
+  userId:    text("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  type:      varchar("type", { length: 48 }).notNull(),
+  meta:      text("meta"), // optional JSON details
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+}, (table) => [
+  index("user_events_user_id_created_at_idx").on(table.userId, table.createdAt),
+  index("user_events_type_created_at_idx").on(table.type, table.createdAt),
+])
+
+export type UserEvent = typeof userEvents.$inferSelect
+
+// Every write, and every sensitive read (chat logs), done from the local
+// admin console (admin/), with details. Never deleted automatically.
+export const adminAuditLog = pgTable("admin_audit_log", {
+  id:           text("id").primaryKey().$defaultFn(() => crypto.randomUUID()),
+  action:       varchar("action", { length: 48 }).notNull(), // e.g. "mark_invited", "chat_viewed"
+  targetUserId: text("target_user_id").references(() => users.id, { onDelete: "set null" }),
+  details:      text("details"), // JSON
+  createdAt:    timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+}, (table) => [
+  index("admin_audit_log_created_at_idx").on(table.createdAt),
+])
+
+export type AdminAuditLog = typeof adminAuditLog.$inferSelect

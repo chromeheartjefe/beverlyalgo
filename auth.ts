@@ -1,10 +1,12 @@
 import bcrypt from "bcryptjs"
-import { eq } from "drizzle-orm"
+import { and, eq, isNull, lt, or, sql } from "drizzle-orm"
+import { after } from "next/server"
 import NextAuth, { CredentialsSignin } from "next-auth"
 import Credentials from "next-auth/providers/credentials"
 
 import { db } from "@/db"
 import { users } from "@/db/schema"
+import { logEvent } from "@/lib/events"
 import { clientIp, countHits, releaseHit, reserveHit } from "@/lib/rate-limit"
 
 // Brute-force protection, counting failed sign-ins only:
@@ -23,6 +25,10 @@ const MAX_FAILS_PER_EMAIL_ALL  = 100
 // email doesn't exist, so an unknown email takes as long as a wrong password
 // and response time can't reveal which emails are registered.
 const DUMMY_HASH = "$2b$10$f3ss47tbGPM554QV4df9oueyKmv.NsdzS0uWkj5AduPMfKFpauiUi"
+
+// "Last visited" for the admin console, written at most this often per user
+// (the jwt callback runs on every request, a write each time would be waste)
+const LAST_SEEN_EVERY_MS = 10 * 60 * 1000
 
 class TooManyAttempts extends CredentialsSignin {
   code = "rate_limited"
@@ -69,9 +75,23 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         }
 
         const valid = await bcrypt.compare(String(credentials.password), row.passwordHash)
-        if (!valid) return null // reserved hits stay recorded as this failure
+        if (!valid) {
+          await logEvent(row.id, "login_failed", { ip })
+          return null // reserved hits stay recorded as this failure
+        }
 
         await release()
+
+        const now = new Date()
+        try {
+          await db
+            .update(users)
+            .set({ lastLoginAt: now, lastSeenAt: now, loginCount: sql`${users.loginCount} + 1` })
+            .where(eq(users.id, row.id))
+        } catch (err) {
+          console.error("[auth] failed to record login", err) // never block a valid sign-in
+        }
+        await logEvent(row.id, "login", { ip })
 
         return {
           id:            row.id,
@@ -110,6 +130,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
             emailVerified:   users.emailVerified,
             avatarUpdatedAt: users.avatarUpdatedAt,
             sessionVersion:  users.sessionVersion,
+            lastSeenAt:      users.lastSeenAt,
           })
           .from(users)
           .where(eq(users.id, String(token.id)))
@@ -123,6 +144,28 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         token.plan          = row.plan
         token.emailVerified = !!row.emailVerified
         token.avatarVersion = row.avatarUpdatedAt ? row.avatarUpdatedAt.getTime() : null
+
+        // The row we just read is only a cheap pre-check. The UPDATE carries
+        // the real condition, so parallel requests (page load + data fetches)
+        // write it once, not once each. It runs after the response is sent
+        // (after()), so no navigation waits on it.
+        if (!row.lastSeenAt || Date.now() - row.lastSeenAt.getTime() > LAST_SEEN_EVERY_MS) {
+          const userId = String(token.id)
+          const touch = () =>
+            db
+              .update(users)
+              .set({ lastSeenAt: new Date() })
+              .where(and(
+                eq(users.id, userId),
+                or(isNull(users.lastSeenAt), lt(users.lastSeenAt, new Date(Date.now() - LAST_SEEN_EVERY_MS))),
+              ))
+              .catch(() => {}) // best-effort; the next request retries
+          try {
+            after(touch)
+          } catch {
+            await touch() // outside a request scope after() isn't available
+          }
+        }
       }
       return token
     },
