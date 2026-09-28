@@ -1,7 +1,7 @@
 "use client"
 
 import { AnimatePresence, motion, type Variants } from "framer-motion"
-import { ArrowRight, Menu, X } from "lucide-react"
+import { ArrowRight, Menu, Users, X } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
 import { useSession } from "next-auth/react"
@@ -63,7 +63,7 @@ export function HeroHeader() {
           "rgba(231,77,255,0.77)",
           "transparent",
         ]}
-        className="border-b border-white/5 whitespace-nowrap pl-4 pr-11 text-xs sm:whitespace-normal sm:px-4 sm:text-sm"
+        className="border-b border-white/15 whitespace-nowrap pl-4 pr-11 text-xs sm:whitespace-normal sm:px-4 sm:text-sm"
       >
         <span className="sm:hidden">🚀 EntrixAlgo is evolving.</span>
         <span className="hidden sm:inline">🚀 EntrixAlgo is evolving. New features coming soon.</span>{" "}
@@ -122,7 +122,7 @@ export function HeroHeader() {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -8 }}
             transition={{ duration: 0.18 }}
-            className="absolute inset-x-4 top-[72px] rounded-2xl border border-white/10 bg-black/95 px-6 py-5 backdrop-blur-sm md:hidden"
+            className="absolute inset-x-4 top-[72px] rounded-2xl border border-white/25 bg-black/95 px-6 py-5 backdrop-blur-sm md:hidden"
           >
             <div className="flex flex-col gap-4">
               {menuItems.map((item) => (
@@ -135,7 +135,7 @@ export function HeroHeader() {
                   {item.name}
                 </Link>
               ))}
-              <div className="flex flex-col gap-3 border-t border-white/10 pt-3">
+              <div className="flex flex-col gap-3 border-t border-white/15 pt-3">
                 <LiquidMetalButton
                   href={isAuthed ? "/dashboard" : "/sign-in"}
                   label={isAuthed ? "Dashboard" : "Sign In"}
@@ -201,25 +201,36 @@ export function HeroSection() {
           <div className="mx-auto max-w-7xl px-6">
             <div className="text-center sm:mx-auto lg:mr-auto lg:mt-0">
               <AnimatedGroup variants={transitionVariants}>
-                {/* Announcement badge */}
+                {/* Social-proof badge: 1px animated gradient outline around a dark pill */}
                 <Link
                   href="#pricing"
-                  className="hover:bg-background dark:hover:border-t-border bg-[#1e0938] group mx-auto flex w-fit items-center gap-4 rounded-full border p-1 pl-4 shadow-md shadow-black/5 transition-all duration-300 dark:shadow-zinc-950"
+                  aria-label="Join 5,000+ traders using EntrixAlgo, see pricing"
+                  className="group relative mx-auto flex w-fit rounded-full bg-[linear-gradient(90deg,#a855f7,#e879f9,#fbbf24,#e879f9,#a855f7)] bg-[length:200%_100%] p-px shadow-[0_0_28px_-6px_rgba(192,38,211,0.55)] transition-shadow duration-300 hover:shadow-[0_0_36px_-4px_rgba(192,38,211,0.8)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-fuchsia-300/70 focus-visible:ring-offset-2 focus-visible:ring-offset-black motion-safe:animate-border-flow"
                 >
-                  <span className="text-foreground text-sm">
-                    Join 5,000+ traders using EntrixAlgo
+                  <span className="flex items-center gap-2 whitespace-nowrap rounded-full bg-[#12061f] py-1 pl-1 pr-1 transition-colors duration-300 group-hover:bg-[#1a0a2c] sm:gap-3">
+                    {/* Count chip */}
+                    <span className="flex items-center gap-1.5 rounded-full bg-gradient-to-r from-purple-600 to-fuchsia-500 px-2.5 py-1 text-xs font-bold text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.25)] sm:text-sm">
+                      <Users className="size-3.5" aria-hidden="true" />
+                      5,000+
+                    </span>
+
+                    <span className="text-[13px] font-medium text-gray-200 sm:text-sm">
+                      traders <span className="hidden sm:inline">already </span>using{" "}
+                      <span className="bg-gradient-to-r from-fuchsia-300 to-amber-200 bg-clip-text font-semibold text-transparent">EntrixAlgo</span>
+                    </span>
+
+                    {/* Sliding arrow */}
+                    <span className="size-6 shrink-0 overflow-hidden rounded-full bg-white/10 ring-1 ring-white/15 transition-colors duration-500 group-hover:bg-gradient-to-r group-hover:from-purple-500 group-hover:to-fuchsia-500">
+                      <span className="flex w-12 -translate-x-1/2 duration-500 ease-in-out group-hover:translate-x-0" aria-hidden="true">
+                        <span className="flex size-6">
+                          <ArrowRight className="m-auto size-3 text-white" />
+                        </span>
+                        <span className="flex size-6">
+                          <ArrowRight className="m-auto size-3 text-white" />
+                        </span>
+                      </span>
+                    </span>
                   </span>
-                  <span className="dark:border-background block h-4 w-0.5 border-l bg-white dark:bg-zinc-700" />
-                  <div className="bg-background group-hover:bg-muted size-6 overflow-hidden rounded-full duration-500">
-                    <div className="flex w-12 -translate-x-1/2 duration-500 ease-in-out group-hover:translate-x-0">
-                      <span className="flex size-6">
-                        <ArrowRight className="m-auto size-3" />
-                      </span>
-                      <span className="flex size-6">
-                        <ArrowRight className="m-auto size-3" />
-                      </span>
-                    </div>
-                  </div>
                 </Link>
 
                 {/* Main headline */}
@@ -277,11 +288,15 @@ export function HeroSection() {
                   },
                   ...transitionVariants,
                 }}
-                className="mt-12 flex flex-col items-center justify-center gap-2 md:flex-row"
+                className="mt-12 flex flex-wrap items-center justify-center gap-3"
               >
-                <StardustButton href={isAuthed ? "/dashboard" : "#pricing"}>
-                  {isAuthed ? "Dashboard" : "Get Access"}
-                </StardustButton>
+                {/* An array, not a fragment: AnimatedGroup wraps each child separately */}
+                {isAuthed
+                  ? <StardustButton href="/dashboard">Dashboard</StardustButton>
+                  : [
+                      <StardustButton key="access" href="#pricing">Get Access</StardustButton>,
+                      <StardustButton key="login" href="/sign-in">Login</StardustButton>,
+                    ]}
               </AnimatedGroup>
             </div>
           </div>

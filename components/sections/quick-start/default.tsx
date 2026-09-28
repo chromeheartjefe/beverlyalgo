@@ -7,6 +7,7 @@ import {
   BookOpen,
   Bot,
   Calculator,
+  CalendarDays,
   Check,
   Flame,
   Lock,
@@ -35,7 +36,7 @@ const ACCENTS = {
   sky: {
     line:   'via-sky-400/70',
     blob:   'bg-sky-500/15 group-hover:bg-sky-500/25',
-    border: 'hover:border-sky-400/30',
+    border: 'hover:border-sky-400/50',
     tile:   'border-sky-400/30 bg-gradient-to-br from-sky-500/25 to-cyan-600/5',
     icon:   'text-sky-300',
     text:   'text-sky-300',
@@ -45,7 +46,7 @@ const ACCENTS = {
   emerald: {
     line:   'via-emerald-400/70',
     blob:   'bg-emerald-500/15 group-hover:bg-emerald-500/25',
-    border: 'hover:border-emerald-400/30',
+    border: 'hover:border-emerald-400/50',
     tile:   'border-emerald-400/30 bg-gradient-to-br from-emerald-500/25 to-teal-600/5',
     icon:   'text-emerald-300',
     text:   'text-emerald-300',
@@ -55,7 +56,7 @@ const ACCENTS = {
   violet: {
     line:   'via-fuchsia-400/70',
     blob:   'bg-fuchsia-500/15 group-hover:bg-fuchsia-500/25',
-    border: 'hover:border-fuchsia-400/30',
+    border: 'hover:border-fuchsia-400/50',
     tile:   'border-fuchsia-400/30 bg-gradient-to-br from-fuchsia-500/25 to-violet-600/5',
     icon:   'text-fuchsia-300',
     text:   'text-fuchsia-300',
@@ -93,7 +94,7 @@ function SignUpVisual() {
 
   return (
     <div ref={ref} className="space-y-2.5">
-      <div className="rounded-xl border border-white/[0.08] bg-white/[0.03] px-3.5 py-2.5">
+      <div className="rounded-xl border border-white/15 bg-white/[0.03] px-3.5 py-2.5">
         <p className="text-xs text-gray-500">Email</p>
         <p className="mt-0.5 h-5 font-mono text-sm text-gray-200">
           {DEMO_EMAIL.slice(0, chars)}
@@ -136,6 +137,7 @@ function SignUpVisual() {
 const FREE_TOOLS = [
   { icon: Flame,      label: 'AI Screener',     color: 'text-amber-300',   chip: 'border-amber-400/25 bg-amber-500/10' },
   { icon: BookOpen,   label: 'Trade Journal',   color: 'text-sky-300',     chip: 'border-sky-400/25 bg-sky-500/10' },
+  { icon: CalendarDays, label: 'Trade Calendar', color: 'text-violet-300',  chip: 'border-violet-400/25 bg-violet-500/10' },
   { icon: Calculator, label: 'Risk Calculator', color: 'text-emerald-300', chip: 'border-emerald-400/25 bg-emerald-500/10' },
 ]
 
@@ -157,7 +159,7 @@ function FreeToolsVisual() {
         return (
           <div
             key={tool.label}
-            className="flex items-center gap-3 rounded-xl border border-white/[0.07] bg-white/[0.03] px-3 py-2"
+            className="flex items-center gap-3 rounded-xl border border-white/15 bg-white/[0.03] px-3 py-2"
           >
             <div className={cn('flex size-8 shrink-0 items-center justify-center rounded-lg border', tool.chip)}>
               <tool.icon className={cn('size-4', tool.color)} />
@@ -255,7 +257,7 @@ const steps: Step[] = [
     icon: Check,
     tag: 'Free forever',
     title: 'Free tools, unlocked instantly',
-    description: 'AI Screener, Trade Journal, and Risk Calculator are free forever. Spot hot movers, log trades, and size positions the moment you sign in.',
+    description: 'AI Screener, Trade Journal, Trade Calendar, and Risk Calculator are free forever. Spot hot movers, log trades, review your month, and size positions the moment you sign in.',
     visual: <FreeToolsVisual />,
   },
   {
@@ -280,7 +282,7 @@ function StepCard({ step }: { step: Step }) {
       variants={revealItem}
       whileHover={{ y: -4, transition: { type: 'spring', stiffness: 300, damping: 20 } }}
       className={cn(
-        'group relative flex h-full flex-col overflow-hidden rounded-3xl border border-white/[0.07] bg-[#070712] p-6 shadow-2xl shadow-black/60 transition-colors duration-300 lg:p-8',
+        'group relative flex h-full flex-col overflow-hidden rounded-3xl border border-white/25 bg-[#070712] p-6 shadow-2xl shadow-black/60 transition-colors duration-300 lg:p-8',
         a.border,
       )}
     >
@@ -304,7 +306,7 @@ function StepCard({ step }: { step: Step }) {
       <p className="relative mt-2 text-sm leading-relaxed text-gray-400">{step.description}</p>
 
       <div className="relative mt-auto pt-6">
-        <div className="rounded-2xl border border-white/[0.06] bg-black/40 p-4">{step.visual}</div>
+        <div className="rounded-2xl border border-white/15 bg-black/40 p-4">{step.visual}</div>
 
         {step.cta && (
           <a

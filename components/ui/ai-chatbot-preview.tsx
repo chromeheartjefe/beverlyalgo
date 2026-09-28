@@ -38,7 +38,7 @@ const QA_PAIRS = [
 
 function TypingDots() {
   return (
-    <div className="inline-flex items-center gap-1 rounded-2xl rounded-tl-sm border border-white/[0.07] bg-white/[0.035] px-3 py-2.5">
+    <div className="inline-flex items-center gap-1 rounded-2xl rounded-tl-sm border border-white/15 bg-white/[0.035] px-3 py-2.5">
       {[0, 1, 2].map((i) => (
         <span
           key={i}
@@ -80,15 +80,15 @@ export function AiChatbotPreview() {
     <section className="relative bg-black pb-3 pt-3 md:pb-4 md:pt-4">
       <div className="mx-auto max-w-7xl px-6">
         {/* Outer card */}
-        <Reveal className="relative overflow-hidden rounded-3xl border border-white/[0.07] bg-[#070712] shadow-2xl shadow-black/60">
+        <Reveal className="relative overflow-hidden rounded-3xl border border-white/25 bg-[#070712] shadow-2xl shadow-black/60">
           <BackgroundGradientAnimation variant="corners" size="45%" containerClassName="absolute inset-0 z-0" />
           <div className="relative z-10 grid grid-cols-1 lg:grid-cols-2">
 
             {/* ── Left: animated preview ── */}
-            <div className="order-2 flex items-center justify-center border-t border-white/[0.05] bg-gradient-to-br from-[#0b0b1e] to-[#050510] p-8 lg:order-1 lg:border-l-0 lg:border-r lg:border-t-0 lg:p-12">
-              <div className="w-full max-w-sm overflow-hidden rounded-2xl border border-white/[0.07] bg-[#08080f]">
+            <div className="order-2 flex items-center justify-center border-t border-white/15 bg-gradient-to-br from-[#0b0b1e] to-[#050510] p-8 lg:order-1 lg:border-l-0 lg:border-r lg:border-t-0 lg:p-12">
+              <div className="w-full max-w-sm overflow-hidden rounded-2xl border border-white/15 bg-[#08080f]">
                 {/* Chat header */}
-                <div className="flex items-center justify-between border-b border-white/[0.06] px-4 py-3">
+                <div className="flex items-center justify-between border-b border-white/15 px-4 py-3">
                   <div className="flex items-center gap-2.5">
                     <div className="flex size-7 items-center justify-center rounded-full bg-purple-500/15">
                       <Bot className="size-3.5 text-purple-400" />
@@ -141,7 +141,7 @@ export function AiChatbotPreview() {
                             animate={{ opacity: 1, y: 0 }}
                             exit={{ opacity: 0 }}
                             transition={{ duration: 0.35, ease: "easeInOut" }}
-                            className="max-w-[85%] rounded-2xl rounded-tl-sm border border-white/[0.07] bg-white/[0.035] px-4 py-2.5 text-sm leading-relaxed text-gray-200"
+                            className="max-w-[85%] rounded-2xl rounded-tl-sm border border-white/15 bg-white/[0.035] px-4 py-2.5 text-sm leading-relaxed text-gray-200"
                           >
                             {pair.a}
                           </motion.div>
@@ -152,8 +152,8 @@ export function AiChatbotPreview() {
                 </div>
 
                 {/* Decorative input bar */}
-                <div className="border-t border-white/[0.06] p-3">
-                  <div className="flex items-center gap-2.5 rounded-xl border border-white/[0.08] bg-white/[0.03] px-3.5 py-2.5">
+                <div className="border-t border-white/15 p-3">
+                  <div className="flex items-center gap-2.5 rounded-xl border border-white/15 bg-white/[0.03] px-3.5 py-2.5">
                     <span className="flex-1 text-sm text-gray-600">Ask about any market…</span>
                     <span className="flex size-7 shrink-0 items-center justify-center rounded-lg bg-purple-500/15">
                       <ArrowUp className="size-3.5 text-purple-400" />

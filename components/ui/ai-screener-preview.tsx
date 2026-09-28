@@ -186,7 +186,7 @@ function ScanningPhase() {
       </div>
 
       {/* Radar */}
-      <div className="relative flex h-48 items-center justify-center overflow-hidden rounded-xl border border-white/[0.07] bg-[#08080f]">
+      <div className="relative flex h-48 items-center justify-center overflow-hidden rounded-xl border border-white/15 bg-[#08080f]">
         <div className="relative size-40">
           {[1, 0.68, 0.36].map((scale) => (
             <div
@@ -317,7 +317,7 @@ function ResultsPhase({ market }: { market: "crypto" | "stocks" }) {
         </motion.div>
 
         {/* Market toggle */}
-        <div className="flex items-center rounded-full border border-white/[0.07] bg-white/[0.03] p-0.5">
+        <div className="flex items-center rounded-full border border-white/15 bg-white/[0.03] p-0.5">
           {(["crypto", "stocks"] as const).map((m) => (
             <div key={m} className="relative px-2.5 py-0.5 text-[11px] font-medium capitalize">
               {market === m && (
@@ -379,12 +379,12 @@ export function AiScreenerPreview() {
     <section className="relative bg-black pb-20 pt-3 md:pb-28 md:pt-4">
       <div className="mx-auto max-w-7xl px-6">
         {/* Outer card */}
-        <Reveal className="relative overflow-hidden rounded-3xl border border-white/[0.07] bg-[#070712] shadow-2xl shadow-black/60">
+        <Reveal className="relative overflow-hidden rounded-3xl border border-white/25 bg-[#070712] shadow-2xl shadow-black/60">
           <BackgroundGradientAnimation variant="corners" size="45%" containerClassName="absolute inset-0 z-0" />
           <div className="relative z-10 grid grid-cols-1 lg:grid-cols-2">
 
             {/* ── Left: animated preview ── */}
-            <div className="order-2 flex items-center justify-center border-t border-white/[0.05] bg-gradient-to-br from-[#0b0b1e] to-[#050510] p-8 lg:order-1 lg:border-l-0 lg:border-r lg:border-t-0 lg:p-12">
+            <div className="order-2 flex items-center justify-center border-t border-white/15 bg-gradient-to-br from-[#0b0b1e] to-[#050510] p-8 lg:order-1 lg:border-l-0 lg:border-r lg:border-t-0 lg:p-12">
               <div className="flex h-[400px] w-full max-w-sm flex-col justify-center overflow-hidden lg:h-auto lg:overflow-visible">
                 <AnimatePresence mode="wait">
                   {phase === "scanning"

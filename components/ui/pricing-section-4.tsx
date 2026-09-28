@@ -17,7 +17,7 @@ const FEATURES = [
   "AI trading assistant chat",
   "Pattern recognition & signal detection",
   "Entry, target, and stop-loss levels",
-  "AI Screener, trade journal & risk calculator, included free",
+  "AI Screener, trade journal, trade calendar & risk calculator, included free",
   "Priority support",
   "Early feature access",
 ];
@@ -94,14 +94,15 @@ export default function PricingSection4() {
           </p>
 
           {/* Social proof strip */}
-          <div className="mx-auto mt-4 flex w-fit flex-wrap items-center justify-center gap-4 rounded-full border border-white/10 bg-white/[0.03] px-5 py-2.5 text-sm text-gray-300 sm:gap-6">
-            <div className="flex items-center gap-1.5">
-              <Star className="size-4 fill-amber-400 text-amber-400" />
+          {/* One line on phones: smaller text, icons and padding below sm */}
+          <div className="mx-auto mt-4 flex w-fit flex-nowrap items-center justify-center gap-2.5 whitespace-nowrap rounded-full border border-white/25 bg-white/[0.03] px-3 py-2 text-[11px] text-gray-300 min-[380px]:gap-3 min-[380px]:px-4 min-[380px]:text-xs sm:gap-6 sm:px-5 sm:py-2.5 sm:text-sm">
+            <div className="flex items-center gap-1 sm:gap-1.5">
+              <Star className="size-3.5 shrink-0 fill-amber-400 text-amber-400 sm:size-4" />
               <span><span className="font-semibold text-white">4.8/5</span> · 52+ verified reviews</span>
             </div>
             <div className="hidden h-4 w-px bg-white/10 sm:block" />
-            <div className="flex items-center gap-1.5">
-              <Users className="size-4 text-purple-400" />
+            <div className="flex items-center gap-1 sm:gap-1.5">
+              <Users className="size-3.5 shrink-0 text-purple-400 sm:size-4" />
               <span><span className="font-semibold text-white">5,000+</span> traders</span>
             </div>
           </div>
@@ -128,7 +129,7 @@ export default function PricingSection4() {
                 "relative text-white h-full",
                 plan.popular
                   ? "border-purple-500/40 bg-gradient-to-b from-neutral-800 to-neutral-900 shadow-[0px_-8px_120px_0px_rgba(147,51,234,0.5)] z-20"
-                  : "border-neutral-800 bg-gradient-to-b from-neutral-900 to-neutral-950 z-10"
+                  : "border-white/25 bg-gradient-to-b from-neutral-900 to-neutral-950 z-10"
               )}
             >
               {plan.popular && (
@@ -162,13 +163,13 @@ export default function PricingSection4() {
                     "w-full mb-6 p-3.5 text-base font-semibold rounded-xl text-center block transition-transform hover:scale-[1.02] active:scale-[0.98] cursor-pointer",
                     plan.popular
                       ? "bg-gradient-to-b from-purple-500 to-purple-700 shadow-lg shadow-purple-900/50 border border-purple-400/50 text-white"
-                      : "bg-gradient-to-b from-neutral-700 to-neutral-900 shadow-lg shadow-neutral-950 border border-neutral-700 text-white"
+                      : "bg-gradient-to-b from-neutral-700 to-neutral-900 shadow-lg shadow-neutral-950 border border-white/20 text-white"
                   )}
                 >
                   {plan.buttonText}
                 </a>
 
-                <div className="space-y-3 pt-4 border-t border-neutral-700/60">
+                <div className="space-y-3 pt-4 border-t border-white/15">
                   <h4 className="font-semibold text-sm text-white mb-3">
                     {FEATURES[0]}
                   </h4>

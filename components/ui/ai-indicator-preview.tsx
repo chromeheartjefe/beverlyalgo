@@ -11,7 +11,7 @@ export function AiIndicatorPreview() {
     <section className="relative bg-black pb-3 pt-3 md:pb-4 md:pt-4">
       <div className="mx-auto max-w-7xl px-6">
         {/* Outer card */}
-        <Reveal className="relative overflow-hidden rounded-3xl border border-white/[0.07] bg-[#070712] shadow-2xl shadow-black/60">
+        <Reveal className="relative overflow-hidden rounded-3xl border border-white/25 bg-[#070712] shadow-2xl shadow-black/60">
           <BackgroundGradientAnimation variant="corners" size="45%" containerClassName="absolute inset-0 z-0" />
           <div className="relative z-10 grid grid-cols-1 lg:grid-cols-2">
 
@@ -68,7 +68,7 @@ export function AiIndicatorPreview() {
             </div>
 
             {/* ── Right: animated preview ── */}
-            <div className="flex items-center justify-center border-t border-white/[0.05] bg-gradient-to-br from-[#0b0b1e] to-[#050510] p-8 lg:border-l lg:border-t-0 lg:p-12">
+            <div className="flex items-center justify-center border-t border-white/15 bg-gradient-to-br from-[#0b0b1e] to-[#050510] p-8 lg:border-l lg:border-t-0 lg:p-12">
               <div className="w-full max-w-md">
                 <IndicatorSignalPreview height={220} volumeHeight={30} sellTop="21.5%" buyTop="65.5%" />
               </div>

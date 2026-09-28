@@ -1,8 +1,8 @@
 "use client"
 
-import { motion } from "framer-motion"
+import { motion, useInView } from "framer-motion"
 import { Check, MonitorSmartphone, ScanSearch, TrendingDown, TrendingUp, Zap } from "lucide-react"
-import { type ComponentType, type ReactNode, useEffect, useState } from "react"
+import { type ComponentType, type ReactNode, useEffect, useRef, useState } from "react"
 
 import { RevealGroup, revealItem } from "@/components/ui/reveal"
 import { cn } from "@/lib/utils"
@@ -16,7 +16,7 @@ const ACCENTS = {
   violet: {
     line:    "via-fuchsia-400/70",
     blob:    "bg-fuchsia-500/15 group-hover:bg-fuchsia-500/25",
-    border:  "hover:border-fuchsia-400/30",
+    border:  "hover:border-fuchsia-400/50",
     tile:    "border-fuchsia-400/30 bg-gradient-to-br from-fuchsia-500/25 to-violet-600/5",
     icon:    "text-fuchsia-300",
     eyebrow: "text-fuchsia-300/90",
@@ -24,7 +24,7 @@ const ACCENTS = {
   sky: {
     line:    "via-sky-400/70",
     blob:    "bg-sky-500/15 group-hover:bg-sky-500/25",
-    border:  "hover:border-sky-400/30",
+    border:  "hover:border-sky-400/50",
     tile:    "border-sky-400/30 bg-gradient-to-br from-sky-500/25 to-cyan-600/5",
     icon:    "text-sky-300",
     eyebrow: "text-sky-300/90",
@@ -32,7 +32,7 @@ const ACCENTS = {
   emerald: {
     line:    "via-emerald-400/70",
     blob:    "bg-emerald-500/15 group-hover:bg-emerald-500/25",
-    border:  "hover:border-emerald-400/30",
+    border:  "hover:border-emerald-400/50",
     tile:    "border-emerald-400/30 bg-gradient-to-br from-emerald-500/25 to-teal-600/5",
     icon:    "text-emerald-300",
     eyebrow: "text-emerald-300/90",
@@ -69,7 +69,7 @@ function FeatureCard({
       variants={revealItem}
       whileHover={{ y: -4, transition: { type: "spring", stiffness: 300, damping: 20 } }}
       className={cn(
-        "group relative flex h-full flex-col overflow-hidden rounded-3xl border border-white/[0.07] bg-[#070712] p-6 shadow-2xl shadow-black/60 transition-colors duration-300 lg:p-8",
+        "group relative flex h-full flex-col overflow-hidden rounded-3xl border border-white/25 bg-[#070712] p-6 shadow-2xl shadow-black/60 transition-colors duration-300 lg:p-8",
         a.border,
         className,
       )}
@@ -93,7 +93,7 @@ function FeatureCard({
       <p className="relative mt-2 text-sm leading-relaxed text-gray-400">{description}</p>
 
       <div className="relative mt-auto pt-6">
-        <div className="rounded-2xl border border-white/[0.06] bg-black/40 p-4">{children}</div>
+        <div className="rounded-2xl border border-white/15 bg-black/40 p-4">{children}</div>
       </div>
     </motion.div>
   )
@@ -107,8 +107,14 @@ function PatternVisual() {
   // Head-and-shoulders silhouette: left shoulder, head, right shoulder
   const path = "M4 66 L28 50 L44 30 L60 48 L84 12 L108 46 L124 28 L140 50 L166 70 L196 58 L236 76"
 
+  // Watch the HTML wrapper, not the SVG shapes: mobile browsers (iOS Safari
+  // especially) don't reliably report <path>/<circle> entering the viewport,
+  // so per-shape whileInView never fired there and the line stayed hidden.
+  const ref = useRef<HTMLDivElement>(null)
+  const inView = useInView(ref, { once: true, amount: 0.3 })
+
   return (
-    <div className="space-y-3">
+    <div ref={ref} className="space-y-3">
       <div className="flex items-center justify-between">
         <span className="font-mono text-xs text-gray-500">ETH/USDT · 1H</span>
         <span className="flex items-center gap-1 rounded-full border border-fuchsia-400/30 bg-fuchsia-500/10 px-2 py-0.5 text-xs font-medium text-fuchsia-300">
@@ -136,8 +142,7 @@ function PatternVisual() {
           strokeLinecap="round"
           strokeLinejoin="round"
           initial={{ pathLength: 0 }}
-          whileInView={{ pathLength: 1 }}
-          viewport={{ once: true }}
+          animate={inView ? { pathLength: 1 } : { pathLength: 0 }}
           transition={{ duration: 1.6, ease: "easeInOut", delay: 0.3 }}
         />
 
@@ -152,8 +157,7 @@ function PatternVisual() {
             stroke="#e879f9"
             strokeWidth={1.5}
             initial={{ scale: 0, opacity: 0 }}
-            whileInView={{ scale: 1, opacity: 1 }}
-            viewport={{ once: true }}
+            animate={inView ? { scale: 1, opacity: 1 } : { scale: 0, opacity: 0 }}
             transition={{ delay: 1.1 + i * 0.2, type: "spring", stiffness: 260, damping: 16 }}
           />
         ))}
@@ -161,7 +165,7 @@ function PatternVisual() {
 
       <div className="flex flex-wrap gap-1.5">
         {PATTERN_CHIPS.map((chip) => (
-          <span key={chip} className="rounded-full border border-white/[0.08] bg-white/[0.03] px-2.5 py-1 text-xs text-gray-300">
+          <span key={chip} className="rounded-full border border-white/15 bg-white/[0.03] px-2.5 py-1 text-xs text-gray-300">
             {chip}
           </span>
         ))}
@@ -223,7 +227,7 @@ function PlatformVisual() {
         })}
       </ul>
 
-      <div className="flex flex-wrap gap-1.5 border-t border-white/[0.06] pt-4">
+      <div className="flex flex-wrap gap-1.5 border-t border-white/15 pt-4">
         {ASSET_TAGS.map((tag) => (
           <span key={tag.label} className={cn("rounded-full border px-2.5 py-1 text-xs font-medium", tag.className)}>
             {tag.label}

@@ -62,7 +62,7 @@ function StatTile({
   accent?: "emerald"
 }) {
   return (
-    <div className="flex flex-col justify-center rounded-lg border border-white/[0.06] bg-white/[0.02] px-3.5 py-3">
+    <div className="flex flex-col justify-center rounded-lg border border-white/15 bg-white/[0.02] px-3.5 py-3">
       <p className="whitespace-nowrap text-[10px] font-medium uppercase tracking-wider text-gray-500">{label}</p>
       <p className={`mt-1.5 whitespace-nowrap text-lg font-semibold leading-none ${accent === "emerald" ? "text-emerald-400" : "text-white"}`}>
         {value}
@@ -75,7 +75,7 @@ function StatTile({
 
 function BacktestCard({ backtest }: { backtest: Backtest }) {
   return (
-    <div className="group rounded-2xl border border-white/[0.07] bg-white/[0.025] p-5 text-left transition-all duration-300 hover:-translate-y-0.5 hover:border-purple-500/25 hover:shadow-[0_0_32px_-12px_rgba(147,51,234,0.45)]">
+    <div className="group rounded-2xl border border-white/25 bg-white/[0.025] p-5 text-left transition-all duration-300 hover:-translate-y-0.5 hover:border-purple-500/50 hover:shadow-[0_0_32px_-12px_rgba(147,51,234,0.45)]">
       {/* Header */}
       <div className="mb-4 flex items-center justify-between">
         <span className="font-mono text-sm font-semibold tracking-tight text-white">{backtest.pair}</span>
@@ -91,7 +91,7 @@ function BacktestCard({ backtest }: { backtest: Backtest }) {
       </div>
 
       {/* Backtest chart */}
-      <div className="mt-4 overflow-hidden rounded-xl border border-white/[0.06]">
+      <div className="mt-4 overflow-hidden rounded-xl border border-white/15">
         <Image
           src={backtest.image}
           alt={`${backtest.pair} strategy tester backtest`}

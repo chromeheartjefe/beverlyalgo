@@ -99,7 +99,7 @@ function UploadPhase() {
       animate={{ opacity: 1, scale: 1 }}
       exit={{ opacity: 0, scale: 0.97 }}
       transition={{ duration: 0.45 }}
-      className="relative flex h-72 w-full flex-col items-center justify-center rounded-2xl border-2 border-dashed border-white/12 bg-white/[0.012]"
+      className="relative flex h-72 w-full flex-col items-center justify-center rounded-2xl border-2 border-dashed border-white/20 bg-white/[0.012]"
     >
       {/* Corner accents */}
       <div className="pointer-events-none absolute left-0 top-0 h-9 w-9 rounded-tl-2xl border-l-2 border-t-2 border-purple-400/60" />
@@ -158,7 +158,7 @@ function AnalyzingPhase() {
       </div>
 
       {/* Chart with scan line */}
-      <div className="relative h-48 w-full overflow-hidden rounded-xl border border-white/[0.07] bg-[#08080f]">
+      <div className="relative h-48 w-full overflow-hidden rounded-xl border border-white/15 bg-[#08080f]">
         <ChartSVG dimmed />
 
         {/* Horizontal scan line */}
@@ -226,7 +226,7 @@ function ResultsPhase() {
       </div>
 
       {/* Chart (full opacity) */}
-      <div className="relative h-36 w-full overflow-hidden rounded-xl border border-white/[0.07] bg-[#08080f]">
+      <div className="relative h-36 w-full overflow-hidden rounded-xl border border-white/15 bg-[#08080f]">
         <ChartSVG />
         <div className="pointer-events-none absolute inset-x-0 bottom-0 h-8 bg-gradient-to-t from-[#08080f] to-transparent" />
       </div>
@@ -236,10 +236,10 @@ function ResultsPhase() {
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.3, duration: 0.45 }}
-        className="overflow-hidden rounded-xl border border-white/8 bg-[#0d0d1c]"
+        className="overflow-hidden rounded-xl border border-white/15 bg-[#0d0d1c]"
       >
         {/* Card header */}
-        <div className="flex items-center justify-between border-b border-white/[0.05] px-4 py-3">
+        <div className="flex items-center justify-between border-b border-white/15 px-4 py-3">
           <div className="flex items-center gap-2.5">
             <div className="flex size-6 shrink-0 items-center justify-center rounded-full bg-purple-500/15">
               <Zap className="size-3 text-purple-400" />
@@ -313,7 +313,7 @@ export function AiChartAnalyserPreview() {
     <section className="relative bg-black pb-3 pt-20 md:pb-4 md:pt-28">
       <div className="mx-auto max-w-7xl px-6">
         {/* Outer card */}
-        <Reveal className="relative overflow-hidden rounded-3xl border border-white/[0.07] bg-[#070712] shadow-2xl shadow-black/60">
+        <Reveal className="relative overflow-hidden rounded-3xl border border-white/25 bg-[#070712] shadow-2xl shadow-black/60">
           <BackgroundGradientAnimation variant="corners" size="45%" containerClassName="absolute inset-0 z-0" />
           <div className="relative z-10 grid grid-cols-1 lg:grid-cols-2">
 
@@ -369,7 +369,7 @@ export function AiChartAnalyserPreview() {
             </div>
 
             {/* ── Right: animated preview ── */}
-            <div className="flex items-center justify-center border-t border-white/[0.05] bg-gradient-to-br from-[#0b0b1e] to-[#050510] p-8 lg:border-l lg:border-t-0 lg:p-12">
+            <div className="flex items-center justify-center border-t border-white/15 bg-gradient-to-br from-[#0b0b1e] to-[#050510] p-8 lg:border-l lg:border-t-0 lg:p-12">
               {/*
                * ─────────────────────────────────────────────────────────────
                * TODO: Replace the animated demo below with your looped video

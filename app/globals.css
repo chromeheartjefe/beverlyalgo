@@ -148,6 +148,14 @@
     80% { transform: translateX(4px) rotate(5deg); }
   }
 
+  /* Hero social-proof badge: gradient slowly travelling around its outline */
+  --animate-border-flow: borderFlow 6s linear infinite;
+
+  @keyframes borderFlow {
+    from { background-position: 0% 50%; }
+    to   { background-position: 200% 50%; }
+  }
+
   /* Hero headline glow pulse */
   --animate-glow-pulse: glowPulse 3.5s ease-in-out infinite;
 
