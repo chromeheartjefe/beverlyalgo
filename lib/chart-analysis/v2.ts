@@ -216,9 +216,10 @@ function finalize(raw: Record<string, unknown>): Record<string, unknown> {
 export const V2: ChartAnalysisVariant = {
   id: "v2",
   label: "v2",
-  model: "gpt-5.6-luna",
+  model: "gpt-6-luna",
   imageDetail: "high",
-  maxCompletionTokens: 2000,
+  maxCompletionTokens: 8000,
+  reasoningEffort: "medium",
   system: SYSTEM,
   finalize,
 }

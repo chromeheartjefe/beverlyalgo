@@ -1,17 +1,20 @@
 import type { ChartAnalysisVariant } from "./types"
 
-// ─── v1 aggressive (FROZEN, dev only) ─────────────────────────────────────────
-// Exact snapshot of the Chart Analysis logic as of 2026-09-27: decisive,
+// ─── v1 aggressive (FROZEN prompt, admin only) ────────────────────────────────
+// Exact snapshot of the Chart Analysis prompt as of 2026-09-27: decisive,
 // high-confidence output (BUY/SELL at 85-97, the 66-84 band forbidden).
-// Kept for later comparison testing against newer logic. Do not edit; make
-// changes in a new variant instead. Only selectable on the local dev server
-// (see resolveVariant in ./index.ts); production never runs it.
+// Kept for comparison testing against newer logic. Do not edit the prompt;
+// make changes in a new variant instead. The model was moved from
+// gpt-5.6-luna to gpt-6-luna on 2026-09-28 along with every other feature.
+// Only selectable through the admin logic switch (see canPickVariant in
+// ./index.ts); everyone else always runs the production variant.
 export const V1_AGGRESSIVE: ChartAnalysisVariant = {
   id: "v1-aggressive",
   label: "v1 aggressive",
-  model: "gpt-5.6-luna",
+  model: "gpt-6-luna",
   imageDetail: "high",
-  maxCompletionTokens: 1200,
+  maxCompletionTokens: 8000,
+  reasoningEffort: "medium",
   system: `You are a senior professional trading analyst producing a paid signal service. Traders act on your output directly, so be decisive, not hedgy. Return JSON only, no prose outside it.
 Validate first: not a chart→{"error":"NOT_A_CHART"} no ticker→{"error":"NO_TICKER"} no timeframe→{"error":"NO_TIMEFRAME"} price axis unreadable→{"error":"NO_PRICE"} blurry→{"error":"LOW_QUALITY"}
 Otherwise return:

@@ -6,16 +6,16 @@ import { auth } from "@/auth"
 import { db } from "@/db"
 import { chartAnalyses, users } from "@/db/schema"
 import { isBudgetExceeded, recordAiUsage } from "@/lib/ai-budget"
-import { resolveVariant } from "@/lib/chart-analysis"
+import { canPickVariant, resolveVariant } from "@/lib/chart-analysis"
+import { logEvent } from "@/lib/events"
 import { checkRateLimit, countHits } from "@/lib/rate-limit"
+import { DAILY_ANALYSIS_LIMIT, DAY_MS } from "@/lib/usage-limits"
 import { UserFacingError } from "@/lib/user-error"
 
-const DAILY_ANALYSIS_LIMIT = 30
-const DAY_MS = 24 * 60 * 60 * 1000
 
 // ─── Analysis logic ───────────────────────────────────────────────────────────
 // Prompt, model and image settings live in lib/chart-analysis (production v2,
-// plus the frozen dev-only "v1 aggressive" snapshot for comparison testing).
+// plus the frozen "v1 aggressive" snapshot that admins can switch to).
 
 // ─── Validation error messages ────────────────────────────────────────────────
 const VALIDATION_ERRORS: Record<string, string> = {
@@ -34,7 +34,7 @@ export async function POST(req: NextRequest) {
 
   // Pro-only. The page's FeatureLock is just UI; this is the real gate.
   // Read from the DB, not the session, so a lapsed plan applies immediately.
-  const [user] = await db.select({ plan: users.plan }).from(users).where(eq(users.id, session.user.id)).limit(1)
+  const [user] = await db.select({ plan: users.plan, email: users.email, emailVerified: users.emailVerified }).from(users).where(eq(users.id, session.user.id)).limit(1)
   if (!user || user.plan === "free") {
     return NextResponse.json({ error: "Chart Analysis is a Pro feature." }, { status: 403 })
   }
@@ -73,9 +73,10 @@ export async function POST(req: NextRequest) {
   try {
     const form = await req.formData()
     const file = form.get("image") as File | null
-    // Dev server only: the hidden logic switch on the Chart Analysis page.
-    // Production ignores this field and always runs the production variant.
-    const variant = resolveVariant(form.get("variant") as string | null)
+    // The admin-only logic switch on the Chart Analysis page. Everyone else
+    // always runs the production variant, whatever this field says.
+    const canPick = canPickVariant(user)
+    const variant = resolveVariant(form.get("variant") as string | null, canPick)
 
     if (!file)                           return NextResponse.json({ error: "Please choose a chart screenshot to analyze." }, { status: 400 })
     if (file.size > 5 * 1024 * 1024)    return NextResponse.json({ error: "That image is too large. Please upload a screenshot under 5 MB." }, { status: 400 })
@@ -102,6 +103,7 @@ export async function POST(req: NextRequest) {
       model: variant.model,
       response_format: { type: "json_object" },
       max_completion_tokens: variant.maxCompletionTokens,
+      reasoning_effort: variant.reasoningEffort,
       messages: [
         { role: "system", content: variant.system },
         {
@@ -124,9 +126,18 @@ export async function POST(req: NextRequest) {
 
     // Recorded before any check below can bail out: rejected or malformed
     // replies are real spend too, and the monthly budget has to see them.
-    if (completion.usage) {
-      await recordAiUsage("chart_analysis", completion.usage.prompt_tokens, completion.usage.completion_tokens)
-    }
+    const promptTokens     = completion.usage?.prompt_tokens ?? 0
+    const completionTokens = completion.usage?.completion_tokens ?? 0
+    const costUsd = completion.usage
+      ? await recordAiUsage({
+          feature:         "chart_analysis",
+          userId:          session.user.id,
+          model:           variant.model,
+          reasoningEffort: variant.reasoningEffort,
+          promptTokens,
+          completionTokens,
+        })
+      : null
 
     const choice     = completion.choices[0]
     const raw        = choice?.message?.content
@@ -138,7 +149,7 @@ export async function POST(req: NextRequest) {
       throw new UserFacingError("We couldn't analyze this image. Please try a different chart screenshot.")
     }
     if (stopReason === "length") {
-      console.error("[/api/analyze] Response truncated — increase max_completion_tokens")
+      console.error("[/api/analyze] Response truncated, raise maxCompletionTokens or lower reasoningEffort. usage:", completion.usage)
       throw new UserFacingError("The analysis took too long to finish. Please try again.")
     }
     if (!raw) {
@@ -152,6 +163,7 @@ export async function POST(req: NextRequest) {
     if (parsed.error && typeof parsed.error === "string") {
       const msg = VALIDATION_ERRORS[parsed.error]
         ?? "Image could not be analyzed. Please try a different screenshot."
+      await logEvent(session.user.id, "analysis_rejected", { reason: parsed.error, variant: variant.id })
       return NextResponse.json({ error: msg }, { status: 422 })
     }
 
@@ -182,10 +194,17 @@ export async function POST(req: NextRequest) {
       tp2:        data.tp2 ?? null,
       sl:         data.sl ?? null,
       rrRatio:    data.rrRatio ?? null,
+      // For the admin console: the exact result the user saw, how it was made
+      variant:          variant.id,
+      model:            variant.model,
+      result:           JSON.stringify(data),
+      promptTokens,
+      completionTokens,
+      costUsd,
     })
 
     return NextResponse.json(
-      process.env.NODE_ENV === "development" ? { analysis: data, variant: variant.id } : { analysis: data },
+      canPick ? { analysis: data, variant: variant.id } : { analysis: data },
     )
 
   } catch (err) {

@@ -49,7 +49,7 @@ export type AnalysisResult = {
   volatility:      "Low" | "Medium" | "High"
   patternStrength: "Low" | "Medium" | "High"
   trendAlignment:  "Weak" | "Moderate" | "Strong"
-  // v2 only (optional so dev-only v1 results still render)
+  // v2 only (optional so admin-only v1 results still render)
   entryType?:      "market" | "limit" | null
   /** NEUTRAL: prices that would turn it into a long / short */
   watch?:          { longAbove: number | null; shortBelow: number | null }
@@ -161,7 +161,7 @@ function DropZone({
         "relative flex h-64 cursor-pointer flex-col items-center justify-center rounded-2xl border-2 border-dashed p-4 text-center transition-all duration-200 sm:h-72",
         isDragging
           ? "border-purple-500/60 bg-purple-500/[0.06]"
-          : "border-white/[0.12] bg-white/[0.02] hover:border-purple-500/30 hover:bg-purple-500/[0.02]",
+          : "border-white/15 bg-white/[0.02] hover:border-purple-500/30 hover:bg-purple-500/[0.02]",
       )}
     >
       {/* Corner accents */}
@@ -195,7 +195,7 @@ function DropZone({
       </p>
       <p className="mt-1 text-xs text-gray-600">or drag and drop · PNG, JPG, WEBP up to 5 MB</p>
 
-      <span className="mt-5 inline-flex items-center gap-2 rounded-xl border border-white/[0.10] bg-white/[0.05] px-5 py-2.5 text-sm font-medium text-gray-300 transition-colors hover:bg-white/[0.08]">
+      <span className="mt-5 inline-flex items-center gap-2 rounded-xl border border-white/15 bg-white/[0.05] px-5 py-2.5 text-sm font-medium text-gray-300 transition-colors hover:bg-white/[0.08]">
         Browse files
       </span>
 
@@ -245,7 +245,7 @@ function SelectedView({
       exit={{ opacity: 0 }}
       className="space-y-4"
     >
-      <div className="max-h-80 overflow-hidden rounded-2xl border border-white/[0.08] bg-white/[0.02]">
+      <div className="max-h-80 overflow-hidden rounded-2xl border border-white/15 bg-white/[0.02]">
         {preview && (
           <img src={preview} alt="Selected chart" className="w-full" />
         )}
@@ -306,7 +306,7 @@ function AnalyzingView({ filename }: { filename: string }) {
       exit={{ opacity: 0 }}
       className="space-y-5"
     >
-      <div className="flex items-center justify-between rounded-xl border border-white/[0.07] bg-white/[0.03] px-4 py-3">
+      <div className="flex items-center justify-between rounded-xl border border-white/15 bg-white/[0.03] px-4 py-3">
         <div className="flex items-center gap-2 text-sm text-gray-400">
           <span className="inline-block size-2 rounded-full bg-purple-400" />
           {filename}
@@ -322,7 +322,7 @@ function AnalyzingView({ filename }: { filename: string }) {
       </div>
 
       {/* Chart skeleton + scan line */}
-      <div className="relative h-52 overflow-hidden rounded-xl border border-white/[0.07] bg-[#08080f]">
+      <div className="relative h-52 overflow-hidden rounded-xl border border-white/15 bg-[#08080f]">
         <svg viewBox="0 0 400 180" className="h-full w-full opacity-15">
           {[
             [20,  100, 118, 95,  123],
@@ -429,7 +429,7 @@ function TipCard({ step, accent, icon: Icon, graphic, title, desc }: {
   const a = TIP_ACCENTS[accent]
   return (
     <div className={cn(
-      "group relative overflow-hidden rounded-xl border border-white/[0.07] bg-[#070712] transition-colors duration-300",
+      "group relative overflow-hidden rounded-xl border border-white/15 bg-[#070712] transition-colors duration-300",
       a.border,
     )}>
       <span className={cn("pointer-events-none absolute inset-x-6 top-0 h-px bg-gradient-to-r from-transparent to-transparent", a.line)} />
@@ -446,7 +446,7 @@ function TipCard({ step, accent, icon: Icon, graphic, title, desc }: {
       </div>
       <p className="relative px-3.5 pt-2 text-xs leading-relaxed text-gray-400">{desc}</p>
 
-      <div className="relative mx-3.5 mb-3.5 mt-3 rounded-lg border border-white/[0.05] bg-[#05050f] p-2">
+      <div className="relative mx-3.5 mb-3.5 mt-3 rounded-lg border border-white/15 bg-[#05050f] p-2">
         {graphic}
         {/* Columns line up with the SVG's two 80/168-wide panels */}
         <div className="mt-1.5 grid grid-cols-2 gap-x-[4.8%] text-[10px] font-semibold uppercase tracking-wider">
@@ -493,7 +493,7 @@ function RecentCard({ r }: { r: RecentEntry }) {
   const Icon = a.icon
   const conf = Math.max(0, Math.min(100, Math.round(r.confidence)))
   return (
-    <div className="relative overflow-hidden rounded-xl border border-white/[0.07] bg-[#070712] px-3.5 py-3">
+    <div className="relative overflow-hidden rounded-xl border border-white/15 bg-[#070712] px-3.5 py-3">
       <span className={cn("pointer-events-none absolute inset-x-6 top-0 h-px bg-gradient-to-r from-transparent to-transparent", a.line)} />
       <div className={cn("pointer-events-none absolute -right-10 -top-12 size-24 rounded-full blur-2xl", a.blob)} />
 
@@ -505,7 +505,7 @@ function RecentCard({ r }: { r: RecentEntry }) {
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-1.5">
             <span className="truncate text-[13px] font-semibold text-white">{r.pair}</span>
-            <span className="shrink-0 rounded-md border border-white/[0.08] bg-white/[0.05] px-1.5 py-0.5 text-[10px] font-medium text-gray-400">
+            <span className="shrink-0 rounded-md border border-white/15 bg-white/[0.05] px-1.5 py-0.5 text-[10px] font-medium text-gray-400">
               {r.timeframe}
             </span>
           </div>
@@ -745,42 +745,36 @@ function TipPriceAxisSVG() {
   )
 }
 
-// ─── Dev-only logic switch ────────────────────────────────────────────────────
-// Local `next dev` only: picks which lib/chart-analysis variant the API runs.
-// process.env.NODE_ENV is inlined at build time, so production builds drop
-// this entirely, and the API ignores the field outside development anyway.
-// Hidden by default even in dev; set NEXT_PUBLIC_SHOW_DEV_LOGIC_SWITCH=1 in
-// .env.local (and restart `next dev`) to compare v1 aggressive against v2.
-const SHOW_DEV_LOGIC_SWITCH =
-  process.env.NODE_ENV === "development" && process.env.NEXT_PUBLIC_SHOW_DEV_LOGIC_SWITCH === "1"
+// ─── Admin logic switch ───────────────────────────────────────────────────────
+// Picks which lib/chart-analysis variant the API runs, to compare the frozen
+// v1 aggressive logic against production v2. GET /api/analyze/variants only
+// returns options for admin accounts (and local dev with
+// NEXT_PUBLIC_SHOW_DEV_LOGIC_SWITCH=1), and /api/analyze re-checks on the
+// server, so everyone else neither sees this nor can use it.
+type VariantOption = { id: string; label: string }
 
-const DEV_VARIANTS = [
-  { id: "v2",            label: "v2 (production)" },
-  { id: "v1-aggressive", label: "v1 aggressive" },
-] as const
-
-type DevVariantId = (typeof DEV_VARIANTS)[number]["id"]
-
-function DevLogicSwitch({ value, onChange }: { value: DevVariantId; onChange: (v: DevVariantId) => void }) {
+function AdminLogicSwitch({ options, value, onChange }: { options: VariantOption[]; value: string; onChange: (v: string) => void }) {
   return (
-    <div className="mt-4 inline-flex flex-wrap items-center gap-2 rounded-xl border border-dashed border-amber-400/40 bg-amber-500/[0.06] px-3 py-2">
-      <span className="text-xs font-semibold text-amber-300">Dev only</span>
-      <span className="text-xs text-amber-200/70">Analysis logic:</span>
-      <div className="flex gap-1">
-        {DEV_VARIANTS.map((v) => (
-          <button
-            key={v.id}
-            type="button"
-            onClick={() => onChange(v.id)}
-            aria-pressed={value === v.id}
-            className={cn(
-              "rounded-lg px-2.5 py-1 text-xs font-medium transition-colors",
-              value === v.id ? "bg-amber-400/20 text-amber-100" : "text-amber-200/60 hover:text-amber-100",
-            )}
-          >
-            {v.label}
-          </button>
-        ))}
+    <div className="mt-8 border-t border-white/15 pt-6">
+      <div className="inline-flex flex-wrap items-center gap-2 rounded-xl border border-dashed border-amber-400/40 bg-amber-500/[0.06] px-3 py-2">
+        <span className="text-xs font-semibold text-amber-300">Admin only</span>
+        <span className="text-xs text-amber-200/70">Analysis logic:</span>
+        <div className="flex gap-1">
+          {options.map((v) => (
+            <button
+              key={v.id}
+              type="button"
+              onClick={() => onChange(v.id)}
+              aria-pressed={value === v.id}
+              className={cn(
+                "rounded-lg px-2.5 py-1 text-xs font-medium transition-colors",
+                value === v.id ? "bg-amber-400/20 text-amber-100" : "text-amber-200/60 hover:text-amber-100",
+              )}
+            >
+              {v.label}
+            </button>
+          ))}
+        </div>
       </div>
     </div>
   )
@@ -794,7 +788,7 @@ export default function ChartAnalysisPage() {
   const locked = plan === "free"
 
   const [phase,    setPhase]    = useState<Phase>("idle")
-  const [devVariant, setDevVariant] = useState<DevVariantId>("v2")
+  const [variant,  setVariant]  = useState("v2")
   const [file,     setFile]     = useState<File | null>(null)
   const [preview,  setPreview]  = useState<string | null>(null)
   const [result,   setResult]   = useState<AnalysisResult | null>(null)
@@ -804,6 +798,13 @@ export default function ChartAnalysisPage() {
   // on this same key) so returning to this tab shows the already-fetched
   // analyses instantly instead of flashing back to an empty/loading state.
   const { data: analysesData, isLoading: recentLoading, mutate: mutateAnalyses } = useSWR<RawAnalysisRow[]>("/api/analyses", fetcher)
+  // Admin-only logic switch options; empty for everyone else (see AdminLogicSwitch)
+  const { data: variantData } = useSWR<{ variants: VariantOption[] }>(
+    locked ? null : "/api/analyze/variants",
+    fetcher,
+    { revalidateOnFocus: false },
+  )
+  const variantOpts = variantData?.variants ?? []
   const recent: RecentEntry[] = useMemo(
     () =>
       (analysesData ?? []).slice(0, 3).map((r) => ({
@@ -857,7 +858,7 @@ export default function ChartAnalysisPage() {
       })
       const form = new FormData()
       form.append("image", resized, file.name.replace(/\.[^.]+$/, ".jpg"))
-      if (SHOW_DEV_LOGIC_SWITCH) form.append("variant", devVariant)
+      if (variantOpts.length > 1) form.append("variant", variant)
 
       const data = await requestJson<{ analysis?: AnalysisResult }>("/api/analyze", { method: "POST", body: form })
       if (!data.analysis?.signal) throw new ApiError("We couldn't complete the analysis. Please try again.")
@@ -903,7 +904,6 @@ export default function ChartAnalysisPage() {
         <p className="mt-1 text-sm text-gray-500">
           Upload any chart screenshot for instant AI-powered pattern recognition and entry/exit signals.
         </p>
-        {SHOW_DEV_LOGIC_SWITCH && <DevLogicSwitch value={devVariant} onChange={setDevVariant} />}
       </div>
 
       {/* 2-column layout */}
@@ -911,7 +911,7 @@ export default function ChartAnalysisPage() {
       <div className="grid grid-cols-1 gap-6 xl:grid-cols-3">
         {/* Main analyser */}
         <div className="xl:col-span-2">
-          <div className="rounded-2xl border border-white/[0.07] bg-white/[0.025] p-4 sm:p-6" aria-busy={phase === "analyzing"}>
+          <div className="rounded-2xl border border-white/25 bg-white/[0.025] p-4 sm:p-6" aria-busy={phase === "analyzing"}>
             <AnimatePresence mode="wait">
               {(phase === "idle" || phase === "dragging") && (
                 <motion.div key="dropzone" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
@@ -956,7 +956,7 @@ export default function ChartAnalysisPage() {
 
         {/* Sidebar */}
         <div className="space-y-5">
-          <div className="rounded-2xl border border-white/[0.07] bg-white/[0.025] p-5">
+          <div className="rounded-2xl border border-white/25 bg-white/[0.025] p-5">
             <div className="mb-4 flex items-center gap-2.5">
               <div className="flex size-8 items-center justify-center rounded-lg border border-sky-400/30 bg-gradient-to-br from-sky-500/25 to-cyan-600/5">
                 <Clock className="size-4 text-sky-300" strokeWidth={1.75} />
@@ -970,7 +970,7 @@ export default function ChartAnalysisPage() {
             {recentLoading ? (
               <div className="space-y-2.5" aria-hidden="true">
                 {[0, 1, 2].map((i) => (
-                  <div key={i} className="rounded-xl border border-white/[0.07] bg-[#070712] px-3.5 py-3">
+                  <div key={i} className="rounded-xl border border-white/15 bg-[#070712] px-3.5 py-3">
                     <div className="flex items-center gap-3">
                       <div className="size-8 shrink-0 animate-pulse rounded-lg bg-white/[0.06]" />
                       <div className="flex-1 space-y-1.5">
@@ -984,7 +984,7 @@ export default function ChartAnalysisPage() {
                 ))}
               </div>
             ) : recent.length === 0 ? (
-              <div className="relative flex flex-col items-center gap-2 overflow-hidden rounded-xl border border-dashed border-white/[0.08] bg-[#070712] py-7 text-center">
+              <div className="relative flex flex-col items-center gap-2 overflow-hidden rounded-xl border border-dashed border-white/20 bg-[#070712] py-7 text-center">
                 <div className="flex size-10 items-center justify-center rounded-xl border border-sky-400/20 bg-gradient-to-br from-sky-500/15 to-cyan-600/5">
                   <Clock className="size-4 text-sky-300/80" strokeWidth={1.75} />
                 </div>
@@ -1000,7 +1000,7 @@ export default function ChartAnalysisPage() {
             )}
           </div>
 
-          <div className="rounded-2xl border border-white/[0.07] bg-white/[0.025] p-5">
+          <div className="rounded-2xl border border-white/25 bg-white/[0.025] p-5">
             <div className="mb-4 flex items-center gap-2.5">
               <div className="flex size-8 items-center justify-center rounded-lg border border-purple-400/30 bg-gradient-to-br from-purple-500/25 to-fuchsia-600/5">
                 <Lightbulb className="size-4 text-purple-300" strokeWidth={1.75} />
@@ -1040,6 +1040,10 @@ export default function ChartAnalysisPage() {
         </div>
       </div>
       </FeatureLock>
+
+      {variantOpts.length > 1 && (
+        <AdminLogicSwitch options={variantOpts} value={variant} onChange={setVariant} />
+      )}
     </div>
   )
 }

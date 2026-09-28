@@ -9,7 +9,6 @@ import { motion } from "framer-motion"
 import {
   Activity,
   AlertTriangle,
-  ArrowUpRight,
   CheckCircle,
   Eye,
   Hourglass,
@@ -22,6 +21,7 @@ import {
   Target,
   TrendingDown,
   TrendingUp,
+  Waypoints,
   XCircle,
   Zap,
 } from "lucide-react"
@@ -158,6 +158,9 @@ function SignalHero({ result }: { result: AnalysisResult }) {
         { l: "Stop Loss",    v: fmtPrice(result.sl),    Icon: ShieldAlert, tint: "text-red-400"    },
         { l: "Risk : Reward", v: result.rrRatio !== null ? `1:${result.rrRatio}` : "—", Icon: Scale, tint: rrColor },
       ]
+  // Every tile's number is fitted to the longest value in the row, so they
+  // all shrink together (Risk : Reward too) and stay the same size
+  const fitChars = Math.max(...stats.map((s) => s.v.length))
 
   return (
     <motion.div
@@ -175,7 +178,7 @@ function SignalHero({ result }: { result: AnalysisResult }) {
             <Zap className="size-3 text-purple-400" />
             <span className="text-[11px] font-semibold uppercase tracking-widest text-purple-300">AI Signal</span>
           </div>
-          <span className="rounded-full border border-white/10 bg-white/[0.04] px-3 py-1 text-xs font-medium text-gray-400">
+          <span className="rounded-full border border-white/15 bg-white/[0.04] px-3 py-1 text-xs font-medium text-gray-400">
             {result.pair} · {result.timeframe}
           </span>
         </div>
@@ -198,8 +201,8 @@ function SignalHero({ result }: { result: AnalysisResult }) {
           {neutral ? <NoTradeBadge /> : <ConfidenceRing value={result.confidence} color={theme.ring} />}
         </div>
 
-        {/* Mobile: 2 columns (Entry | TP1, TP2 | Stop Loss, Risk : Reward full
-            width). Three per row left ~60px inside each tile on a phone, so
+        {/* Mobile: 2 columns (Entry full width, TP1 | TP2, Stop Loss | Risk :
+            Reward). Three per row left ~60px inside each tile on a phone, so
             labels wrapped and 5-digit prices overflowed. sm+: one row of 5.
             Tiles are flex columns with the price pinned to the bottom, so
             prices line up across a row even when a label wraps. */}
@@ -211,21 +214,27 @@ function SignalHero({ result }: { result: AnalysisResult }) {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.4 + i * 0.06 }}
               className={cn(
-                "flex min-w-0 flex-col justify-between gap-2 rounded-xl border border-white/[0.08] bg-white/[0.04] p-3 sm:p-4",
-                !neutral && i === stats.length - 1 && "col-span-2 sm:col-span-1",
+                "@container flex min-w-0 flex-col justify-between gap-2 rounded-xl border border-white/15 bg-white/[0.04] p-3 sm:p-4",
+                // Entry leads on phones: it's the level people act on first
+                !neutral && i === 0 && "col-span-2 sm:col-span-1",
               )}
             >
               <div className="flex items-start gap-1.5">
                 <Icon className={cn("mt-px size-3.5 shrink-0", tint)} />
                 <span className="text-[10px] font-semibold uppercase leading-tight tracking-wide text-gray-500">{l}</span>
               </div>
+              {/* Sized from the tile's own width (container query units), so a
+                  narrow tile (small window, browser zoom) shrinks the price
+                  instead of letting it spill out. --fit is the size at which
+                  the row's longest value fills the tile (a black-weight digit
+                  is ~0.64em wide); the usual sizes stay the maximum. */}
               <p
                 className={cn(
-                  "font-black leading-none tabular-nums sm:text-xl",
-                  // Long prices (e.g. $68,420.00 or $0.00000437) step down on phones
-                  v.length >= 11 ? "text-sm" : v.length >= 9 ? "text-base" : "text-lg",
+                  "whitespace-nowrap font-black leading-none tabular-nums",
+                  "text-[length:min(var(--fit),1.125rem)] sm:text-[length:min(var(--fit),1.25rem)]",
                   tint,
                 )}
+                style={{ "--fit": `${(100 / (fitChars * 0.64)).toFixed(2)}cqi` } as React.CSSProperties}
               >
                 {v}
               </p>
@@ -234,7 +243,7 @@ function SignalHero({ result }: { result: AnalysisResult }) {
         </div>
 
         {(neutral || limit) && (
-          <p className="mt-4 rounded-xl border border-white/[0.07] bg-white/[0.03] px-3.5 py-2.5 text-xs leading-relaxed text-gray-400">
+          <p className="mt-4 rounded-xl border border-white/15 bg-white/[0.03] px-3.5 py-2.5 text-xs leading-relaxed text-gray-400">
             {neutral
               ? "No clean setup right now. Wait for a candle to close beyond one of these levels, then run a fresh analysis."
               : `Place a limit order at ${fmtPrice(result.entry)} instead of entering at the current price. If price reaches TP1 without filling your order, the setup is gone, so don't chase it.`}
@@ -335,7 +344,7 @@ function UnderstandTab({ result }: { result: AnalysisResult }) {
               <p className={cn("mb-2 text-[13px] font-semibold leading-tight", hlText)}>{highlight}</p>
               <p className="text-[12px] leading-relaxed text-gray-400">{body}</p>
               {note && (
-                <p className="mt-2 border-t border-white/[0.05] pt-2 text-[11px] leading-snug text-gray-600">{note}</p>
+                <p className="mt-2 border-t border-white/15 pt-2 text-[11px] leading-snug text-gray-600">{note}</p>
               )}
             </div>
           </div>
@@ -406,7 +415,7 @@ function RisksTab({ result }: { result: AnalysisResult }) {
       Icon: Eye,
       iconBg: "bg-white/[0.06]",
       iconText: "text-gray-400",
-      border: "border-white/[0.07]",
+      border: "border-white/15",
       card: "bg-white/[0.025]",
       tag: null as string | null,
       tagStyle: "",
@@ -519,19 +528,21 @@ const ACCENT = {
   good:    { line: "via-emerald-400/60", blob: "bg-emerald-500/10", tile: "border-emerald-400/30 bg-gradient-to-br from-emerald-500/25 to-teal-600/5",   icon: "text-emerald-300" },
   mid:     { line: "via-amber-400/60",   blob: "bg-amber-500/10",   tile: "border-amber-400/30 bg-gradient-to-br from-amber-500/25 to-yellow-600/5",    icon: "text-amber-300" },
   bad:     { line: "via-rose-400/60",    blob: "bg-rose-500/10",    tile: "border-rose-400/30 bg-gradient-to-br from-rose-500/25 to-red-600/5",         icon: "text-rose-300" },
+  sky:     { line: "via-sky-400/60",     blob: "bg-sky-500/10",     tile: "border-sky-400/30 bg-gradient-to-br from-sky-500/25 to-cyan-600/5",          icon: "text-sky-300" },
 } as const
 
-function CardShell({ accent, icon: Icon, title, sub, badge, children }: {
+function CardShell({ accent, icon: Icon, title, sub, badge, className, children }: {
   accent: keyof typeof ACCENT
   icon: React.ComponentType<{ className?: string; strokeWidth?: number }>
   title: string
   sub: string
   badge?: React.ReactNode
+  className?: string
   children: React.ReactNode
 }) {
   const a = ACCENT[accent]
   return (
-    <div className="relative overflow-hidden rounded-2xl border border-white/[0.07] bg-[#070712] p-5">
+    <div className={cn("relative overflow-hidden rounded-2xl border border-white/15 bg-[#070712] p-5", className)}>
       <span className={cn("pointer-events-none absolute inset-x-8 top-0 h-px bg-gradient-to-r from-transparent to-transparent", a.line)} />
       <div className={cn("pointer-events-none absolute -right-14 -top-16 size-40 rounded-full blur-3xl", a.blob)} />
       <div className="relative mb-4 flex items-start justify-between gap-3">
@@ -556,7 +567,7 @@ const PATTERN_KIND = {
   smc:     { label: "Smart money",   chip: "border-fuchsia-400/25 bg-fuchsia-500/10 text-fuchsia-300", dot: "bg-fuchsia-400" },
   chart:   { label: "Chart pattern", chip: "border-sky-400/25 bg-sky-500/10 text-sky-300",             dot: "bg-sky-400" },
   level:   { label: "Key level",     chip: "border-amber-400/25 bg-amber-500/10 text-amber-300",       dot: "bg-amber-400" },
-  other:   { label: "Pattern",       chip: "border-white/10 bg-white/[0.05] text-gray-300",            dot: "bg-gray-400" },
+  other:   { label: "Pattern",       chip: "border-white/15 bg-white/[0.05] text-gray-300",            dot: "bg-gray-400" },
 } as const
 
 function patternKind(name: string): keyof typeof PATTERN_KIND {
@@ -597,7 +608,7 @@ function PatternsCard({ result }: { result: AnalysisResult }) {
               transition={{ delay: 0.1 + i * 0.07 }}
               className={cn(
                 "flex items-center gap-3 rounded-xl border px-3 py-2.5",
-                primary ? "border-fuchsia-400/25 bg-fuchsia-500/[0.07]" : "border-white/[0.06] bg-white/[0.02]",
+                primary ? "border-fuchsia-400/25 bg-fuchsia-500/[0.07]" : "border-white/15 bg-white/[0.02]",
               )}
             >
               <span
@@ -618,7 +629,7 @@ function PatternsCard({ result }: { result: AnalysisResult }) {
         })}
       </ul>
 
-      <div className="mt-4 border-t border-white/[0.06] pt-4">
+      <div className="mt-4 border-t border-white/15 pt-4">
         <LevelMeter
           label="Pattern strength"
           value={result.patternStrength}
@@ -651,6 +662,14 @@ function RiskCard({ result }: { result: AnalysisResult }) {
         <LevelMeter label="Volatility" value={result.volatility} level={VOL_LEVEL[result.volatility] ?? 2} moreIsBetter={false} delay={0.2} />
         <LevelMeter label="Trend alignment" value={result.trendAlignment} level={ALIGN_LEVEL[result.trendAlignment] ?? 2} moreIsBetter delay={0.3} />
       </div>
+    </CardShell>
+  )
+}
+
+function StructureCard({ result, className }: { result: AnalysisResult; className?: string }) {
+  return (
+    <CardShell accent="sky" icon={Waypoints} title="Market structure" sub="How price is moving" className={className}>
+      <p className="text-sm leading-relaxed text-gray-300">{result.structure}</p>
     </CardShell>
   )
 }
@@ -700,7 +719,7 @@ export function ResultsView({
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.1, duration: 0.3 }}
-        className="relative overflow-hidden rounded-2xl border border-white/[0.07] bg-[#08080f]"
+        className="relative overflow-hidden rounded-2xl border border-white/15 bg-[#08080f]"
       >
         {preview ? (
           <img src={preview} alt="Analyzed chart" className="max-h-[420px] w-full object-contain" />
@@ -745,26 +764,20 @@ export function ResultsView({
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.05, duration: 0.3 }}
-        className="rounded-2xl border border-white/[0.06] bg-white/[0.02] p-4 sm:p-5"
+        className="rounded-2xl border border-white/15 bg-white/[0.02] p-4 sm:p-5"
       >
         <span className="mb-4 inline-flex items-center rounded-lg bg-purple-500/15 px-3 py-1.5 text-[11px] font-semibold text-purple-400">
           Analysis
         </span>
 
         <div className="space-y-4">
-          {/* Patterns + Risk */}
+          {/* Patterns left; Risk + Market structure share the right column */}
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <PatternsCard result={result} />
-            <RiskCard result={result} />
-          </div>
-
-          {/* Market structure */}
-          <div className="rounded-xl border border-white/[0.07] bg-white/[0.025] p-5">
-            <h3 className="mb-2 flex items-center gap-2 text-xs font-semibold uppercase tracking-widest text-gray-500">
-              <ArrowUpRight className="size-3 text-violet-400" />
-              Market Structure
-            </h3>
-            <p className="text-sm leading-relaxed text-gray-400">{result.structure}</p>
+            <div className="flex flex-col gap-4">
+              <RiskCard result={result} />
+              {result.structure && <StructureCard result={result} className="flex-1" />}
+            </div>
           </div>
         </div>
       </motion.div>
@@ -774,7 +787,7 @@ export function ResultsView({
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.15, duration: 0.3 }}
-        className="rounded-2xl border border-white/[0.06] bg-white/[0.02] p-4 sm:p-5"
+        className="rounded-2xl border border-white/15 bg-white/[0.02] p-4 sm:p-5"
       >
         <span className="mb-4 inline-flex items-center rounded-lg bg-purple-500/15 px-3 py-1.5 text-[11px] font-semibold text-purple-400">
           Understanding
@@ -787,7 +800,7 @@ export function ResultsView({
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.25, duration: 0.3 }}
-        className="rounded-2xl border border-white/[0.06] bg-white/[0.02] p-4 sm:p-5"
+        className="rounded-2xl border border-white/15 bg-white/[0.02] p-4 sm:p-5"
       >
         <span className="mb-4 inline-flex items-center rounded-lg bg-purple-500/15 px-3 py-1.5 text-[11px] font-semibold text-purple-400">
           Risks

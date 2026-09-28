@@ -6,7 +6,14 @@ export type ChartAnalysisVariant = {
   model:               string
   /** "high" keeps tightly packed Y-axis labels readable (sub-$1 prices) */
   imageDetail:         "low" | "high" | "auto"
+  /**
+   * Hidden reasoning tokens count against this cap before any visible
+   * output, so it has to cover both. gpt-6-luna reasons far more than
+   * gpt-5.6-luna did at its default effort ("medium").
+   */
   maxCompletionTokens: number
+  /** Always set explicitly, with a cap sized for it (medium needs ~8000 on gpt-6-luna) */
+  reasoningEffort:     "none" | "low" | "medium" | "high"
   /** Must contain the word "json" (required by response_format json_object) */
   system:              string
   /**
