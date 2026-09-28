@@ -6,6 +6,7 @@ import { auth } from "@/auth"
 import { db } from "@/db"
 import { screenerCache } from "@/db/schema"
 import { isBudgetExceeded, recordAiUsage } from "@/lib/ai-budget"
+import { logEvent } from "@/lib/events"
 import { checkRateLimit } from "@/lib/rate-limit"
 import { fetchCryptoMovers, fetchStockMovers, type MoverCandidate } from "@/lib/screener-data"
 import { UserFacingError } from "@/lib/user-error"
@@ -22,6 +23,9 @@ const REFRESH_MS = 60 * 60 * 1000
 // cap and the AI cost), and a failed scan left the cache expired so every
 // following click retried the external APIs immediately.
 const SCAN_LOCK_MS = 5 * 60 * 1000
+
+const SCREENER_MODEL     = "gpt-6-luna"
+const SCREENER_REASONING = "medium" as const
 
 export type ScreenerTicker = {
   symbol:         string
@@ -103,6 +107,8 @@ export async function POST() {
   const cacheAgeMs = cached ? Date.now() - new Date(cached.generatedAt).getTime() : Infinity
 
   if (cacheAgeMs < REFRESH_MS && cachedResult) {
+    // Logged apart from real scans (fresh: true below), which cost AI money
+    await logEvent(session.user.id, "screener_scan", { fresh: false })
     return NextResponse.json({ result: cachedResult })
   }
 
@@ -138,14 +144,15 @@ export async function POST() {
     const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY })
 
     const completion = await openai.chat.completions.create({
-      model: "gpt-5.6-luna",
+      model: SCREENER_MODEL,
       response_format: { type: "json_object" },
       // Same model as Chart Analysis — its hidden reasoning tokens draw from
       // this same budget before any visible output, so dropping this too far
       // below what a full 10-pick response needs (even a compact one, without
       // a thesis) starves it and comes back with empty content, not a smaller
       // valid response.
-      max_completion_tokens: 1000,
+      max_completion_tokens: 6000,
+      reasoning_effort: SCREENER_REASONING,
       messages: [
         { role: "system", content: SYSTEM },
         { role: "user", content: buildUserPrompt(stocks, crypto) },
@@ -156,7 +163,14 @@ export async function POST() {
     // unusable reply was still paid for, and the monthly budget must see it
     // (same as Chart Analysis and the AI Trading Bot).
     if (completion.usage) {
-      await recordAiUsage("screener", completion.usage.prompt_tokens, completion.usage.completion_tokens)
+      await recordAiUsage({
+        feature:          "screener",
+        userId:           session.user.id, // whoever triggered this (shared) scan
+        model:            SCREENER_MODEL,
+        reasoningEffort:  SCREENER_REASONING,
+        promptTokens:     completion.usage.prompt_tokens,
+        completionTokens: completion.usage.completion_tokens,
+      })
     }
 
     const choice     = completion.choices[0]
@@ -164,7 +178,10 @@ export async function POST() {
     const stopReason = choice?.finish_reason
 
     if (choice?.message?.refusal) throw new UserFacingError("The scan couldn't be completed. Please try again.")
-    if (stopReason === "length")  throw new UserFacingError("The scan took too long to finish. Please try again.")
+    if (stopReason === "length") {
+      console.error("[/api/screener] Response truncated, raise max_completion_tokens or lower reasoning_effort. usage:", completion.usage)
+      throw new UserFacingError("The scan took too long to finish. Please try again.")
+    }
     if (!raw)                     throw new UserFacingError("The scan couldn't be completed. Please try again.")
 
     const parsed = JSON.parse(raw) as { picks?: unknown }
@@ -243,6 +260,7 @@ export async function POST() {
       ...(carryStocks ? { stocksAsOf: cachedResult?.stocksAsOf ?? cachedResult?.generatedAt } : {}),
     }
     await writeCache(result)
+    await logEvent(session.user.id, "screener_scan", { fresh: true })
 
     return NextResponse.json({ result })
 

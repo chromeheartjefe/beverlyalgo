@@ -1,3 +1,5 @@
+import { fetchQuotes } from "@/lib/twelve-data"
+
 export type MoverCandidate = {
   symbol:         string
   name?:          string
@@ -24,13 +26,23 @@ const CRYPTO_UNIVERSE = [
 // order book or a listing quirk than a real, tradeable "hot" mover.
 const MIN_CRYPTO_QUOTE_VOLUME = 5_000_000
 
+// Binance's public market-data host. api.binance.com refuses requests from
+// US IP addresses (HTTP 451), and Vercel runs our functions in the US, so on
+// the live site every crypto request failed and the Screener showed 0 crypto
+// picks. data-api.binance.vision serves the same market data without that
+// block. Also used by lib/market-data.ts.
+export const BINANCE_DATA_API = "https://data-api.binance.vision"
+
 export async function fetchCryptoMovers(limit = 15): Promise<MoverCandidate[]> {
   try {
     const symbols = encodeURIComponent(JSON.stringify(CRYPTO_UNIVERSE))
-    const res = await fetch(`https://api.binance.com/api/v3/ticker/24hr?symbols=${symbols}`, {
+    const res = await fetch(`${BINANCE_DATA_API}/api/v3/ticker/24hr?symbols=${symbols}`, {
       next: { revalidate: 0 },
     })
-    if (!res.ok) return []
+    if (!res.ok) {
+      console.error("[screener] Binance crypto movers failed:", res.status, (await res.text()).slice(0, 200))
+      return []
+    }
 
     const data: { symbol: string; lastPrice: string; priceChangePercent: string; quoteVolume: string }[] = await res.json()
 
@@ -44,14 +56,14 @@ export async function fetchCryptoMovers(limit = 15): Promise<MoverCandidate[]> {
       .filter((c) => Number.isFinite(c.changePercent) && c.volume >= MIN_CRYPTO_QUOTE_VOLUME)
       .sort((a, b) => Math.abs(b.changePercent) - Math.abs(a.changePercent))
       .slice(0, limit)
-  } catch {
+  } catch (err) {
+    console.error("[screener] Binance crypto movers failed:", err)
     return []
   }
 }
 
 type AlphaVantageMover = { ticker: string; price: string; change_percentage: string; volume: string }
 
-type TwelveDataQuote = { close?: string; percent_change?: string; volume?: string; status?: string }
 
 // Twelve Data's batch /quote charges 1 credit per symbol, not per HTTP call
 // (confirmed live: a 30-symbol batch returned a 429 for exceeding the
@@ -71,23 +83,17 @@ const MAX_LIVE_QUOTE_SYMBOLS = 8
 // shown — AV only decides WHICH tickers are worth checking, never what
 // price/% is displayed for them.
 async function refreshWithLiveQuotes(candidates: MoverCandidate[]): Promise<MoverCandidate[]> {
-  const apiKey = process.env.TWELVE_DATA_API_KEY
-  if (!apiKey || candidates.length === 0) return []
+  if (candidates.length === 0) return []
 
   const capped  = candidates.slice(0, MAX_LIVE_QUOTE_SYMBOLS)
   const symbols = capped.map((c) => c.symbol)
 
   try {
-    const res = await fetch(
-      `https://api.twelvedata.com/quote?symbol=${encodeURIComponent(symbols.join(","))}&apikey=${apiKey}`,
-      { cache: "no-store" },
-    )
-    if (!res.ok) return []
-    const data = await res.json()
-
-    // A single symbol comes back as the quote object itself; several come
-    // back keyed by symbol — normalize to the keyed shape either way.
-    const bySymbol: Record<string, TwelveDataQuote> = symbols.length === 1 ? { [symbols[0]]: data } : data
+    // Shared gateway: credit budget, backoff, response normalized to keyed
+    // shape. null = skipped or failed; the route then carries forward the
+    // previous scan's stocks.
+    const bySymbol = await fetchQuotes(symbols)
+    if (!bySymbol) return []
 
     return capped
       .map((c): MoverCandidate | null => {

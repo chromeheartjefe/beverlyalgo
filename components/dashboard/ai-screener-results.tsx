@@ -415,7 +415,7 @@ function ColumnHeader({ label, count, icon: Icon }: { label: string; count: numb
         <Icon className="size-5 text-purple-400" />
       </div>
       <h2 className="text-xl font-black tracking-tight text-white">{label}</h2>
-      <span className="rounded-full border border-white/10 bg-white/[0.05] px-2 py-0.5 text-xs font-bold text-gray-400">{count}</span>
+      <span className="rounded-full border border-white/15 bg-white/[0.05] px-2 py-0.5 text-xs font-bold text-gray-400">{count}</span>
     </div>
   )
 }
@@ -424,7 +424,7 @@ function ColumnHeader({ label, count, icon: Icon }: { label: string; count: numb
 // Crypto and Stocks read as two clearly separate sections at a glance.
 function CategoryBlock({ children }: { children: React.ReactNode }) {
   return (
-    <div className="rounded-2xl border border-white/[0.07] bg-white/[0.02] p-4 sm:p-5">
+    <div className="rounded-2xl border border-white/25 bg-white/[0.02] p-4 sm:p-5">
       {children}
     </div>
   )

@@ -50,7 +50,7 @@ function RadarScan() {
   ]
 
   return (
-    <div className="relative flex h-52 items-center justify-center overflow-hidden rounded-xl border border-white/[0.07] bg-[#08080f]">
+    <div className="relative flex h-52 items-center justify-center overflow-hidden rounded-xl border border-white/15 bg-[#08080f]">
       <div className="relative size-40">
         {[1, 0.68, 0.36].map((scale) => (
           <div
@@ -105,7 +105,7 @@ function ScanningView() {
       exit={{ opacity: 0 }}
       className="space-y-5"
     >
-      <div className="flex items-center justify-between rounded-xl border border-white/[0.07] bg-white/[0.03] px-4 py-3">
+      <div className="flex items-center justify-between rounded-xl border border-white/15 bg-white/[0.03] px-4 py-3">
         <div className="flex items-center gap-2 text-sm text-gray-400">
           <RadioTower className="size-3.5 text-purple-400" />
           AI Screener
@@ -226,7 +226,7 @@ export default function AiScreenerPage() {
             <span className="text-xs text-gray-600">Last scanned {timeAgo(result.generatedAt)}</span>
             <button
               onClick={handleScan}
-              className="flex items-center gap-2 rounded-xl border border-white/[0.10] bg-white/[0.05] px-5 py-3 text-base font-semibold text-gray-200 transition-colors hover:bg-white/[0.08]"
+              className="flex items-center gap-2 rounded-xl border border-white/15 bg-white/[0.05] px-5 py-3 text-base font-semibold text-gray-200 transition-colors hover:bg-white/[0.08]"
             >
               <Flame className="size-5 text-purple-400" />
               Rescan

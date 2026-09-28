@@ -54,11 +54,32 @@ export function MarketTicker() {
         .catch(() => {})
     }
 
-    load()
-    const interval = setInterval(load, POLL_MS)
+    // Poll only while the tab is visible: background tabs used to keep
+    // polling every minute for prices nobody was looking at. Coming back
+    // refreshes right away if the last load is older than one poll.
+    let interval: ReturnType<typeof setInterval> | null = null
+    let lastLoad = 0
+    const tick = () => {
+      lastLoad = Date.now()
+      load()
+    }
+    const start = () => {
+      if (interval) return
+      if (Date.now() - lastLoad >= POLL_MS) tick()
+      interval = setInterval(tick, POLL_MS)
+    }
+    const stop = () => {
+      if (interval) clearInterval(interval)
+      interval = null
+    }
+    const onVisibility = () => (document.hidden ? stop() : start())
+
+    if (!document.hidden) start()
+    document.addEventListener("visibilitychange", onVisibility)
     return () => {
       cancelled = true
-      clearInterval(interval)
+      stop()
+      document.removeEventListener("visibilitychange", onVisibility)
     }
   }, [])
 
