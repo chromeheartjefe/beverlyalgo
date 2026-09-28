@@ -3,6 +3,8 @@ import type { Metadata } from "next"
 import Image from "next/image"
 import Link from "next/link"
 
+import { siteConfig } from "@/config/site"
+
 export const metadata: Metadata = {
   title:       "About – EntrixAlgo",
   description: "What EntrixAlgo is, and why we built it.",
@@ -97,8 +99,8 @@ export default function AboutPage() {
 
           <Section title="Get in touch">
             <p>
-              Questions, feedback, or partnership inquiries — reach out through the contact options listed on our{" "}
-              <Link href="/" className="text-purple-400 hover:text-purple-300">homepage</Link>.
+              Questions, feedback, or partnership inquiries? Email us at{" "}
+              <a href={siteConfig.links.email} className="text-purple-400 hover:text-purple-300">{siteConfig.supportEmail}</a>.
             </p>
           </Section>
         </div>

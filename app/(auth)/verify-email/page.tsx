@@ -8,6 +8,8 @@ import { useSearchParams } from "next/navigation"
 import { useSession } from "next-auth/react"
 import { Suspense, useEffect, useState } from "react"
 
+import { siteConfig } from "@/config/site"
+
 type Status = "verifying" | "success" | "error"
 
 function VerifyEmailContent() {
@@ -142,6 +144,12 @@ function VerifyEmailContent() {
       {/* Footer links */}
       <div className="mt-6 flex flex-col items-center gap-3 text-sm text-gray-600">
         <Link href="/" className="hover:text-gray-300">← Back to landing page</Link>
+        <p>
+          Need help?{" "}
+          <a href={siteConfig.links.email} className="font-medium text-purple-400 hover:text-purple-300">
+            Contact support
+          </a>
+        </p>
       </div>
     </motion.div>
   )

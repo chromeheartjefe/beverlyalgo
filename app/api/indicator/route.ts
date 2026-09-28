@@ -1,10 +1,12 @@
-import { eq } from "drizzle-orm"
-import { NextRequest, NextResponse } from "next/server"
+import { and, eq, isNull } from "drizzle-orm"
+import { after, NextRequest, NextResponse } from "next/server"
 import { z } from "zod"
 
 import { auth } from "@/auth"
 import { db } from "@/db"
 import { users } from "@/db/schema"
+import { sendIndicatorRequestAlert } from "@/lib/email"
+import { logEvent } from "@/lib/events"
 
 // Force dynamic + no-store: per-user access state, never safe to cache.
 export const dynamic = "force-dynamic"
@@ -53,7 +55,12 @@ export async function POST(req: NextRequest) {
   }
 
   const [existing] = await db
-    .select({ indicatorRequestedAt: users.indicatorRequestedAt })
+    .select({
+      indicatorRequestedAt: users.indicatorRequestedAt,
+      email:                users.email,
+      name:                 users.name,
+      plan:                 users.plan,
+    })
     .from(users)
     .where(eq(users.id, session.user.id))
     .limit(1)
@@ -69,12 +76,32 @@ export async function POST(req: NextRequest) {
       tradingviewUsername:  parsed.data.tradingviewUsername,
       indicatorRequestedAt: new Date(),
     })
-    .where(eq(users.id, session.user.id))
+    // Only if still unrequested: two near-simultaneous submits (double
+    // click) both passed the check above, and each sent a support email,
+    // possibly with different usernames. Now only the first one writes.
+    .where(and(eq(users.id, session.user.id), isNull(users.indicatorRequestedAt)))
     .returning({
       tradingviewUsername:  users.tradingviewUsername,
       indicatorRequestedAt: users.indicatorRequestedAt,
       indicatorInvitedAt:   users.indicatorInvitedAt,
     })
+  if (!updated) {
+    return NextResponse.json({ error: "Access has already been requested." }, { status: 409 })
+  }
+
+  // Tell support after the response is sent: there is no automated invite,
+  // and a mail failure must never fail the user's request.
+  await logEvent(session.user.id, "indicator_requested", { username: parsed.data.tradingviewUsername })
+  if (existing) {
+    const user = { email: existing.email, name: existing.name, plan: existing.plan }
+    after(async () => {
+      try {
+        await sendIndicatorRequestAlert(user, parsed.data.tradingviewUsername)
+      } catch (err) {
+        console.error("[/api/indicator] Support alert failed", err)
+      }
+    })
+  }
 
   return NextResponse.json(updated)
 }

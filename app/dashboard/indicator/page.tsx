@@ -20,7 +20,7 @@ const HOW_TO = [
   {
     step: "01",
     title: "Request access",
-    body: "Enter your TradingView username below. We queue it for the next invite run — invites go out once a day.",
+    body: "Enter your TradingView username below. We queue it for the next invite run. Invites go out once a day.",
   },
   {
     step: "02",
@@ -71,7 +71,7 @@ const CHANGELOG = [
     tag:     "Improved",
     title:   "Faster signal recalculation",
     notes: [
-      "Reworked internal indicator pipeline — roughly 40% faster recalculation on chart replay.",
+      "Reworked internal indicator pipeline, roughly 40% faster recalculation on chart replay.",
       "Reduced visual clutter by merging overlapping TP/SL labels.",
     ],
   },
@@ -91,7 +91,7 @@ const CHANGELOG = [
     tag:     "Added",
     title:   "Full v3 signal engine rewrite",
     notes: [
-      "New core engine — same signal logic now available in the dashboard's Chart Analysis tool.",
+      "New core engine, with the same signal logic now available in the dashboard's Chart Analysis tool.",
       "Invite-only access moved to a 48-hour queued process to keep invite batches reliable.",
     ],
   },
@@ -154,14 +154,14 @@ export default function IndicatorPage() {
         </div>
         <h1 className="mt-3 text-2xl font-bold text-white">TradingView Indicator</h1>
         <p className="mt-1 text-sm text-gray-500">
-          The invite-only script this whole product started with — real-time signals painted directly on your chart.
+          The invite-only script this whole product started with. Real-time signals painted directly on your chart.
         </p>
       </div>
 
       <FeatureLock locked={locked} feature="AI Trading Indicator">
         {/* Access request */}
         <div className="grid gap-5 lg:grid-cols-2">
-          <div className="flex flex-col justify-between rounded-2xl border border-white/[0.07] bg-white/[0.025] p-6">
+          <div className="flex flex-col justify-between rounded-2xl border border-white/25 bg-white/[0.025] p-6">
             <div>
               <h2 className="text-sm font-semibold text-white">Request indicator access</h2>
               <p className="mt-1.5 text-xs text-gray-500">
@@ -207,7 +207,7 @@ export default function IndicatorPage() {
                       placeholder="your_tradingview_handle"
                       maxLength={50}
                       disabled={submitting}
-                      className="mt-1.5 w-full rounded-xl border border-white/[0.08] bg-white/[0.04] px-3.5 py-2.5 text-sm text-white placeholder:text-gray-600 focus:border-purple-500/40 focus:outline-none focus:ring-1 focus:ring-purple-500/50 disabled:opacity-60"
+                      className="mt-1.5 w-full rounded-xl border border-white/15 bg-white/[0.04] px-3.5 py-2.5 text-sm text-white placeholder:text-gray-600 focus:border-purple-500/40 focus:outline-none focus:ring-1 focus:ring-purple-500/50 disabled:opacity-60"
                     />
                   </label>
                   {error && (
@@ -237,7 +237,7 @@ export default function IndicatorPage() {
           <h2 className="text-sm font-semibold text-white">How to use it</h2>
           <div className="mt-4 grid gap-4 sm:grid-cols-3">
             {HOW_TO.map((s) => (
-              <div key={s.step} className="rounded-2xl border border-white/[0.07] bg-white/[0.025] p-5">
+              <div key={s.step} className="rounded-2xl border border-white/25 bg-white/[0.025] p-5">
                 <span className="text-[0.65rem] font-bold tracking-[0.3em] text-purple-400">STEP {s.step}</span>
                 <h3 className="mt-2 text-sm font-semibold text-white">{s.title}</h3>
                 <p className="mt-1.5 text-xs leading-relaxed text-gray-500">{s.body}</p>
@@ -264,7 +264,7 @@ export default function IndicatorPage() {
             {CHANGELOG.map((entry) => (
               <div
                 key={entry.version}
-                className="rounded-2xl border border-white/[0.07] bg-white/[0.025] p-5"
+                className="rounded-2xl border border-white/25 bg-white/[0.025] p-5"
               >
                 <div className="flex flex-wrap items-center gap-2.5">
                   <span

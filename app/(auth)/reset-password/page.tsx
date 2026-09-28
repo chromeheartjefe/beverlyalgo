@@ -7,6 +7,7 @@ import Link from "next/link"
 import { useRouter, useSearchParams } from "next/navigation"
 import { Suspense, useState } from "react"
 
+import { siteConfig } from "@/config/site"
 import { cn } from "@/lib/utils"
 
 function ResetPasswordForm() {
@@ -183,6 +184,12 @@ function ResetPasswordForm() {
       {/* Footer links */}
       <div className="mt-6 flex flex-col items-center gap-3 text-sm text-gray-600">
         <Link href="/sign-in" className="hover:text-gray-300">← Back to sign in</Link>
+        <p>
+          Need help?{" "}
+          <a href={siteConfig.links.email} className="font-medium text-purple-400 hover:text-purple-300">
+            Contact support
+          </a>
+        </p>
       </div>
     </motion.div>
   )

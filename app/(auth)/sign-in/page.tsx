@@ -9,6 +9,7 @@ import { signIn } from "next-auth/react"
 import { useSession } from "next-auth/react"
 import { Suspense, useEffect, useState } from "react"
 
+import { siteConfig } from "@/config/site"
 import { cn } from "@/lib/utils"
 
 // Only same-site paths. A full URL (https://evil.site) or protocol-relative
@@ -186,6 +187,12 @@ function SignInForm() {
           <Link href="/sign-up" className="font-medium text-purple-400 hover:text-purple-300">
             Sign up
           </Link>
+        </p>
+        <p>
+          Trouble signing in?{" "}
+          <a href={siteConfig.links.email} className="font-medium text-purple-400 hover:text-purple-300">
+            Contact support
+          </a>
         </p>
       </div>
     </motion.div>

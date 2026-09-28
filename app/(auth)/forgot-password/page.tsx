@@ -6,6 +6,7 @@ import Image from "next/image"
 import Link from "next/link"
 import { useState } from "react"
 
+import { siteConfig } from "@/config/site"
 import { cn } from "@/lib/utils"
 
 export default function ForgotPasswordPage() {
@@ -65,6 +66,9 @@ export default function ForgotPasswordPage() {
             <p className="text-sm text-gray-500">
               If an account exists for <span className="text-gray-300">{email}</span>, we&apos;ve sent a password reset link.
             </p>
+            <p className="text-xs text-gray-600">
+              Not in your inbox after a few minutes? Check your spam folder.
+            </p>
           </div>
         ) : (
           <form onSubmit={handleSubmit} className="space-y-5">
@@ -114,6 +118,12 @@ export default function ForgotPasswordPage() {
       {/* Footer links */}
       <div className="mt-6 flex flex-col items-center gap-3 text-sm text-gray-600">
         <Link href="/sign-in" className="hover:text-gray-300">← Back to sign in</Link>
+        <p>
+          Need help?{" "}
+          <a href={siteConfig.links.email} className="font-medium text-purple-400 hover:text-purple-300">
+            Contact support
+          </a>
+        </p>
       </div>
     </motion.div>
   )
