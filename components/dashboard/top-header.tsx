@@ -1,13 +1,14 @@
 "use client"
 
-import { BarChart3, Bell, ChevronDown, CreditCard, LogOut, Menu, Settings, TrendingDown, TrendingUp } from "lucide-react"
+import { ChevronDown, CreditCard, LogOut, Menu, Settings } from "lucide-react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { signOut, useSession } from "next-auth/react"
+import { useSession } from "next-auth/react"
 import { useEffect, useState } from "react"
 
 import { MarketTicker } from "@/components/dashboard/market-ticker"
 import { useMobileNav } from "@/components/dashboard/mobile-nav-context"
+import { WhatsNew } from "@/components/dashboard/whats-new"
 import { Avatar } from "@/components/ui/avatar"
 import {
   DropdownMenu,
@@ -18,17 +19,8 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
-import { getLastSeen, markSeen } from "@/lib/notifications"
+import { signOutToLanding } from "@/lib/sign-out"
 import { cn } from "@/lib/utils"
-
-type Notification = {
-  id:         string
-  signal:     string
-  pair:       string
-  timeframe:  string
-  confidence: number
-  createdAt:  string
-}
 
 function greeting() {
   const hour = new Date().getHours()
@@ -69,62 +61,22 @@ function useSubtitle() {
   return subtitle
 }
 
-function timeAgo(iso: string) {
-  const seconds = Math.max(0, Math.floor((Date.now() - new Date(iso).getTime()) / 1000))
-  const units: [number, string][] = [
-    [86400, "d"],
-    [3600, "h"],
-    [60, "m"],
-  ]
-  for (const [secs, label] of units) {
-    if (seconds >= secs) return `${Math.floor(seconds / secs)}${label} ago`
-  }
-  return "just now"
-}
-
-function signalIcon(signal: string) {
-  if (signal === "BUY")  return { Icon: TrendingUp,   color: "text-emerald-400", bg: "bg-emerald-500/[0.12]" }
-  if (signal === "SELL") return { Icon: TrendingDown, color: "text-red-400",     bg: "bg-red-500/[0.12]" }
-  return { Icon: BarChart3, color: "text-gray-400", bg: "bg-white/[0.06]" }
-}
-
 export function DashboardHeader() {
   const pathname = usePathname()
   const isOverview = pathname === "/dashboard"
   const { setOpen: setMobileNavOpen } = useMobileNav()
-  const { data: session } = useSession()
+  const { data: session, status } = useSession()
+  // While the session is still loading (every full page load, e.g. right
+  // after signing in) show placeholders, not a made-up "User / Free Trader"
+  const sessionLoading = status === "loading"
   const name     = session?.user?.name ?? "User"
   const email    = session?.user?.email ?? ""
   const plan          = (session?.user as { plan?: string })?.plan ?? "free"
   const userId        = session?.user?.id
   const avatarVersion = (session?.user as { avatarVersion?: number | null })?.avatarVersion
 
-  const [notifications, setNotifications] = useState<Notification[]>([])
-  const [unread, setUnread] = useState(false)
-  const [notifOpen, setNotifOpen] = useState(false)
   const [portalLoading, setPortalLoading] = useState(false)
   const subtitle = useSubtitle()
-
-  useEffect(() => {
-    if (!userId) return
-    fetch("/api/notifications")
-      .then((r) => (r.ok ? r.json() : []))
-      .then((data: Notification[]) => {
-        setNotifications(data)
-        const lastSeen = getLastSeen(userId)
-        const newest = data[0] ? new Date(data[0].createdAt).getTime() : 0
-        setUnread(newest > lastSeen)
-      })
-      .catch(() => {})
-  }, [userId])
-
-  const handleNotifOpenChange = (open: boolean) => {
-    setNotifOpen(open)
-    if (open && userId) {
-      markSeen(userId)
-      setUnread(false)
-    }
-  }
 
   const handleManageBilling = async () => {
     setPortalLoading(true)
@@ -177,74 +129,37 @@ export function DashboardHeader() {
       </div>
 
       <div className="ml-auto flex items-center gap-3">
-        {/* Notifications */}
-        <DropdownMenu open={notifOpen} onOpenChange={handleNotifOpenChange}>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <DropdownMenuTrigger asChild>
-                <button className="relative flex size-9 shrink-0 items-center justify-center rounded-xl border border-white/15 bg-white/[0.03] text-gray-500 transition-colors hover:text-gray-200">
-                  <Bell className="size-4" />
-                  {unread && <span className="absolute right-2 top-2 size-1.5 rounded-full bg-purple-400" />}
-                </button>
-              </DropdownMenuTrigger>
-            </TooltipTrigger>
-            <TooltipContent>Notifications</TooltipContent>
-          </Tooltip>
-          <DropdownMenuContent align="end" className="w-80 border-white/25 bg-[#0d0d1c] p-0 text-white">
-            <DropdownMenuLabel className="px-4 py-3 text-xs font-semibold uppercase tracking-widest text-gray-500">
-              Recent Signals
-            </DropdownMenuLabel>
-            <DropdownMenuSeparator className="bg-white/[0.07]" />
-            <div className="max-h-80 overflow-y-auto">
-              {notifications.length === 0 && (
-                <p className="px-4 py-8 text-center text-xs text-gray-600">
-                  No AI signals yet — run a chart analysis to see results here.
-                </p>
-              )}
-              {notifications.map((n) => {
-                const { Icon, color, bg } = signalIcon(n.signal)
-                return (
-                  <DropdownMenuItem
-                    key={n.id}
-                    asChild
-                    className="cursor-pointer rounded-none px-4 py-3 focus:bg-white/[0.05]"
-                  >
-                    <Link href="/dashboard/chart-analysis" className="flex items-start gap-3">
-                      <div className={cn("mt-0.5 flex size-8 shrink-0 items-center justify-center rounded-lg", bg)}>
-                        <Icon className={cn("size-4", color)} />
-                      </div>
-                      <div className="min-w-0 flex-1">
-                        <p className="text-sm text-gray-200">
-                          <span className={cn("font-semibold", color)}>{n.signal}</span> signal on{" "}
-                          <span className="font-mono font-semibold text-white">{n.pair}</span>
-                        </p>
-                        <p className="mt-0.5 text-xs text-gray-500">
-                          {n.timeframe} · {n.signal === "NEUTRAL" ? "no trade" : `${n.confidence}% confidence`} · {timeAgo(n.createdAt)}
-                        </p>
-                      </div>
-                    </Link>
-                  </DropdownMenuItem>
-                )
-              })}
-            </div>
-          </DropdownMenuContent>
-        </DropdownMenu>
+        {/* What's new (changelog) */}
+        <WhatsNew />
 
         <div className="h-6 w-px bg-white/[0.07]" />
 
         {/* Account */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <button className="flex items-center gap-2.5">
-              <Avatar
-                userId={userId}
-                avatarVersion={avatarVersion}
-                name={name}
-                className="size-8 shrink-0 rounded-lg text-xs"
-              />
+            <button className="flex items-center gap-2.5" aria-busy={sessionLoading}>
+              {sessionLoading ? (
+                <span className="size-8 shrink-0 animate-pulse rounded-lg bg-white/[0.08] motion-reduce:animate-none" aria-hidden="true" />
+              ) : (
+                <Avatar
+                  userId={userId}
+                  avatarVersion={avatarVersion}
+                  name={name}
+                  className="size-8 shrink-0 rounded-lg text-xs"
+                />
+              )}
               <div className="hidden text-left md:block">
-                <p className="text-sm font-semibold leading-none text-white">{name}</p>
-                <p className="mt-0.5 text-[11px] capitalize leading-none text-gray-500">{plan} Trader</p>
+                {sessionLoading ? (
+                  <span aria-hidden="true" className="block">
+                    <span className="block h-3 w-20 animate-pulse rounded bg-white/[0.08] motion-reduce:animate-none" />
+                    <span className="mt-1.5 block h-2.5 w-14 animate-pulse rounded bg-white/[0.06] motion-reduce:animate-none" />
+                  </span>
+                ) : (
+                  <>
+                    <p className="text-sm font-semibold leading-none text-white">{name}</p>
+                    <p className="mt-0.5 text-[11px] capitalize leading-none text-gray-500">{plan} Trader</p>
+                  </>
+                )}
               </div>
               <ChevronDown className="hidden size-3.5 text-gray-600 md:block" />
             </button>
@@ -283,7 +198,7 @@ export function DashboardHeader() {
             )}
             <DropdownMenuSeparator className="bg-white/[0.07]" />
             <DropdownMenuItem
-              onSelect={() => signOut({ redirect: false }).then(() => window.location.assign("/"))}
+              onSelect={signOutToLanding}
               className="cursor-pointer gap-2.5 rounded-lg px-2.5 py-2 text-sm text-red-400 focus:bg-red-500/10 focus:text-red-300"
             >
               <LogOut className="size-4" />
