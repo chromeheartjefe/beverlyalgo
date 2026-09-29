@@ -104,9 +104,11 @@ const TAG_STYLES: Record<string, string> = {
 }
 
 export default function IndicatorPage() {
-  const { data: session } = useSession()
+  const { data: session, status: sessionStatus } = useSession()
   const plan   = (session?.user as { plan?: string })?.plan ?? "free"
-  const locked = plan === "free"
+  // Lock only once the plan is known: while the session loads, a Pro user
+  // would otherwise see the "Pro feature" lock flash over their own page
+  const locked = sessionStatus === "authenticated" && plan === "free"
 
   // Cached via SWR so returning to this tab shows the already-fetched access
   // state instantly instead of flashing back to a loading state. Skipped

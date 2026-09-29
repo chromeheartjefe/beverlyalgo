@@ -50,9 +50,11 @@ function Bubble({ message }: { message: Message }) {
 }
 
 export default function TradingBotPage() {
-  const { data: session } = useSession()
+  const { data: session, status: sessionStatus } = useSession()
   const plan   = (session?.user as { plan?: string })?.plan ?? "free"
-  const locked = plan === "free"
+  // Lock only once the plan is known: while the session loads, a Pro user
+  // would otherwise see the "Pro feature" lock flash over their own page
+  const locked = sessionStatus === "authenticated" && plan === "free"
 
   // Cached via SWR so returning to this tab shows the already-fetched chat
   // history instantly instead of flashing back to an empty/loading state.

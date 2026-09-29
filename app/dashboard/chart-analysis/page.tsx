@@ -783,9 +783,11 @@ function AdminLogicSwitch({ options, value, onChange }: { options: VariantOption
 // ─── Main page ────────────────────────────────────────────────────────────────
 
 export default function ChartAnalysisPage() {
-  const { data: session } = useSession()
+  const { data: session, status: sessionStatus } = useSession()
   const plan = (session?.user as { plan?: string })?.plan ?? "free"
-  const locked = plan === "free"
+  // Lock only once the plan is known: while the session loads, a Pro user
+  // would otherwise see the "Pro feature" lock flash over their own page
+  const locked = sessionStatus === "authenticated" && plan === "free"
 
   const [phase,    setPhase]    = useState<Phase>("idle")
   const [variant,  setVariant]  = useState("v2")
