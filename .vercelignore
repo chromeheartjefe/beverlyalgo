@@ -1,2 +1,5 @@
 # Local-only admin console, never deployed
 admin
+
+# Local-only TradingView indicator work, never deployed
+.indicator

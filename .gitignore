@@ -39,3 +39,6 @@ next-env.d.ts
 # pro
 /app/pro/
 /components/pro/
+
+# local-only TradingView indicator work (Pine scripts, reference scripts, screenshots)
+/.indicator/
