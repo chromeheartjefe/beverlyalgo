@@ -7,6 +7,7 @@ import { auth } from "@/auth"
 import { db } from "@/db"
 import { users } from "@/db/schema"
 import { logEvent } from "@/lib/events"
+import { checkPassword } from "@/lib/password-strength"
 import { checkRateLimit } from "@/lib/rate-limit"
 
 const schema = z.object({
@@ -31,6 +32,11 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Please check your input." }, { status: 400 })
   }
 
+  const strength = checkPassword(parsed.data.newPassword, { email: session.user.email, name: session.user.name })
+  if (!strength.ok) {
+    return NextResponse.json({ error: strength.hint }, { status: 400 })
+  }
+
   const [row] = await db
     .select({ passwordHash: users.passwordHash })
     .from(users)
@@ -38,6 +44,15 @@ export async function POST(req: NextRequest) {
     .limit(1)
 
   if (!row) return NextResponse.json({ error: "User not found." }, { status: 404 })
+
+  // Google-only account: setting a first password goes through the email
+  // link (it proves inbox access), not through a session alone
+  if (!row.passwordHash) {
+    return NextResponse.json(
+      { error: "Your account signs in with Google and has no password yet. Use \"Email me a link\" to set one.", code: "password_not_set" },
+      { status: 400 },
+    )
+  }
 
   const valid = await bcrypt.compare(parsed.data.currentPassword, row.passwordHash)
   if (!valid) {

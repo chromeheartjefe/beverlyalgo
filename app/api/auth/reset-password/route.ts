@@ -7,6 +7,7 @@ import { db } from "@/db"
 import { authTokens, users } from "@/db/schema"
 import { hashAuthToken } from "@/lib/auth-tokens"
 import { logEvent } from "@/lib/events"
+import { checkPassword } from "@/lib/password-strength"
 
 const schema = z.object({
   token:    z.string().min(1),
@@ -18,6 +19,11 @@ export async function POST(req: NextRequest) {
   const parsed = schema.safeParse(body)
   if (!parsed.success) {
     return NextResponse.json({ error: "Please check your input." }, { status: 400 })
+  }
+
+  const strength = checkPassword(parsed.data.password)
+  if (!strength.ok) {
+    return NextResponse.json({ error: strength.hint }, { status: 400 })
   }
 
   const [row] = await db

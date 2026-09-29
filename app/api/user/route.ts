@@ -5,7 +5,7 @@ import { z } from "zod"
 
 import { auth } from "@/auth"
 import { db } from "@/db"
-import { authTokens, users } from "@/db/schema"
+import { authTokens, oauthAccounts, users } from "@/db/schema"
 import { newAuthToken } from "@/lib/auth-tokens"
 import { sendEmailChangedNotice, sendVerificationEmail } from "@/lib/email"
 import { logEvent } from "@/lib/events"
@@ -41,14 +41,25 @@ export async function GET() {
   if (!session?.user?.id) return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
 
   const [row] = await db
-    .select(PUBLIC_FIELDS)
+    .select({ ...PUBLIC_FIELDS, passwordHash: users.passwordHash })
     .from(users)
     .where(eq(users.id, session.user.id))
     .limit(1)
 
   if (!row) return NextResponse.json({ error: "User not found" }, { status: 404 })
 
-  return NextResponse.json(row, { headers: { "Cache-Control": "no-store" } })
+  const [google] = await db
+    .select({ id: oauthAccounts.id })
+    .from(oauthAccounts)
+    .where(and(eq(oauthAccounts.userId, session.user.id), eq(oauthAccounts.provider, "google")))
+    .limit(1)
+
+  // Never send the hash itself, only whether one exists
+  const { passwordHash, ...profile } = row
+  return NextResponse.json(
+    { ...profile, hasPassword: passwordHash !== null, googleLinked: !!google },
+    { headers: { "Cache-Control": "no-store" } },
+  )
 }
 
 export async function PATCH(req: NextRequest) {
@@ -90,6 +101,14 @@ export async function PATCH(req: NextRequest) {
   }
 
   if (emailChanging) {
+    // Google-only accounts prove themselves with a password too: set one
+    // first (by email link), so a stolen session still can't move the account
+    if (!current.passwordHash) {
+      return NextResponse.json(
+        { error: "Set a password first (Settings > Security) to change your email.", code: "password_not_set" },
+        { status: 400 },
+      )
+    }
     if (!currentPassword) {
       return NextResponse.json(
         { error: "Enter your current password to change your email.", code: "password_required" },
@@ -119,11 +138,29 @@ export async function PATCH(req: NextRequest) {
     }
   }
 
-  const [updated] = await db
+  const update = db
     .update(users)
     .set(emailChanging ? { ...updates, emailVerified: null } : updates)
     .where(eq(users.id, userId))
     .returning(PUBLIC_FIELDS)
+
+  let updated: Awaited<typeof update>[number]
+  if (emailChanging) {
+    // The account now answers to a new, not yet proven address. Sign-in
+    // methods and emailed links that belong to the old one go with it, in
+    // the same transaction. Otherwise someone could move their account onto
+    // another person's address, keep signing in with their own Google
+    // account (or an old password-reset link), and be let back in after
+    // that person later joins with "Continue with Google" and lands in it.
+    const [rows] = await db.batch([
+      update,
+      db.delete(oauthAccounts).where(eq(oauthAccounts.userId, userId)),
+      db.delete(authTokens).where(and(eq(authTokens.userId, userId), eq(authTokens.type, "password_reset"))),
+    ])
+    updated = rows[0]
+  } else {
+    ;[updated] = await update
+  }
 
   if (emailChanging) {
     await logEvent(userId, "email_changed", { from: current.email, to: updated.email })

@@ -7,6 +7,7 @@ import { db } from "@/db"
 import { authTokens, users } from "@/db/schema"
 import { newAuthToken } from "@/lib/auth-tokens"
 import { sendVerificationEmail } from "@/lib/email"
+import { checkPassword } from "@/lib/password-strength"
 import { checkRateLimit, clientIp } from "@/lib/rate-limit"
 
 const registerSchema = z.object({
@@ -29,6 +30,12 @@ export async function POST(req: NextRequest) {
   }
 
   const { name, email, password } = parsed.data
+
+  // Same rules as the sign-up form's strength meter
+  const strength = checkPassword(password, { email, name })
+  if (!strength.ok) {
+    return NextResponse.json({ error: strength.hint }, { status: 400 })
+  }
 
   const [existing] = await db.select().from(users).where(eq(users.email, email)).limit(1)
   if (existing) {

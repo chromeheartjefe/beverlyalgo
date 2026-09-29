@@ -3,9 +3,10 @@ import { and, eq, isNull, lt, or, sql } from "drizzle-orm"
 import { after } from "next/server"
 import NextAuth, { CredentialsSignin } from "next-auth"
 import Credentials from "next-auth/providers/credentials"
+import Google from "next-auth/providers/google"
 
 import { db } from "@/db"
-import { users } from "@/db/schema"
+import { authTokens, oauthAccounts, users } from "@/db/schema"
 import { logEvent } from "@/lib/events"
 import { clientIp, countHits, releaseHit, reserveHit } from "@/lib/rate-limit"
 
@@ -32,6 +33,82 @@ const LAST_SEEN_EVERY_MS = 10 * 60 * 1000
 
 class TooManyAttempts extends CredentialsSignin {
   code = "rate_limited"
+}
+
+// Google sign-in is on only when its OAuth client is configured
+// (AUTH_GOOGLE_ID + AUTH_GOOGLE_SECRET, read by the provider itself).
+const googleEnabled = !!process.env.AUTH_GOOGLE_ID && !!process.env.AUTH_GOOGLE_SECRET
+
+/**
+ * Finds or creates the EntrixAlgo account for a Google identity and returns
+ * its id. Only called with an email Google has verified.
+ *
+ * 1. This Google account is already linked: that account.
+ * 2. An account already uses the email: link Google to it, so an existing
+ *    user (a paying subscriber included) lands in their own account instead
+ *    of a new empty one.
+ *    Pre-hijack protection: if that account's email was never verified,
+ *    anyone could have created it with this address, or moved their own
+ *    account onto it, and still hold a way in. Google has just proven who
+ *    owns the address, so nothing attached before counts: in one
+ *    transaction the email is marked verified, the password is removed
+ *    (the owner can set a new one by email), every other sign-in link (such
+ *    as someone else's Google account) and every outstanding emailed link
+ *    (password reset, verification) is deleted, and every existing session
+ *    is signed out.
+ * 3. Otherwise a new free account, email already verified, no password.
+ */
+async function resolveGoogleAccount(sub: string, email: string, name: string | null | undefined): Promise<string> {
+  const [link] = await db
+    .select({ userId: oauthAccounts.userId })
+    .from(oauthAccounts)
+    .where(and(eq(oauthAccounts.provider, "google"), eq(oauthAccounts.providerAccountId, sub)))
+    .limit(1)
+  if (link) return link.userId
+
+  const [existing] = await db
+    .select({ id: users.id, emailVerified: users.emailVerified, passwordHash: users.passwordHash })
+    .from(users)
+    .where(eq(users.email, email))
+    .limit(1)
+
+  let userId: string
+  if (existing) {
+    userId = existing.id
+    const unverified = !existing.emailVerified
+    const link = db.insert(oauthAccounts).values({ userId, provider: "google", providerAccountId: sub, email }).onConflictDoNothing()
+    if (unverified) {
+      await db.batch([
+        db
+          .update(users)
+          .set({ emailVerified: new Date(), passwordHash: null, sessionVersion: sql`${users.sessionVersion} + 1` })
+          .where(eq(users.id, existing.id)),
+        db.delete(oauthAccounts).where(eq(oauthAccounts.userId, existing.id)),
+        db.delete(authTokens).where(eq(authTokens.userId, existing.id)),
+        link,
+      ])
+    } else {
+      await link
+    }
+    await logEvent(userId, "google_linked", { passwordCleared: unverified && !!existing.passwordHash })
+  } else {
+    const [created] = await db
+      .insert(users)
+      .values({ name: name?.trim() || email.split("@")[0], email, passwordHash: null, plan: "free", emailVerified: new Date() })
+      .onConflictDoNothing({ target: users.email })
+      .returning({ id: users.id })
+    if (created) {
+      userId = created.id
+    } else {
+      // Two sign-ins raced and the other one created the account first
+      const [again] = await db.select({ id: users.id }).from(users).where(eq(users.email, email)).limit(1)
+      if (!again) throw new Error("Google sign-in: account could not be created")
+      userId = again.id
+    }
+    await db.insert(oauthAccounts).values({ userId, provider: "google", providerAccountId: sub, email }).onConflictDoNothing()
+    if (created) await logEvent(userId, "google_signup")
+  }
+  return userId
 }
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
@@ -69,7 +146,9 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           .where(eq(users.email, email))
           .limit(1)
 
-        if (!row) {
+        // No account, or a Google-only account with no password yet: the same
+        // slow compare and the same answer, so neither case is revealed
+        if (!row || !row.passwordHash) {
           await bcrypt.compare(String(credentials.password), DUMMY_HASH)
           return null // reserved hits stay recorded as this failure
         }
@@ -104,6 +183,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         }
       },
     }),
+    ...(googleEnabled ? [Google] : []),
   ],
 
   session: { strategy: "jwt" },
@@ -114,8 +194,57 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   },
 
   callbacks: {
-    async jwt({ token, user }) {
-      if (user) {
+    // Google: only a Google-verified email, then find or create the account
+    // (see resolveGoogleAccount). Errors come back to the sign-in page.
+    async signIn({ account, profile }) {
+      if (account?.provider !== "google") return true
+      const email = String(profile?.email ?? "").trim().toLowerCase()
+      if (!email || !account.providerAccountId || profile?.email_verified !== true) {
+        return "/sign-in?error=GoogleUnverified"
+      }
+      try {
+        const userId = await resolveGoogleAccount(account.providerAccountId, email, profile?.name)
+        const now = new Date()
+        await db
+          .update(users)
+          .set({ lastLoginAt: now, lastSeenAt: now, loginCount: sql`${users.loginCount} + 1` })
+          .where(eq(users.id, userId))
+          .catch((err) => console.error("[auth] failed to record Google login", err))
+        await logEvent(userId, "login", { provider: "google" })
+        return true
+      } catch (err) {
+        console.error("[auth] Google sign-in failed", err)
+        return "/sign-in?error=GoogleFailed"
+      }
+    },
+    async jwt({ token, user, account }) {
+      if (user && account?.provider === "google") {
+        // The session carries OUR account, not Google's profile
+        const [row] = await db
+          .select({
+            id:              users.id,
+            name:            users.name,
+            email:           users.email,
+            plan:            users.plan,
+            emailVerified:   users.emailVerified,
+            avatarUpdatedAt: users.avatarUpdatedAt,
+            sessionVersion:  users.sessionVersion,
+          })
+          .from(oauthAccounts)
+          .innerJoin(users, eq(users.id, oauthAccounts.userId))
+          .where(and(eq(oauthAccounts.provider, "google"), eq(oauthAccounts.providerAccountId, account.providerAccountId)))
+          .limit(1)
+        if (!row) return null
+        token.id             = row.id
+        token.sub            = row.id
+        token.name           = row.name
+        token.email          = row.email
+        token.plan           = row.plan
+        token.emailVerified  = !!row.emailVerified
+        token.avatarVersion  = row.avatarUpdatedAt ? row.avatarUpdatedAt.getTime() : null
+        token.sessionVersion = row.sessionVersion
+        delete token.picture // avatars come from our own upload, not Google
+      } else if (user) {
         token.id            = user.id
         token.plan          = user.plan
         token.emailVerified = (user as { emailVerified?: boolean }).emailVerified

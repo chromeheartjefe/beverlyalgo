@@ -26,7 +26,9 @@ const csp = [
   "object-src 'none'",
   "frame-ancestors 'none'",
   "base-uri 'self'",
-  "form-action 'self'",
+  // Google sign-in: the sign-in POST redirects the browser to Google's
+  // consent page, and browsers apply form-action to that redirect
+  "form-action 'self' https://accounts.google.com",
 ].join("; ");
 
 const securityHeaders = [

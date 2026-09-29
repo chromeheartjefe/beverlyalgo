@@ -6,9 +6,38 @@ import Image from "next/image"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { signIn } from "next-auth/react"
-import { useState } from "react"
+import { useMemo, useState } from "react"
 
+import { GoogleSignInButton } from "@/components/auth/google-button"
+import { checkPassword, type PasswordCheck } from "@/lib/password-strength"
 import { cn } from "@/lib/utils"
+
+const LEVEL_BAR  = ["bg-red-400", "bg-amber-400", "bg-lime-400", "bg-emerald-400"]
+const LEVEL_TEXT = ["text-red-400", "text-amber-300", "text-lime-300", "text-emerald-300"]
+
+// Quiet strength meter: appears once typing starts, one tip line, no
+// checklist of rules. Only "Too weak" blocks the form.
+function StrengthMeter({ check, flagged }: { check: PasswordCheck; flagged: boolean }) {
+  return (
+    <div id="password-strength" className="mt-2">
+      <div className="flex gap-1" aria-hidden="true">
+        {[0, 1, 2, 3].map((i) => (
+          <span
+            key={i}
+            className={cn("h-1 flex-1 transition-colors duration-200 motion-reduce:transition-none", i <= check.level ? LEVEL_BAR[check.level] : "bg-white/[0.08]")}
+          />
+        ))}
+      </div>
+      <div className="mt-1.5 flex items-start justify-between gap-3 text-xs">
+        <span className={flagged && !check.ok ? "text-red-400" : "text-gray-500"}>{check.hint}</span>
+        <span className={cn("shrink-0 font-medium", LEVEL_TEXT[check.level])} aria-live="polite">
+          <span className="sr-only">Password strength: </span>
+          {check.label}
+        </span>
+      </div>
+    </div>
+  )
+}
 
 export default function SignUpPage() {
   const router = useRouter()
@@ -20,10 +49,20 @@ export default function SignUpPage() {
   const [showPw,          setShowPw]          = useState(false)
   const [error,           setError]           = useState("")
   const [loading,         setLoading]         = useState(false)
+  const [pwFlagged,       setPwFlagged]       = useState(false)
+
+  const strength = useMemo(() => checkPassword(password, { email, name }), [password, email, name])
+  const mismatch = confirmPassword.length > 0 && confirmPassword.length >= password.length && confirmPassword !== password
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError("")
+
+    if (!strength.ok) {
+      setPwFlagged(true)
+      document.getElementById("password")?.focus()
+      return
+    }
 
     if (password !== confirmPassword) {
       setError("Passwords do not match.")
@@ -85,6 +124,7 @@ export default function SignUpPage() {
 
       {/* Card */}
       <div className="rounded-2xl border border-white/[0.08] bg-white/[0.03] p-8 backdrop-blur-sm">
+        <GoogleSignInButton />
         <form onSubmit={handleSubmit} className="space-y-5">
           {/* Name */}
           <div>
@@ -137,10 +177,14 @@ export default function SignUpPage() {
                 id="password"
                 type={showPw ? "text" : "password"}
                 required
-                minLength={8}
                 autoComplete="new-password"
+                aria-describedby={password ? "password-strength" : undefined}
+                aria-invalid={pwFlagged && !strength.ok}
                 value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                onChange={(e) => {
+                  setPassword(e.target.value)
+                  setPwFlagged(false)
+                }}
                 placeholder="••••••••"
                 className="w-full rounded-xl border border-white/[0.08] bg-white/[0.04] py-2.5 pl-10 pr-11 text-sm text-white placeholder:text-gray-600 focus:border-purple-500/50 focus:outline-none focus:ring-1 focus:ring-purple-500/50"
               />
@@ -154,6 +198,7 @@ export default function SignUpPage() {
                 {showPw ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
               </button>
             </div>
+            {password && <StrengthMeter check={strength} flagged={pwFlagged} />}
           </div>
 
           {/* Confirm password */}
@@ -167,14 +212,20 @@ export default function SignUpPage() {
                 id="confirmPassword"
                 type={showPw ? "text" : "password"}
                 required
-                minLength={8}
                 autoComplete="new-password"
+                aria-describedby={mismatch ? "confirm-mismatch" : undefined}
+                aria-invalid={mismatch}
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 placeholder="••••••••"
                 className="w-full rounded-xl border border-white/[0.08] bg-white/[0.04] py-2.5 pl-10 pr-4 text-sm text-white placeholder:text-gray-600 focus:border-purple-500/50 focus:outline-none focus:ring-1 focus:ring-purple-500/50"
               />
             </div>
+            {mismatch && (
+              <p id="confirm-mismatch" className="mt-1.5 text-xs text-red-400">
+                Passwords don&apos;t match.
+              </p>
+            )}
           </div>
 
           {/* Error */}

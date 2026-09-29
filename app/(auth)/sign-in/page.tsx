@@ -9,8 +9,19 @@ import { signIn } from "next-auth/react"
 import { useSession } from "next-auth/react"
 import { Suspense, useEffect, useState } from "react"
 
+import { GoogleSignInButton } from "@/components/auth/google-button"
 import { siteConfig } from "@/config/site"
 import { cn } from "@/lib/utils"
+
+// Errors that come back in ?error= from Google sign-in (our own codes from
+// the signIn callback in auth.ts, plus Auth.js's generic ones)
+function errorFromUrl(code: string | null): string {
+  if (!code) return ""
+  if (code === "GoogleUnverified") return "Your Google account's email isn't verified. Verify it with Google, or sign in with your email and password."
+  if (code === "GoogleFailed") return "Google sign-in didn't work this time. Please try again."
+  if (code === "AccessDenied") return "Google sign-in was cancelled."
+  return "Sign-in didn't work. Please try again."
+}
 
 // Only same-site paths. A full URL (https://evil.site) or protocol-relative
 // one (//evil.site, /\evil.site) would turn the sign-in page into a phishing
@@ -30,7 +41,7 @@ function SignInForm() {
   const [email,    setEmail]    = useState("")
   const [password, setPassword] = useState("")
   const [showPw,   setShowPw]   = useState(false)
-  const [error,    setError]    = useState("")
+  const [error,    setError]    = useState(() => errorFromUrl(searchParams.get("error")))
   const [loading,  setLoading]  = useState(false)
 
   // Already logged in — send to dashboard
@@ -91,6 +102,7 @@ function SignInForm() {
 
       {/* Card */}
       <div className="rounded-2xl border border-white/[0.08] bg-white/[0.03] p-8 backdrop-blur-sm">
+        <GoogleSignInButton callbackUrl={callbackUrl} />
         <form onSubmit={handleSubmit} className="space-y-5">
           {/* Email */}
           <div>

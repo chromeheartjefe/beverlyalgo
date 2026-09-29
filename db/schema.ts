@@ -4,7 +4,8 @@ export const users = pgTable("users", {
   id:           text("id").primaryKey().$defaultFn(() => crypto.randomUUID()),
   name:         varchar("name", { length: 255 }).notNull(),
   email:        varchar("email", { length: 255 }).notNull().unique(),
-  passwordHash: text("password_hash").notNull(),
+  // Null for accounts created with Google that never set a password
+  passwordHash: text("password_hash"),
   plan:         varchar("plan", { length: 32 }).notNull().default("free"),
   emailVerified: timestamp("email_verified", { withTimezone: true }),
   notifSignals: boolean("notif_signals").notNull().default(true),
@@ -155,6 +156,23 @@ export const authTokens = pgTable("auth_tokens", {
 
 export type AuthToken = typeof authTokens.$inferSelect
 export type NewAuthToken = typeof authTokens.$inferInsert
+
+// Sign-in identities from outside providers (Google), linked to an account.
+// The provider's user id never changes, even if the person changes their
+// Google address or their EntrixAlgo email.
+export const oauthAccounts = pgTable("oauth_accounts", {
+  id:                text("id").primaryKey().$defaultFn(() => crypto.randomUUID()),
+  userId:            text("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  provider:          varchar("provider", { length: 32 }).notNull(),   // "google"
+  providerAccountId: text("provider_account_id").notNull(),
+  email:             varchar("email", { length: 255 }),               // provider email when linked
+  createdAt:         timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+}, (table) => [
+  uniqueIndex("oauth_accounts_provider_account_idx").on(table.provider, table.providerAccountId),
+  index("oauth_accounts_user_id_idx").on(table.userId),
+])
+
+export type OauthAccount = typeof oauthAccounts.$inferSelect
 
 export const rateLimitHits = pgTable("rate_limit_hits", {
   id:        text("id").primaryKey().$defaultFn(() => crypto.randomUUID()),

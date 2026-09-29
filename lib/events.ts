@@ -5,8 +5,10 @@ import { userEvents } from "@/db/schema"
 // Only for actions not already recorded in their own table: analyses,
 // trades, chat messages and goals are read from those tables directly.
 export type UserEventType =
-  | "login"
+  | "login"                 // meta.provider "google" for Google sign-ins
   | "login_failed"          // right email, wrong password
+  | "google_signup"         // new account created with Google
+  | "google_linked"         // Google attached to an existing account, meta.passwordCleared
   | "analysis_rejected"     // screenshot refused (not a chart, blurry, ...), meta.reason
   | "screener_scan"         // meta.fresh: true = ran a real (paid) scan, false = got the cached result
   | "chat_cleared"
