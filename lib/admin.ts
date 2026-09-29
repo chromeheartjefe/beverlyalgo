@@ -1,7 +1,7 @@
 // Accounts that get admin-only tools (currently the Chart Analysis logic
 // switch). Always pass the row read from the DB on the server, never values
 // sent by the client. Emails are stored lowercase.
-const ADMIN_EMAILS = new Set(["admin@beverlyalgo.com"])
+const ADMIN_EMAILS = new Set(["nikitakozlov900@gmail.com"])
 
 /**
  * The email must also be VERIFIED: changing your email in Settings takes
