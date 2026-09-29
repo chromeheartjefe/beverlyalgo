@@ -5,7 +5,7 @@ import { ArrowDown, ArrowUp, Check, Flame } from "lucide-react"
 import { useContext, useEffect, useRef, useState } from "react"
 
 import { BackgroundGradientAnimation } from "@/components/ui/background-gradient-animation"
-import { demoLoop, DemoLiveContext, useDemoLive } from "@/components/ui/demo-live"
+import { DemoLiveContext, demoLoop, useDemoLive } from "@/components/ui/demo-live"
 import { Reveal } from "@/components/ui/reveal"
 import { cn } from "@/lib/utils"
 
