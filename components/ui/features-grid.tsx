@@ -4,6 +4,7 @@ import { motion, useInView } from "framer-motion"
 import { Check, MonitorSmartphone, ScanSearch, TrendingDown, TrendingUp, Zap } from "lucide-react"
 import { type ComponentType, type ReactNode, useEffect, useRef, useState } from "react"
 
+import { useDemoLive } from "@/components/ui/demo-live"
 import { RevealGroup, revealItem } from "@/components/ui/reveal"
 import { cn } from "@/lib/utils"
 
@@ -190,14 +191,18 @@ const ASSET_TAGS = [
 
 function PlatformVisual() {
   const [active, setActive] = useState(0)
+  const ref = useRef<HTMLDivElement>(null)
+  const live = useDemoLive(ref)
 
+  // Cycles only while the card is on screen
   useEffect(() => {
+    if (!live) return
     const id = setInterval(() => setActive((i) => (i + 1) % PLATFORMS.length), 1800)
     return () => clearInterval(id)
-  }, [])
+  }, [live])
 
   return (
-    <div className="space-y-3">
+    <div ref={ref} className="space-y-3">
       <ul className="space-y-2">
         {PLATFORMS.map((name, i) => {
           const isActive = i === active

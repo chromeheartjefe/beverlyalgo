@@ -24,7 +24,7 @@ function SocialIcon({ href, label, icon, hoverBackground, hoverShadow }: SocialI
       onMouseLeave={() => setHovered(false)}
     >
       <div
-        className="flex h-14 w-14 items-center justify-center rounded-full border border-white/25 backdrop-blur-sm transition-all duration-300 sm:h-20 sm:w-20"
+        className="flex h-14 w-14 items-center justify-center rounded-full border border-white/25 transition-all duration-300 sm:h-20 sm:w-20"
         style={{
           background: hovered ? hoverBackground : 'rgba(255,255,255,0.05)',
           boxShadow: hovered ? hoverShadow : '0 8px 32px rgba(0,0,0,0.3)',
@@ -106,7 +106,7 @@ export function SocialConnect() {
         </div>
 
         <div
-          className="w-full max-w-2xl rounded-3xl border border-white/25 p-5 backdrop-blur-3xl transition-all duration-500 hover:scale-[1.02] sm:p-8"
+          className="w-full max-w-2xl rounded-3xl border border-white/25 p-5 transition-all duration-500 hover:scale-[1.02] sm:p-8"
           style={{
             background: '#242424',
             boxShadow: '0 0 40px rgba(139,92,246,0.35), 0 0 70px rgba(124,58,237,0.18)',

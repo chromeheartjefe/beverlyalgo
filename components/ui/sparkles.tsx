@@ -76,6 +76,12 @@ export function Sparkles({
       zIndex: 1,
     },
     fpsLimit: 60,
+    // Stop drawing while the sparkles are scrolled out of view. tsparticles
+    // only watches the viewport when interactivity is bound to an element:
+    // with the default ("window") it never pauses, so bind it to the canvas.
+    // (No hover/click effects are configured, so nothing else changes.)
+    pauseOnOutsideViewport: true,
+    interactivity: { detectsOn: "canvas" },
     particles: {
       color: { value: color },
       move: {

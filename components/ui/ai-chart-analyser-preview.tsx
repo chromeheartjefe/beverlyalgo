@@ -2,9 +2,10 @@
 
 import { AnimatePresence, motion } from "framer-motion"
 import { Check, CloudUpload, TrendingUp, Zap } from "lucide-react"
-import { useEffect, useState } from "react"
+import { useContext, useEffect, useRef, useState } from "react"
 
 import { BackgroundGradientAnimation } from "@/components/ui/background-gradient-animation"
+import { demoLoop, DemoLiveContext, useDemoLive } from "@/components/ui/demo-live"
 import { Reveal } from "@/components/ui/reveal"
 
 // ─── Types & constants ────────────────────────────────────────────────────────
@@ -92,6 +93,7 @@ function ChartSVG({ dimmed = false }: { dimmed?: boolean }) {
 // ─── Phase: Upload ────────────────────────────────────────────────────────────
 
 function UploadPhase() {
+  const live = useContext(DemoLiveContext)
   return (
     <motion.div
       key="upload"
@@ -109,16 +111,14 @@ function UploadPhase() {
 
       {/* Ambient glow */}
       <motion.div
-        animate={{ opacity: [0.2, 0.55, 0.2] }}
-        transition={{ duration: 2.8, repeat: Infinity, ease: "easeInOut" }}
+        {...demoLoop(live, { opacity: [0.2, 0.55, 0.2] }, { opacity: 0.2 }, { duration: 2.8, repeat: Infinity, ease: "easeInOut" })}
         className="pointer-events-none absolute inset-0 rounded-2xl"
         style={{ background: "radial-gradient(ellipse at center, rgba(168,85,247,0.09) 0%, transparent 68%)" }}
       />
 
       {/* Icon */}
       <motion.div
-        animate={{ y: [0, -5, 0] }}
-        transition={{ duration: 2.2, repeat: Infinity, ease: "easeInOut" }}
+        {...demoLoop(live, { y: [0, -5, 0] }, { y: 0 }, { duration: 2.2, repeat: Infinity, ease: "easeInOut" })}
         className="flex size-16 items-center justify-center rounded-2xl border border-purple-500/20 bg-purple-500/10"
       >
         <CloudUpload className="size-7 text-purple-400" />
@@ -134,6 +134,7 @@ function UploadPhase() {
 
 function AnalyzingPhase() {
   const steps = ["Detecting chart patterns", "Identifying key levels", "Calculating risk/reward"]
+  const live = useContext(DemoLiveContext)
 
   return (
     <motion.div
@@ -148,8 +149,7 @@ function AnalyzingPhase() {
       <div className="flex items-center justify-between">
         <span className="font-mono text-xs text-gray-600">BTC/USDT · 4H</span>
         <motion.div
-          animate={{ opacity: [0.5, 1, 0.5] }}
-          transition={{ duration: 1.3, repeat: Infinity }}
+          {...demoLoop(live, { opacity: [0.5, 1, 0.5] }, { opacity: 1 }, { duration: 1.3, repeat: Infinity })}
           className="flex items-center gap-1.5 rounded-full border border-purple-500/30 bg-purple-500/10 px-2.5 py-0.5 text-[11px] text-purple-400"
         >
           <span className="inline-block size-1.5 rounded-full bg-purple-400" />
@@ -164,8 +164,7 @@ function AnalyzingPhase() {
         {/* Horizontal scan line */}
         <motion.div
           initial={{ top: 0 }}
-          animate={{ top: "100%" }}
-          transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+          {...demoLoop(live, { top: "100%" }, { top: 0 }, { duration: 2, repeat: Infinity, ease: "linear" })}
           className="pointer-events-none absolute inset-x-0 z-10 h-px"
           style={{
             background: "linear-gradient(90deg, transparent 0%, rgba(168,85,247,0.85) 50%, transparent 100%)",
@@ -187,8 +186,7 @@ function AnalyzingPhase() {
             className="flex items-center gap-2.5 text-xs text-gray-500"
           >
             <motion.span
-              animate={{ opacity: [0.3, 1, 0.3] }}
-              transition={{ duration: 1.3, repeat: Infinity, delay: i * 0.3 }}
+              {...demoLoop(live, { opacity: [0.3, 1, 0.3] }, { opacity: 1 }, { duration: 1.3, repeat: Infinity, delay: i * 0.3 })}
               className="inline-block size-1.5 shrink-0 rounded-full bg-purple-400"
             />
             {text}
@@ -292,25 +290,21 @@ function ResultsPhase() {
 
 export function AiChartAnalyserPreview() {
   const [phase, setPhase] = useState<Phase>("upload")
+  const sectionRef = useRef<HTMLElement>(null)
+  const live = useDemoLive(sectionRef)
 
+  // Each phase schedules the next; off screen the cycle holds where it is
   useEffect(() => {
-    // Local ref to avoid stale closures in the cycle
-    let current: Phase = "upload"
-    let timer: ReturnType<typeof setTimeout>
-
-    const advance = () => {
-      const idx = PHASE_ORDER.indexOf(current)
-      current = PHASE_ORDER[(idx + 1) % PHASE_ORDER.length]
-      setPhase(current)
-      timer = setTimeout(advance, PHASE_DURATION[current])
-    }
-
-    timer = setTimeout(advance, PHASE_DURATION["upload"])
+    if (!live) return
+    const timer = setTimeout(
+      () => setPhase(PHASE_ORDER[(PHASE_ORDER.indexOf(phase) + 1) % PHASE_ORDER.length]),
+      PHASE_DURATION[phase],
+    )
     return () => clearTimeout(timer)
-  }, [])
+  }, [live, phase])
 
   return (
-    <section className="relative bg-black pb-3 pt-20 md:pb-4 md:pt-28">
+    <section ref={sectionRef} className="relative bg-black pb-3 pt-20 md:pb-4 md:pt-28">
       <div className="mx-auto max-w-7xl px-6">
         {/* Outer card */}
         <Reveal className="relative overflow-hidden rounded-3xl border border-white/25 bg-[#070712] shadow-2xl shadow-black/60">
@@ -389,11 +383,13 @@ export function AiChartAnalyserPreview() {
                * ─────────────────────────────────────────────────────────────
                */}
               <div className="flex h-[440px] w-full max-w-sm flex-col justify-center overflow-hidden lg:h-auto lg:overflow-visible">
-                <AnimatePresence mode="wait">
-                  {phase === "upload"    && <UploadPhase    key="upload" />}
-                  {phase === "analyzing" && <AnalyzingPhase key="analyzing" />}
-                  {phase === "results"   && <ResultsPhase   key="results" />}
-                </AnimatePresence>
+                <DemoLiveContext.Provider value={live}>
+                  <AnimatePresence mode="wait">
+                    {phase === "upload"    && <UploadPhase    key="upload" />}
+                    {phase === "analyzing" && <AnalyzingPhase key="analyzing" />}
+                    {phase === "results"   && <ResultsPhase   key="results" />}
+                  </AnimatePresence>
+                </DemoLiveContext.Provider>
               </div>
             </div>
 

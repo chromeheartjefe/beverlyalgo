@@ -17,6 +17,7 @@ import {
 } from 'lucide-react'
 import { type ComponentType, type ReactNode, useEffect, useRef, useState } from 'react'
 
+import { demoLoop, useDemoLive } from '@/components/ui/demo-live'
 import { RevealGroup, revealItem } from '@/components/ui/reveal'
 import { Section } from '@/components/ui/section'
 import { cn } from '@/lib/utils'
@@ -74,23 +75,26 @@ const DEMO_EMAIL = 'you@trader.com'
 function SignUpVisual() {
   const ref = useRef<HTMLDivElement>(null)
   const inView = useInView(ref, { once: true, margin: '-60px' })
+  const live = useDemoLive(ref)
   const [chars, setChars] = useState(0)
+  const typed = useRef(0) // survives pauses, so typing resumes where it stopped
   const done = chars >= DEMO_EMAIL.length
 
+  // Starts the first time it scrolls in; off screen the typing loop pauses
   useEffect(() => {
-    if (!inView) return
-    let i = 0
+    if (!inView || !live) return
     let timer: ReturnType<typeof setTimeout>
 
     // Type the email, hold on "Account ready", then clear and loop
     const tick = () => {
-      i = i >= DEMO_EMAIL.length ? 0 : i + 1
+      const i = typed.current >= DEMO_EMAIL.length ? 0 : typed.current + 1
+      typed.current = i
       setChars(i)
       timer = setTimeout(tick, i === 0 ? 500 : i === DEMO_EMAIL.length ? 2600 : 85)
     }
     timer = setTimeout(tick, 400)
     return () => clearTimeout(timer)
-  }, [inView])
+  }, [inView, live])
 
   return (
     <div ref={ref} className="space-y-2.5">
@@ -100,8 +104,7 @@ function SignUpVisual() {
           {DEMO_EMAIL.slice(0, chars)}
           {!done && (
             <motion.span
-              animate={{ opacity: [1, 0, 1] }}
-              transition={{ duration: 0.9, repeat: Infinity }}
+              {...demoLoop(live, { opacity: [1, 0, 1] }, { opacity: 1 }, { duration: 0.9, repeat: Infinity })}
               className="ml-px inline-block h-4 w-px translate-y-0.5 bg-sky-300"
             />
           )}
@@ -194,8 +197,11 @@ const PRO_TOOLS = [
 ]
 
 function ProToolsVisual() {
+  const ref = useRef<HTMLDivElement>(null)
+  const live = useDemoLive(ref)
+
   return (
-    <div className="relative overflow-hidden">
+    <div ref={ref} className="relative overflow-hidden">
       <div className="grid grid-cols-3 gap-2">
         {PRO_TOOLS.map((tool) => (
           <div
@@ -220,8 +226,7 @@ function ProToolsVisual() {
         aria-hidden="true"
         className="pointer-events-none absolute inset-y-0 w-1/3 -skew-x-12 bg-gradient-to-r from-transparent via-white/[0.07] to-transparent"
         initial={{ left: '-40%' }}
-        animate={{ left: '140%' }}
-        transition={{ duration: 1.6, repeat: Infinity, repeatDelay: 2.4, ease: 'easeInOut' }}
+        {...demoLoop(live, { left: '140%' }, { left: '-40%' }, { duration: 1.6, repeat: Infinity, repeatDelay: 2.4, ease: 'easeInOut' })}
       />
     </div>
   )
@@ -242,7 +247,7 @@ interface Step {
 
 const steps: Step[] = [
   {
-    number: '01',
+    number: '1',
     accent: 'sky',
     icon: UserPlus,
     tag: 'Free to join',
@@ -252,7 +257,7 @@ const steps: Step[] = [
     cta: { label: 'Create free account', href: '/sign-up' },
   },
   {
-    number: '02',
+    number: '2',
     accent: 'emerald',
     icon: Check,
     tag: 'Free forever',
@@ -261,7 +266,7 @@ const steps: Step[] = [
     visual: <FreeToolsVisual />,
   },
   {
-    number: '03',
+    number: '3',
     accent: 'violet',
     icon: Sparkles,
     tag: 'Pro',

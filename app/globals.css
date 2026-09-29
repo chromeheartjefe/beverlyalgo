@@ -156,22 +156,14 @@
     to   { background-position: 200% 50%; }
   }
 
-  /* Hero headline glow pulse */
-  --animate-glow-pulse: glowPulse 3.5s ease-in-out infinite;
+  /* Hero headline glow pulse: only the extra halo layer's opacity animates
+     (the GPU fades a ready-drawn layer), not the glow filter itself, which
+     would be recomputed and repainted every frame */
+  --animate-glow-breathe: glowBreathe 3.5s ease-in-out infinite;
 
-  @keyframes glowPulse {
-    0%, 100% {
-      filter:
-        drop-shadow(0 0 28px rgba(131, 80, 232, 0.45))
-        drop-shadow(0 0 10px rgba(185, 55, 255, 0.22))
-        drop-shadow(0 4px 10px rgba(0, 0, 0, 0.6));
-    }
-    50% {
-      filter:
-        drop-shadow(0 0 56px rgba(131, 80, 232, 0.72))
-        drop-shadow(0 0 22px rgba(185, 55, 255, 0.46))
-        drop-shadow(0 4px 10px rgba(0, 0, 0, 0.6));
-    }
+  @keyframes glowBreathe {
+    0%, 100% { opacity: 0; }
+    50% { opacity: 1; }
   }
 
   /* Gradient orb animations */
@@ -308,15 +300,6 @@
   .animate-fourth,
   .animate-fifth {
     animation: none;
-  }
-
-  /* Keep static glow visible, just stop the breathing motion */
-  .animate-glow-pulse {
-    animation: none;
-    filter:
-      drop-shadow(0 0 40px rgba(131, 80, 232, 0.55))
-      drop-shadow(0 0 14px rgba(185, 55, 255, 0.3))
-      drop-shadow(0 4px 10px rgba(0, 0, 0, 0.6));
   }
 
   /* Dashboard market ticker — stop the scrolling marquee */

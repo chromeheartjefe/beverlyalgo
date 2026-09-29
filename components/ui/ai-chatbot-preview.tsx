@@ -2,9 +2,10 @@
 
 import { AnimatePresence, motion } from "framer-motion"
 import { ArrowUp, Bot, Check, MessageCircle } from "lucide-react"
-import { useEffect, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 
 import { BackgroundGradientAnimation } from "@/components/ui/background-gradient-animation"
+import { useDemoLive } from "@/components/ui/demo-live"
 import { Reveal } from "@/components/ui/reveal"
 
 // ─── Types & constants ────────────────────────────────────────────────────────
@@ -55,29 +56,24 @@ function TypingDots() {
 export function AiChatbotPreview() {
   const [phase, setPhase] = useState<Phase>("asking")
   const [pairIndex, setPairIndex] = useState(0)
+  const sectionRef = useRef<HTMLElement>(null)
+  const live = useDemoLive(sectionRef)
 
+  // Each phase schedules the next; off screen the conversation holds where it is
   useEffect(() => {
-    let current: Phase = "asking"
-    let idx = 0
-    let timer: ReturnType<typeof setTimeout>
-
-    const advance = () => {
-      const i = PHASE_ORDER.indexOf(current)
-      current = PHASE_ORDER[(i + 1) % PHASE_ORDER.length]
-      if (current === "asking") idx = (idx + 1) % QA_PAIRS.length
-      setPhase(current)
-      setPairIndex(idx)
-      timer = setTimeout(advance, PHASE_DURATION[current])
-    }
-
-    timer = setTimeout(advance, PHASE_DURATION["asking"])
+    if (!live) return
+    const timer = setTimeout(() => {
+      const next = PHASE_ORDER[(PHASE_ORDER.indexOf(phase) + 1) % PHASE_ORDER.length]
+      if (next === "asking") setPairIndex((i) => (i + 1) % QA_PAIRS.length)
+      setPhase(next)
+    }, PHASE_DURATION[phase])
     return () => clearTimeout(timer)
-  }, [])
+  }, [live, phase])
 
   const pair = QA_PAIRS[pairIndex]
 
   return (
-    <section className="relative bg-black pb-3 pt-3 md:pb-4 md:pt-4">
+    <section ref={sectionRef} className="relative bg-black pb-3 pt-3 md:pb-4 md:pt-4">
       <div className="mx-auto max-w-7xl px-6">
         {/* Outer card */}
         <Reveal className="relative overflow-hidden rounded-3xl border border-white/25 bg-[#070712] shadow-2xl shadow-black/60">

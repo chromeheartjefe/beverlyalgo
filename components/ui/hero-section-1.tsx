@@ -122,7 +122,7 @@ export function HeroHeader() {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -8 }}
             transition={{ duration: 0.18 }}
-            className="absolute inset-x-4 top-[72px] rounded-2xl border border-white/25 bg-black/95 px-6 py-5 backdrop-blur-sm md:hidden"
+            className="absolute inset-x-4 top-[72px] rounded-2xl border border-white/25 bg-black/95 px-6 py-5 md:hidden"
           >
             <div className="flex flex-col gap-4">
               {menuItems.map((item) => (
@@ -153,16 +153,19 @@ export function HeroHeader() {
   )
 }
 
+// Shared by the headline and its glow layer, so both lay out identically
+const HEADLINE_CLASS = "text-balance text-6xl font-black tracking-tight md:text-7xl xl:text-[5.25rem]"
+
+// Fade and rise, no blur: an animated blur over the headline block would be
+// recomputed every frame for 1.5s, right while the page is still loading.
 const transitionVariants: { item: Variants } = {
   item: {
     hidden: {
       opacity: 0,
-      filter: "blur(12px)",
       y: 12,
     },
     visible: {
       opacity: 1,
-      filter: "blur(0px)",
       y: 0,
       transition: {
         type: "spring",
@@ -233,39 +236,63 @@ export function HeroSection() {
                   </span>
                 </Link>
 
-                {/* Main headline */}
-                <h1
-                  className="mx-auto mt-8 max-w-4xl text-balance text-6xl font-black tracking-tight md:text-7xl lg:mt-16 xl:text-[5.25rem] animate-glow-pulse"
-                >
-                  <span
-                    className="font-semibold"
+                {/* Main headline. The glow is two layers: a steady one on the
+                    headline itself, and a wider, brighter halo behind it whose
+                    opacity breathes. Only that opacity animates, so the glow
+                    is drawn once instead of being recomputed every frame. */}
+                <div className="relative mx-auto mt-8 max-w-4xl lg:mt-16">
+                  <div
+                    aria-hidden="true"
+                    className={cn(HEADLINE_CLASS, "pointer-events-none absolute inset-0 select-none text-transparent opacity-50 motion-safe:animate-glow-breathe")}
                     style={{
-                      backgroundImage:
-                        "linear-gradient(135deg, #ffffff 0%, #f5f0ff 55%, #d8b4fe 100%)",
-                      WebkitBackgroundClip: "text",
                       WebkitTextFillColor: "transparent",
-                      backgroundClip: "text",
+                      textShadow: "0 0 56px rgba(131,80,232,0.6), 0 0 22px rgba(185,55,255,0.34)",
                     }}
                   >
-                    Trade Smarter with
-                  </span>
-                  <br />
-                  <span
-                    className="font-black"
+                    <span className="font-semibold">Trade Smarter with</span>
+                    <br />
+                    <span className="font-black">AI-Powered Precision</span>
+                  </div>
+                  <h1
+                    className={cn(HEADLINE_CLASS, "relative")}
                     style={{
-                      WebkitTextFillColor: "white",
-                      color: "white",
-                      textShadow: [
-                        "0 0 1px rgba(255,255,255,0.9)",
-                        "0 0 1px rgba(255,255,255,0.9)",
-                        "0 0 4px rgba(255,255,255,0.5)",
-                        "0 0 24px rgba(216,180,254,0.5)",
-                      ].join(", "),
+                      filter: [
+                        "drop-shadow(0 0 28px rgba(131,80,232,0.45))",
+                        "drop-shadow(0 0 10px rgba(185,55,255,0.22))",
+                        "drop-shadow(0 4px 10px rgba(0,0,0,0.6))",
+                      ].join(" "),
                     }}
                   >
-                    AI-Powered Precision
-                  </span>
-                </h1>
+                    <span
+                      className="font-semibold"
+                      style={{
+                        backgroundImage:
+                          "linear-gradient(135deg, #ffffff 0%, #f5f0ff 55%, #d8b4fe 100%)",
+                        WebkitBackgroundClip: "text",
+                        WebkitTextFillColor: "transparent",
+                        backgroundClip: "text",
+                      }}
+                    >
+                      Trade Smarter with
+                    </span>
+                    <br />
+                    <span
+                      className="font-black"
+                      style={{
+                        WebkitTextFillColor: "white",
+                        color: "white",
+                        textShadow: [
+                          "0 0 1px rgba(255,255,255,0.9)",
+                          "0 0 1px rgba(255,255,255,0.9)",
+                          "0 0 4px rgba(255,255,255,0.5)",
+                          "0 0 24px rgba(216,180,254,0.5)",
+                        ].join(", "),
+                      }}
+                    >
+                      AI-Powered Precision
+                    </span>
+                  </h1>
+                </div>
 
                 {/* Subtext */}
                 <p className="mx-auto mt-8 max-w-2xl text-balance text-base text-muted-foreground sm:text-lg">

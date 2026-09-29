@@ -2,9 +2,10 @@
 
 import { AnimatePresence, motion } from "framer-motion"
 import { ArrowDown, ArrowUp, Check, Flame } from "lucide-react"
-import { useEffect, useState } from "react"
+import { useContext, useEffect, useRef, useState } from "react"
 
 import { BackgroundGradientAnimation } from "@/components/ui/background-gradient-animation"
+import { demoLoop, DemoLiveContext, useDemoLive } from "@/components/ui/demo-live"
 import { Reveal } from "@/components/ui/reveal"
 import { cn } from "@/lib/utils"
 
@@ -162,6 +163,7 @@ const BLIPS = [
 
 function ScanningPhase() {
   const steps = ["Pulling live market movers", "Cross-referencing volume & momentum", "Ranking highest-potential setups"]
+  const live = useContext(DemoLiveContext)
 
   return (
     <motion.div
@@ -176,8 +178,7 @@ function ScanningPhase() {
       <div className="flex items-center justify-between">
         <span className="font-mono text-xs text-gray-600">Crypto · Stocks</span>
         <motion.div
-          animate={{ opacity: [0.5, 1, 0.5] }}
-          transition={{ duration: 1.3, repeat: Infinity }}
+          {...demoLoop(live, { opacity: [0.5, 1, 0.5] }, { opacity: 1 }, { duration: 1.3, repeat: Infinity })}
           className="flex items-center gap-1.5 rounded-full border border-purple-500/30 bg-purple-500/10 px-2.5 py-0.5 text-[11px] text-purple-400"
         >
           <span className="inline-block size-1.5 rounded-full bg-purple-400" />
@@ -201,8 +202,7 @@ function ScanningPhase() {
             style={{
               background: "conic-gradient(from 0deg, rgba(168,85,247,0) 0deg, rgba(168,85,247,0) 260deg, rgba(168,85,247,0.55) 340deg, rgba(168,85,247,0.9) 360deg)",
             }}
-            animate={{ rotate: 360 }}
-            transition={{ duration: 2.4, repeat: Infinity, ease: "linear" }}
+            {...demoLoop(live, { rotate: 360 }, { rotate: 0 }, { duration: 2.4, repeat: Infinity, ease: "linear" })}
           />
 
           <div className="absolute inset-0 flex items-center justify-center">
@@ -216,8 +216,7 @@ function ScanningPhase() {
               key={b.tag}
               className="absolute flex items-center gap-1"
               style={{ top: b.top, left: b.left }}
-              animate={{ opacity: [0, 1, 0] }}
-              transition={{ duration: 1.8, repeat: Infinity, delay: b.delay, ease: "easeInOut" }}
+              {...demoLoop(live, { opacity: [0, 1, 0] }, { opacity: 0 }, { duration: 1.8, repeat: Infinity, delay: b.delay, ease: "easeInOut" })}
             >
               <span className="size-1.5 rounded-full bg-purple-300" style={{ boxShadow: "0 0 8px 2px rgba(168,85,247,0.6)" }} />
               <span className="font-mono text-[9px] font-semibold text-purple-200/80">{b.tag}</span>
@@ -239,8 +238,7 @@ function ScanningPhase() {
             className="flex items-center gap-2.5 text-xs text-gray-500"
           >
             <motion.span
-              animate={{ opacity: [0.3, 1, 0.3] }}
-              transition={{ duration: 1.3, repeat: Infinity, delay: i * 0.3 }}
+              {...demoLoop(live, { opacity: [0.3, 1, 0.3] }, { opacity: 1 }, { duration: 1.3, repeat: Infinity, delay: i * 0.3 })}
               className="inline-block size-1.5 shrink-0 rounded-full bg-purple-400"
             />
             {text}
@@ -359,24 +357,21 @@ function ResultsPhase({ market }: { market: "crypto" | "stocks" }) {
 
 export function AiScreenerPreview() {
   const [phase, setPhase] = useState<Phase>("scanning")
+  const sectionRef = useRef<HTMLElement>(null)
+  const live = useDemoLive(sectionRef)
 
+  // Each phase schedules the next; off screen the cycle holds where it is
   useEffect(() => {
-    let current: Phase = "scanning"
-    let timer: ReturnType<typeof setTimeout>
-
-    const advance = () => {
-      const idx = PHASE_ORDER.indexOf(current)
-      current = PHASE_ORDER[(idx + 1) % PHASE_ORDER.length]
-      setPhase(current)
-      timer = setTimeout(advance, PHASE_DURATION[current])
-    }
-
-    timer = setTimeout(advance, PHASE_DURATION["scanning"])
+    if (!live) return
+    const timer = setTimeout(
+      () => setPhase(PHASE_ORDER[(PHASE_ORDER.indexOf(phase) + 1) % PHASE_ORDER.length]),
+      PHASE_DURATION[phase],
+    )
     return () => clearTimeout(timer)
-  }, [])
+  }, [live, phase])
 
   return (
-    <section className="relative bg-black pb-20 pt-3 md:pb-28 md:pt-4">
+    <section ref={sectionRef} className="relative bg-black pb-20 pt-3 md:pb-28 md:pt-4">
       <div className="mx-auto max-w-7xl px-6">
         {/* Outer card */}
         <Reveal className="relative overflow-hidden rounded-3xl border border-white/25 bg-[#070712] shadow-2xl shadow-black/60">
@@ -386,11 +381,13 @@ export function AiScreenerPreview() {
             {/* ── Left: animated preview ── */}
             <div className="order-2 flex items-center justify-center border-t border-white/15 bg-gradient-to-br from-[#0b0b1e] to-[#050510] p-8 lg:order-1 lg:border-l-0 lg:border-r lg:border-t-0 lg:p-12">
               <div className="flex h-[400px] w-full max-w-sm flex-col justify-center overflow-hidden lg:h-auto lg:overflow-visible">
-                <AnimatePresence mode="wait">
-                  {phase === "scanning"
-                    ? <ScanningPhase key="scanning" />
-                    : <ResultsPhase key="results" market={phase} />}
-                </AnimatePresence>
+                <DemoLiveContext.Provider value={live}>
+                  <AnimatePresence mode="wait">
+                    {phase === "scanning"
+                      ? <ScanningPhase key="scanning" />
+                      : <ResultsPhase key="results" market={phase} />}
+                  </AnimatePresence>
+                </DemoLiveContext.Provider>
               </div>
             </div>
 

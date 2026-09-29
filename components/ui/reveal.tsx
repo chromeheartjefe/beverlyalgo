@@ -9,14 +9,17 @@ export const REVEAL_EASE = [0.16, 1, 0.3, 1] as const
 // Used directly as `variants` on individual grid/list items (e.g. pricing
 // cards, backtest cards). Framer's app-wide `MotionConfig reducedMotion="user"`
 // (set in components/contexts/theme-provider.tsx) already strips the y-shift
-// for users who prefer reduced motion — this just also drops the blur, which
-// MotionConfig doesn't touch, so reduced-motion users get a plain, fast fade.
+// for users who prefer reduced motion, leaving a plain fade.
+//
+// Fade and slide only, no blur: an animated blur has to be recomputed over the
+// whole block every frame, and these run exactly while the page is scrolling
+// (over sections that contain the animated gradient backgrounds), which is
+// where the scroll jitter came from.
 export const revealItem: Variants = {
-  hidden: { opacity: 0, y: 28, filter: "blur(8px)" },
+  hidden: { opacity: 0, y: 28 },
   visible: {
     opacity: 1,
     y: 0,
-    filter: "blur(0px)",
     transition: { duration: 0.6, ease: REVEAL_EASE },
   },
 }
@@ -40,8 +43,8 @@ export function Reveal({
   return (
     <motion.div
       className={className}
-      initial={{ opacity: 0, y, filter: shouldReduceMotion ? "none" : "blur(8px)" }}
-      whileInView={{ opacity: 1, y: 0, filter: "none" }}
+      initial={{ opacity: 0, y }}
+      whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin }}
       transition={{ duration: shouldReduceMotion ? 0.25 : 0.6, ease: REVEAL_EASE, delay: shouldReduceMotion ? 0 : delay }}
     >
