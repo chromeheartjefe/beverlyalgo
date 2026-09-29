@@ -45,10 +45,11 @@ export default function PrivacyPage() {
           <Section title="1. What We Collect">
             <p>We collect the following categories of information:</p>
             <ul className="list-disc space-y-1.5 pl-5">
-              <li><span className="text-gray-300">Account information:</span> your name, email address, and a securely hashed password.</li>
+              <li><span className="text-gray-300">Account information:</span> your name, email address, and a securely hashed password. If you sign in with Google, we receive your name, email address and your Google account ID from Google; we never see your Google password.</li>
               <li><span className="text-gray-300">Chart images:</span> screenshots you upload for AI analysis are sent to our AI provider for processing. The screenshot itself is not stored. The resulting analysis (signal, confidence, price levels, patterns) is stored in your account history.</li>
               <li><span className="text-gray-300">Trade journal entries:</span> trade details you manually log (pair, direction, entry/exit prices, dates, P&amp;L) and your monthly goals.</li>
               <li><span className="text-gray-300">AI Trading Bot conversations:</span> the messages you send to the AI assistant and its replies, kept until you clear your chat history.</li>
+              <li><span className="text-gray-300">Support chat:</span> messages you send to the support assistant on our site are sent to our AI provider to generate replies and are not stored on our servers. If you ask to contact our team, the name, email and message you enter, together with that chat, are emailed to our support inbox so we can reply.</li>
               <li><span className="text-gray-300">Billing information:</span> subscription and payment details are handled entirely by Stripe. We store only your Stripe customer/subscription IDs and plan status, never your card details.</li>
               <li><span className="text-gray-300">Usage and activity data:</span> when you sign in and last used the dashboard, the IP address of sign-in attempts, account actions (such as password or email changes and scans), and how much of our AI services each account uses. We use this to run the product, enforce fair-use limits, detect abuse and resolve support issues.</li>
             </ul>
@@ -69,9 +70,9 @@ export default function PrivacyPage() {
           <Section title="3. Third-Party Services">
             <p>We rely on a small number of third-party services to operate EntrixAlgo:</p>
             <ul className="list-disc space-y-1.5 pl-5">
-              <li><span className="text-gray-300">OpenAI</span> — processes uploaded chart images to generate analysis. Images are sent for processing but are not used by us for any purpose beyond generating your analysis.</li>
+              <li><span className="text-gray-300">OpenAI</span> — processes uploaded chart images to generate analysis, and messages sent to the AI Trading Bot and the support chat to generate replies. Images are sent for processing but are not used by us for any purpose beyond generating your analysis.</li>
               <li><span className="text-gray-300">Stripe</span> — processes payments and manages subscriptions. We never see or store your raw card details.</li>
-              <li><span className="text-gray-300">Resend</span> — delivers transactional emails (verification, password reset).</li>
+              <li><span className="text-gray-300">Resend</span> — delivers transactional emails (verification, password reset) and support requests sent from the support chat.</li>
               <li><span className="text-gray-300">Neon (Postgres)</span> — hosts our database.</li>
             </ul>
           </Section>

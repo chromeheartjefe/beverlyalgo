@@ -22,7 +22,7 @@ import {
 
 export const dynamic = "force-dynamic"
 
-const FEATURE: Record<string, string> = { chart_analysis: "Chart Analysis", chat: "AI Bot", screener: "Screener" }
+const FEATURE: Record<string, string> = { chart_analysis: "Chart Analysis", chat: "AI Bot", screener: "Screener", support: "Support chat" }
 
 function Row({ label, children }: { label: string; children: ReactNode }) {
   return (

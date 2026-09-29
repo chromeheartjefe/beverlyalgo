@@ -6,6 +6,7 @@ import { Toaster } from "sonner";
 
 import { ThemeProvider } from "@/components/contexts/theme-provider";
 import { SessionProvider } from "@/components/providers/session-provider";
+import { SupportChat } from "@/components/support/support-chat";
 import { inter } from "@/lib/fonts";
 
 import { siteConfig } from "../config/site";
@@ -74,10 +75,14 @@ export default function RootLayout({
         </a>
         <SessionProvider>
           <ThemeProvider>{children}</ThemeProvider>
+          <SupportChat />
         </SessionProvider>
         <Toaster
           theme="dark"
           position="bottom-right"
+          // Above the support chat button in the same corner.
+          offset={{ bottom: 88, right: 24 }}
+          mobileOffset={{ bottom: 76, right: 16, left: 16 }}
           toastOptions={{
             classNames: {
               toast: "!bg-[#0d0d1c] !border !border-white/[0.08] !text-white !rounded-xl",

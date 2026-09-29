@@ -51,8 +51,8 @@ export function aiCostUSD(promptTokens: number, completionTokens: number): numbe
 
 /** Records one AI call's spend, and returns its cost in USD. */
 export async function recordAiUsage(usage: {
-  feature:          "chat" | "chart_analysis" | "screener"
-  userId:           string
+  feature:          "chat" | "chart_analysis" | "screener" | "support"
+  userId:           string | null // null: signed-out visitor (support chat)
   model:            string
   reasoningEffort:  string
   promptTokens:     number

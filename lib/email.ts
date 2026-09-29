@@ -162,3 +162,56 @@ Reply to this email to reach the user directly.`,
     ),
   })
 }
+
+// Support request from the site's chat widget ("talk to a person"). Goes to
+// support only: no copy is sent to the visitor, because the address they type
+// is unverified and a copy would let anyone send our emails to any inbox.
+// Replying goes straight to the address they gave.
+export async function sendSupportRequest(request: {
+  name:       string
+  email:      string
+  message:    string
+  page:       string | null
+  account:    { id: string; email: string | null; plan: string | null } | null
+  transcript: { role: "user" | "assistant"; content: string }[]
+}) {
+  const resendClient = client()
+  if (!resendClient) {
+    console.warn("[email] RESEND_API_KEY not set — skipping support request from", request.email)
+    return
+  }
+  const row = (label: string, value: string) =>
+    `<tr><td style="padding:4px 12px 4px 0;color:#6b7280;vertical-align:top;">${label}</td><td style="padding:4px 0;color:#e5e7eb;font-weight:600;">${value}</td></tr>`
+  const account = request.account
+    ? `${escapeHtml(request.account.email ?? "unknown")} (${escapeHtml(request.account.plan ?? "free")}, id ${escapeHtml(request.account.id)})`
+    : "Not signed in"
+  const transcript = request.transcript.length
+    ? `<br /><br /><span style="color:#6b7280;">Chat before the request:</span><br />${request.transcript
+        .map((m) => `<span style="color:${m.role === "user" ? "#e5e7eb" : "#a78bfa"};">${m.role === "user" ? "Visitor" : "Bot"}:</span> ${escapeHtml(m.content)}`)
+        .join("<br />")}`
+    : ""
+  // A name typed with line breaks must not reach the subject header.
+  const subjectName = request.name.replace(/[\r\n]+/g, " ").slice(0, 60)
+
+  await deliver(resendClient, {
+    from:    fromAddress(),
+    replyTo: request.email,
+    to:      siteConfig.supportEmail,
+    subject: `Support request: ${subjectName}`,
+    html: wrapper(
+      "New support request",
+      `<table style="border-collapse:collapse;font-size:14px;">
+  ${row("Name", escapeHtml(request.name))}
+  ${row("Email", escapeHtml(request.email))}
+  ${row("Account", account)}
+  ${request.page ? row("Page", escapeHtml(request.page)) : ""}
+  ${row("Sent", new Date().toUTCString())}
+</table><br />
+<span style="color:#e5e7eb;white-space:pre-wrap;">${escapeHtml(request.message)}</span>${transcript}<br /><br />
+Reply to this email to answer them directly. The email they typed is not verified; check "Account" when it matters.`,
+      "Reply by email",
+      `mailto:${encodeURIComponent(request.email)}?subject=${encodeURIComponent("Re: your EntrixAlgo support request")}`,
+      { helpFooter: false },
+    ),
+  })
+}

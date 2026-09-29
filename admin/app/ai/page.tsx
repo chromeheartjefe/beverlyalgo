@@ -8,7 +8,7 @@ import { getAiCostPerDay, getMonthSpend } from "~/lib/queries/overview"
 
 export const dynamic = "force-dynamic"
 
-const FEATURE: Record<string, string> = { chart_analysis: "Chart Analysis", chat: "AI Bot", screener: "Screener" }
+const FEATURE: Record<string, string> = { chart_analysis: "Chart Analysis", chat: "AI Bot", screener: "Screener", support: "Support chat" }
 
 export default async function AiPage() {
   const [perDay, month, byModel, top, rejections, rejectTotals, unit] = await Promise.all([
