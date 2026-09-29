@@ -7,6 +7,7 @@ import { db } from "@/db"
 import { chartAnalyses, users } from "@/db/schema"
 import { isBudgetExceeded, recordAiUsage } from "@/lib/ai-budget"
 import { canPickVariant, resolveVariant } from "@/lib/chart-analysis"
+import { normalizeTimeframe } from "@/lib/chart-analysis/timeframe"
 import { logEvent } from "@/lib/events"
 import { checkRateLimit, countHits } from "@/lib/rate-limit"
 import { DAILY_ANALYSIS_LIMIT, DAY_MS } from "@/lib/usage-limits"
@@ -182,6 +183,8 @@ export async function POST(req: NextRequest) {
 
     // v2+: server-side grading, reward:risk math and level checks
     const data = variant.finalize ? variant.finalize(parsed) : parsed
+    // One label format everywhere: "5", "5 minutes", "M5" -> "5m"
+    data.timeframe = normalizeTimeframe(data.timeframe)
 
     await db.insert(chartAnalyses).values({
       userId:     session.user.id,

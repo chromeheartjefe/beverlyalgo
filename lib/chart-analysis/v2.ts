@@ -1,3 +1,4 @@
+import { normalizeTimeframe } from "./timeframe"
 import type { ChartAnalysisVariant } from "./types"
 
 // ─── v2 (production) ──────────────────────────────────────────────────────────
@@ -130,7 +131,7 @@ function finalize(raw: Record<string, unknown>): Record<string, unknown> {
     (Object.keys(CHECK_WEIGHTS) as CheckKey[]).map((k) => [k, rawChecks[k] === true]),
   ) as Checks
 
-  const timeframe  = String(raw.timeframe ?? "—")
+  const timeframe  = normalizeTimeframe(raw.timeframe)
   const quality    = raw.quality === "fair" ? "fair" : "good"
   const volatility = ["Low", "Medium", "High"].includes(String(raw.volatility)) ? String(raw.volatility) : "Medium"
   const rawWatch   = (raw.watch ?? {}) as Record<string, unknown>

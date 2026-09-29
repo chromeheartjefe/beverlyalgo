@@ -4,6 +4,7 @@ import { NextResponse } from "next/server"
 import { auth } from "@/auth"
 import { db } from "@/db"
 import { chartAnalyses } from "@/db/schema"
+import { normalizeTimeframe } from "@/lib/chart-analysis/timeframe"
 
 export async function GET() {
   const session = await auth()
@@ -16,5 +17,6 @@ export async function GET() {
     .orderBy(desc(chartAnalyses.createdAt))
     .limit(50)
 
-  return NextResponse.json(rows)
+  // Older analyses were saved with the label as read ("5", "5 minutes")
+  return NextResponse.json(rows.map((r) => ({ ...r, timeframe: normalizeTimeframe(r.timeframe) })))
 }
