@@ -18,12 +18,36 @@ function TooltipProvider({
   );
 }
 
+// True when the primary input can hover (mouse, trackpad). Touch screens cannot,
+// so a tooltip there only ever shows after a tap and looks stuck.
+const HOVER_QUERY = "(hover: hover) and (pointer: fine)";
+
+function subscribeHover(onChange: () => void) {
+  const mql = window.matchMedia(HOVER_QUERY);
+  mql.addEventListener("change", onChange);
+  return () => mql.removeEventListener("change", onChange);
+}
+
+function useCanHover() {
+  return React.useSyncExternalStore(
+    subscribeHover,
+    () => window.matchMedia(HOVER_QUERY).matches,
+    () => false,
+  );
+}
+
 function Tooltip({
+  open,
   ...props
 }: React.ComponentProps<typeof TooltipPrimitive.Root>) {
+  const canHover = useCanHover();
   return (
     <TooltipProvider>
-      <TooltipPrimitive.Root data-slot="tooltip" {...props} />
+      <TooltipPrimitive.Root
+        data-slot="tooltip"
+        open={canHover ? open : false}
+        {...props}
+      />
     </TooltipProvider>
   );
 }

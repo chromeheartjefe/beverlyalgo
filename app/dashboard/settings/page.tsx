@@ -1,9 +1,9 @@
 "use client"
 
 import { AnimatePresence, motion } from "framer-motion"
-import { Bell, Camera, Eye, EyeOff, Loader2, Lock, LogOut, Moon, Shield, Trash2, User } from "lucide-react"
+import { Camera, Eye, EyeOff, Loader2, Lock, LogOut, Trash2 } from "lucide-react"
 import Link from "next/link"
-import { signIn, signOut, useSession } from "next-auth/react"
+import { signIn, useSession } from "next-auth/react"
 import { useEffect, useRef, useState } from "react"
 import { toast } from "sonner"
 
@@ -11,6 +11,7 @@ import { Avatar } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import { siteConfig } from "@/config/site"
 import { markVisited } from "@/lib/onboarding"
+import { signOutToLanding } from "@/lib/sign-out"
 import { cn } from "@/lib/utils"
 
 const MAX_AVATAR_SOURCE_BYTES = 20 * 1024 * 1024 // client-side sanity cap before we even try to decode it
@@ -42,29 +43,9 @@ type UserSettings = {
   name:         string
   email:        string
   plan:         string
-  notifSignals: boolean
-  notifJournal: boolean
-  notifUpdates: boolean
   stripeCurrentPeriodEnd: string | null
-}
-
-function Toggle({ checked, onChange }: { checked: boolean; onChange: (v: boolean) => void }) {
-  return (
-    <button
-      onClick={() => onChange(!checked)}
-      className={cn(
-        "relative inline-flex h-5 w-9 shrink-0 cursor-pointer items-center rounded-full border-2 border-transparent transition-colors duration-200",
-        checked ? "bg-purple-500" : "bg-white/10"
-      )}
-    >
-      <span
-        className={cn(
-          "inline-block size-3.5 rounded-full bg-white shadow transition-transform duration-200",
-          checked ? "translate-x-4" : "translate-x-0"
-        )}
-      />
-    </button>
-  )
+  hasPassword:  boolean
+  googleLinked: boolean
 }
 
 function SectionCard({ title, children }: { title: string; children: React.ReactNode }) {
@@ -101,9 +82,6 @@ export default function SettingsPage() {
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null)
   const avatarInputRef = useRef<HTMLInputElement>(null)
 
-  const [notifSignals, setNotifSignals] = useState(true)
-  const [notifJournal, setNotifJournal] = useState(false)
-  const [notifUpdates, setNotifUpdates] = useState(true)
 
   const [saving,     setSaving]     = useState(false)
   const [saveError,  setSaveError]  = useState("")
@@ -122,6 +100,26 @@ export default function SettingsPage() {
   const [pwSaved,          setPwSaved]         = useState(false)
   const [pwRelogin,        setPwRelogin]       = useState(false)
 
+  // Google sign-in: accounts created with Google have no password until the
+  // owner sets one through an email link
+  const [hasPassword,  setHasPassword]  = useState(true)
+  const [googleLinked, setGoogleLinked] = useState(false)
+  const [linkState,    setLinkState]    = useState<"idle" | "sending" | "sent" | "error">("idle")
+
+  const sendSetPasswordLink = async () => {
+    setLinkState("sending")
+    try {
+      const res = await fetch("/api/auth/forgot-password", {
+        method:  "POST",
+        headers: { "Content-Type": "application/json" },
+        body:    JSON.stringify({ email: savedEmail }),
+      })
+      setLinkState(res.ok ? "sent" : "error")
+    } catch {
+      setLinkState("error")
+    }
+  }
+
   useEffect(() => {
     // Wait for the session to resolve to an actual signed-in user before
     // fetching — and guard against a late-resolving response from a
@@ -136,10 +134,9 @@ export default function SettingsPage() {
         setNameInput(data.name)
         setEmailInput(data.email)
         setSavedEmail(data.email)
-        setNotifSignals(data.notifSignals)
-        setNotifJournal(data.notifJournal)
-        setNotifUpdates(data.notifUpdates)
         setRenewsAt(data.stripeCurrentPeriodEnd)
+        setHasPassword(data.hasPassword !== false)
+        setGoogleLinked(!!data.googleLinked)
       })
       .catch(() => {})
       .finally(() => {
@@ -156,6 +153,11 @@ export default function SettingsPage() {
     setSaveError("")
     setSaved(false)
     setEmailChangedNote("")
+    if (emailEdited && !hasPassword) {
+      setSaveError("Set a password first (Security, below) to change your email.")
+      setSaving(false)
+      return
+    }
     if (emailEdited && !emailPassword) {
       setSaveError("Enter your current password to change your email.")
       setSaving(false)
@@ -182,6 +184,7 @@ export default function SettingsPage() {
       setEmailPassword("")
       if (data.emailChanged) {
         setEmailChangedNote(`Email changed. We sent a verification link to ${data.email}.`)
+        setGoogleLinked(false) // the server disconnects Google sign-in on an email change
       }
       setSaved(true)
       setTimeout(() => setSaved(false), 2500)
@@ -324,23 +327,6 @@ export default function SettingsPage() {
     }
   }
 
-  const toggleNotif = async (
-    field: "notifSignals" | "notifJournal" | "notifUpdates",
-    value: boolean,
-    revert: () => void,
-  ) => {
-    try {
-      const res = await fetch("/api/user", {
-        method:  "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body:    JSON.stringify({ [field]: value }),
-      })
-      if (!res.ok) revert()
-    } catch {
-      revert()
-    }
-  }
-
   return (
     <div className="p-4 sm:p-6 lg:p-8">
       {/* Page header */}
@@ -371,7 +357,7 @@ export default function SettingsPage() {
                 onClick={() => avatarInputRef.current?.click()}
                 disabled={avatarBusy}
                 aria-label="Change profile photo"
-                className="absolute inset-0 flex items-center justify-center rounded-2xl bg-black/60 opacity-0 transition-opacity group-hover:opacity-100 disabled:opacity-100"
+                className="absolute inset-0 flex items-center justify-center rounded-2xl bg-black/60 opacity-0 transition-opacity disabled:opacity-100 [@media(hover:hover)_and_(pointer:fine)]:group-hover:opacity-100"
               >
                 {avatarBusy ? (
                   <Loader2 className="size-4 animate-spin text-white" />
@@ -389,10 +375,20 @@ export default function SettingsPage() {
             </div>
             <div>
               <div className="flex flex-wrap items-center gap-2">
-                <p className="font-semibold text-white">{displayName}</p>
-                <span className="inline-flex items-center gap-1.5 rounded-full border border-purple-500/20 bg-purple-500/10 px-2.5 py-0.5 text-[11px] font-medium text-purple-400 capitalize">
-                  {plan} Trader
-                </span>
+                {status === "authenticated" ? (
+                  <>
+                    <p className="font-semibold text-white">{displayName}</p>
+                    <span className="inline-flex items-center gap-1.5 rounded-full border border-purple-500/20 bg-purple-500/10 px-2.5 py-0.5 text-[11px] font-medium text-purple-400 capitalize">
+                      {plan} Trader
+                    </span>
+                  </>
+                ) : (
+                  // Session still loading: placeholders, not "User / Free Trader"
+                  <span aria-hidden="true" className="flex items-center gap-2">
+                    <span className="h-4 w-28 animate-pulse rounded bg-white/[0.08] motion-reduce:animate-none" />
+                    <span className="h-4 w-20 animate-pulse rounded-full bg-white/[0.06] motion-reduce:animate-none" />
+                  </span>
+                )}
               </div>
               <p className="text-sm text-gray-500">{emailInput || "—"}</p>
               <div className="mt-2 flex items-center gap-3">
@@ -446,7 +442,13 @@ export default function SettingsPage() {
               />
             </div>
 
-            {emailEdited && (
+            {emailEdited && !hasPassword && (
+              <p className="text-xs text-amber-300/90">
+                Your account signs in with Google. Set a password first (Security, below) to change your email.
+              </p>
+            )}
+
+            {emailEdited && hasPassword && (
               <div>
                 <label htmlFor="emailChangePassword" className="mb-1.5 block text-xs font-medium text-gray-500">
                   Current password
@@ -461,6 +463,7 @@ export default function SettingsPage() {
                 />
                 <p className="mt-1.5 text-xs text-gray-600">
                   Needed to change your email. You&apos;ll verify the new address, and we&apos;ll let your old address know.
+                  {googleLinked && " Google sign-in will be disconnected."}
                 </p>
               </div>
             )}
@@ -486,38 +489,39 @@ export default function SettingsPage() {
           </div>
         </SectionCard>
 
-        {/* Notifications */}
-        <SectionCard title="Notifications">
-          <div className="space-y-4">
-            {[
-              { label: "New AI Signals", desc: "Get notified when a new signal is detected", icon: Bell, field: "notifSignals" as const, state: notifSignals, set: setNotifSignals },
-              { label: "Trade Journal reminders", desc: "Daily prompt to log your trades", icon: User, field: "notifJournal" as const, state: notifJournal, set: setNotifJournal },
-              { label: "Product updates", desc: "News about new features and improvements", icon: Shield, field: "notifUpdates" as const, state: notifUpdates, set: setNotifUpdates },
-            ].map(({ label, desc, icon: Icon, field, state, set }) => (
-              <div key={label} className="flex items-center justify-between">
-                <div className="flex items-start gap-3">
-                  <div className="mt-0.5 flex size-8 shrink-0 items-center justify-center rounded-lg bg-white/[0.05]">
-                    <Icon className="size-4 text-gray-400" />
-                  </div>
-                  <div>
-                    <p className="text-sm font-medium text-white">{label}</p>
-                    <p className="text-xs text-gray-500">{desc}</p>
-                  </div>
-                </div>
-                <Toggle
-                  checked={state}
-                  onChange={(value) => {
-                    set(value)
-                    toggleNotif(field, value, () => set(!value))
-                  }}
-                />
-              </div>
-            ))}
-          </div>
-        </SectionCard>
-
         {/* Security */}
         <SectionCard title="Security">
+          {googleLinked && (
+            <p className="mb-4 flex items-center gap-2 text-xs text-gray-400">
+              <span className="size-1.5 rounded-full bg-emerald-400" aria-hidden="true" />
+              Google sign-in is connected to this account.
+            </p>
+          )}
+          {!hasPassword ? (
+            <div className="rounded-xl border border-white/15 bg-white/[0.03] p-4">
+              <p className="text-sm font-medium text-white">You sign in with Google</p>
+              <p className="mt-1 text-xs leading-relaxed text-gray-500">
+                Want to sign in with your email and a password too? We&apos;ll email {savedEmail || "you"} a link to set one.
+              </p>
+              <div className="mt-3 flex flex-wrap items-center gap-3">
+                <Button
+                  size="sm"
+                  disabled={linkState === "sending" || linkState === "sent" || !savedEmail}
+                  onClick={sendSetPasswordLink}
+                  className="gap-2 bg-purple-500 text-white hover:bg-purple-400 disabled:opacity-60"
+                >
+                  {linkState === "sending" && <Loader2 className="size-3.5 animate-spin" />}
+                  {linkState === "sent" ? "Link sent" : "Email me a link"}
+                </Button>
+                {linkState === "sent" && (
+                  <span role="status" className="text-xs text-emerald-400">Check your inbox (and spam). The link works for 1 hour.</span>
+                )}
+                {linkState === "error" && (
+                  <span role="alert" className="text-xs text-red-400">Couldn&apos;t send it. Please try again.</span>
+                )}
+              </div>
+            </div>
+          ) : (
           <div className="space-y-4">
             <div>
               <label htmlFor="currentPassword" className="mb-1.5 block text-xs font-medium text-gray-500">Current Password</label>
@@ -600,24 +604,7 @@ export default function SettingsPage() {
               )}
             </div>
           </div>
-        </SectionCard>
-
-        {/* Appearance */}
-        <SectionCard title="Appearance">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-white/[0.05]">
-                <Moon className="size-4 text-gray-400" />
-              </div>
-              <div>
-                <p className="text-sm font-medium text-white">Dark Mode</p>
-                <p className="text-xs text-gray-500">EntrixAlgo always runs in dark mode</p>
-              </div>
-            </div>
-            <span className="rounded-full border border-white/15 bg-white/[0.05] px-2.5 py-1 text-xs text-gray-500">
-              Always on
-            </span>
-          </div>
+          )}
         </SectionCard>
 
         {/* Plan */}
@@ -677,7 +664,7 @@ export default function SettingsPage() {
             variant="destructive"
             size="sm"
             className="gap-2 bg-red-500/15 text-red-400 hover:bg-red-500/25"
-            onClick={() => signOut({ redirect: false }).then(() => window.location.assign("/"))}
+            onClick={signOutToLanding}
           >
             <LogOut className="size-3.5" />
             Sign Out

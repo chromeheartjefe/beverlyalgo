@@ -10,7 +10,6 @@ import { useEffect } from "react"
 
 import { useMobileNav } from "@/components/dashboard/mobile-nav-context"
 import { PlanCard } from "@/components/dashboard/plan-card"
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
 import { siteConfig } from "@/config/site"
 import { cn } from "@/lib/utils"
 
@@ -54,7 +53,9 @@ function SidebarBody({ onNavigate }: { onNavigate?: () => void }) {
   const router = useRouter()
   const { data: session, status: sessionStatus } = useSession()
   const plan = (session?.user as { plan?: string })?.plan ?? "free"
-  const isFree = plan === "free"
+  // Only once the session is known: while it loads, Pro users would
+  // otherwise see lock icons on their own tools for a moment
+  const isFree = sessionStatus === "authenticated" && plan === "free"
 
   const isActive = (href: string) =>
     href === "/dashboard" ? pathname === href : pathname.startsWith(href)
@@ -170,15 +171,10 @@ export function DashboardSidebar() {
               <div className="flex-1">
                 <Logo />
               </div>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Dialog.Close className="flex size-10 shrink-0 items-center justify-center rounded-xl text-gray-500 transition-colors hover:bg-white/[0.06] hover:text-gray-200">
-                    <X className="size-5" />
-                    <span className="sr-only">Close navigation menu</span>
-                  </Dialog.Close>
-                </TooltipTrigger>
-                <TooltipContent side="bottom">Close menu</TooltipContent>
-              </Tooltip>
+              <Dialog.Close className="flex size-10 shrink-0 items-center justify-center rounded-xl text-gray-500 transition-colors hover:bg-white/[0.06] hover:text-gray-200">
+                <X className="size-5" />
+                <span className="sr-only">Close navigation menu</span>
+              </Dialog.Close>
             </div>
             <SidebarBody onNavigate={() => setOpen(false)} />
           </Dialog.Content>

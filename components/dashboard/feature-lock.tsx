@@ -2,6 +2,10 @@
 
 import { Lock } from "lucide-react"
 import Link from "next/link"
+import { useLayoutEffect, useRef, useState } from "react"
+
+// Below this the card itself would not fit, so the page is allowed to scroll again.
+const MIN_LOCKED_HEIGHT = 320
 
 export function FeatureLock({
   locked,
@@ -12,10 +16,37 @@ export function FeatureLock({
   feature: string
   children: React.ReactNode
 }) {
+  const ref = useRef<HTMLDivElement>(null)
+  const [height, setHeight] = useState<number | null>(null)
+
+  // Fit the locked preview to the visible part of the dashboard's scroll area,
+  // so the upgrade card sits in the middle of the first screen and nothing scrolls.
+  useLayoutEffect(() => {
+    if (!locked) return
+    const el = ref.current
+    const main = document.getElementById("main-content")
+    if (!el || !main) return
+
+    const measure = () => {
+      const top = el.getBoundingClientRect().top - main.getBoundingClientRect().top + main.scrollTop
+      const parent = el.parentElement
+      const bottomGap = parent ? parseFloat(getComputedStyle(parent).paddingBottom) || 0 : 0
+      setHeight(Math.max(MIN_LOCKED_HEIGHT, Math.floor(main.clientHeight - top - bottomGap)))
+    }
+
+    measure()
+    const observer = new ResizeObserver(measure)
+    observer.observe(main)
+    // main resizes with the window and the verify/announcement banners; the page
+    // resizes when the header above the lock changes height.
+    if (el.parentElement) observer.observe(el.parentElement)
+    return () => observer.disconnect()
+  }, [locked])
+
   if (!locked) return <>{children}</>
 
   return (
-    <div className="relative">
+    <div ref={ref} className="relative overflow-hidden" style={height ? { height } : undefined}>
       <div className="pointer-events-none select-none opacity-40 grayscale">{children}</div>
       <div className="absolute inset-0 flex items-center justify-center bg-[#09090f]/60 backdrop-blur-sm">
         <div className="mx-4 max-w-sm rounded-2xl border border-white/25 bg-white/[0.04] p-6 text-center">

@@ -92,7 +92,7 @@ function ConfidenceCircle({ value, color, size, stroke }: { value: number; color
           fill="none"
           stroke={color}
           strokeWidth={stroke}
-          strokeLinecap="round"
+          strokeLinecap="butt"
           strokeDasharray={c}
           initial={{ strokeDashoffset: c }}
           animate={{ strokeDashoffset: offset }}
