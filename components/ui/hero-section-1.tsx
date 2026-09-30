@@ -71,7 +71,7 @@ export function HeroHeader() {
           Get early access →
         </a>
       </Banner>
-      <div className="flex justify-center px-4 pt-3">
+      <div className="relative flex justify-center px-4 pt-3">
       <nav
         className={cn(
           "flex w-full max-w-6xl items-center justify-between rounded-2xl border px-4 transition-all duration-300 lg:px-8",
@@ -108,13 +108,15 @@ export function HeroHeader() {
         <button
           className="flex size-11 items-center justify-center text-white md:hidden"
           onClick={() => setMenuOpen(!menuOpen)}
-          aria-label="Toggle menu"
+          aria-label={menuOpen ? "Close menu" : "Open menu"}
+          aria-expanded={menuOpen}
         >
           {menuOpen ? <X size={20} /> : <Menu size={20} />}
         </button>
       </nav>
 
-      {/* Mobile dropdown */}
+      {/* Mobile dropdown: anchored under the nav (not a fixed offset), so it
+          never covers the close button whether or not the banner is shown */}
       <AnimatePresence>
         {menuOpen && (
           <motion.div
@@ -122,7 +124,7 @@ export function HeroHeader() {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -8 }}
             transition={{ duration: 0.18 }}
-            className="absolute inset-x-4 top-[72px] rounded-2xl border border-white/25 bg-black/95 px-6 py-5 md:hidden"
+            className="absolute inset-x-4 top-full mt-2 rounded-2xl border border-white/25 bg-black/95 px-6 py-5 md:hidden"
           >
             <div className="flex flex-col gap-4">
               {menuItems.map((item) => (
