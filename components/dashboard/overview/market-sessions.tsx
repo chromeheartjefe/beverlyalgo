@@ -1,8 +1,9 @@
 "use client"
 
 import { Clock } from "lucide-react"
-import { useEffect, useState } from "react"
+import { useEffect, useState, useSyncExternalStore } from "react"
 
+import { Loaded } from "@/components/ui/motion"
 import { cn } from "@/lib/utils"
 
 import { OverviewCard, Skeleton } from "./card"
@@ -61,10 +62,15 @@ function duration(min: number) {
 const clock = (now: Date, tz?: string) =>
   now.toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit", timeZone: tz })
 
+const noopSubscribe = () => () => {}
+
 export function MarketSessions() {
-  // Time-based, so it renders after mount (no server/client mismatch) and
-  // re-renders every 30 seconds for the countdowns.
-  const [now, setNow] = useState<Date | null>(null)
+  // Time-based, so the server render has no clock (no server/client
+  // mismatch) and it re-renders every 30 seconds for the countdowns. When the
+  // card mounts on the client (a tab switch, not hydration) the clock is
+  // known at once: starting from null there flashed the skeleton every visit.
+  const hydrated = useSyncExternalStore(noopSubscribe, () => true, () => false)
+  const [now, setNow] = useState<Date | null>(() => (hydrated ? new Date() : null))
   useEffect(() => {
     setNow(new Date())
     const id = setInterval(() => setNow(new Date()), 30_000)
@@ -83,13 +89,16 @@ export function MarketSessions() {
       title="Market sessions"
       sub={now ? `Your time ${clock(now)}, regular hours` : "Regular hours"}
     >
-      {!now ? (
-        <div className="space-y-3">
-          <Skeleton className="h-10 w-full" />
-          {SESSIONS.map((s) => <Skeleton key={s.name} className="h-9 w-full" />)}
-        </div>
-      ) : (
-        <>
+      <Loaded
+        loading={!now}
+        className="flex flex-1 flex-col"
+        fallback={
+          <div className="space-y-3">
+            <Skeleton className="h-10 w-full" />
+            {SESSIONS.map((s) => <Skeleton key={s.name} className="h-9 w-full" />)}
+          </div>
+        }
+      >
           <div className="rounded-xl border border-white/10 bg-white/[0.03] px-3.5 py-3">
             <p className="text-sm font-semibold text-white">
               {openCount === 0 ? "Stock markets are closed" : `${openCount} of ${SESSIONS.length} stock markets open`}
@@ -107,7 +116,7 @@ export function MarketSessions() {
               <li key={s.name} className="grid grid-cols-[5.25rem_1fr_6.25rem] items-center gap-3">
                 <div className="min-w-0">
                   <p className="truncate text-sm font-medium text-white">{s.name}</p>
-                  <p className="text-[11px] tabular-nums text-gray-500">{clock(now, s.tz)} local</p>
+                  <p className="text-[11px] tabular-nums text-gray-500">{clock(now ?? new Date(), s.tz)} local</p>
                 </div>
                 <div className="relative h-2.5 bg-white/[0.06]" aria-hidden>
                   {spans.map(([a, b]) => (
@@ -167,8 +176,7 @@ export function MarketSessions() {
             <span />
           </div>
           <p className="mt-auto pt-3 text-[11px] text-gray-600">Bars show each session in your time. Holidays are not included.</p>
-        </>
-      )}
+      </Loaded>
     </OverviewCard>
   )
 }

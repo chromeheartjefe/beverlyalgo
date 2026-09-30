@@ -1,5 +1,6 @@
 "use client"
 
+import { AnimatePresence, motion } from "framer-motion"
 import { Activity, AlertTriangle, CheckCircle2, Clock, ExternalLink, Loader2, Sparkles } from "lucide-react"
 import { useSession } from "next-auth/react"
 import { useState } from "react"
@@ -7,6 +8,7 @@ import useSWR from "swr"
 
 import { FeatureLock } from "@/components/dashboard/feature-lock"
 import { IndicatorSignalPreview } from "@/components/dashboard/indicator-signal-preview"
+import { Collapse, EASE_OUT } from "@/components/ui/motion"
 import { fetcher } from "@/lib/swr"
 import { cn } from "@/lib/utils"
 
@@ -145,6 +147,7 @@ export default function IndicatorPage() {
 
   const requested = !!state?.indicatorRequestedAt
   const invited   = !!state?.indicatorInvitedAt
+  const statusKey = loading ? "loading" : invited ? "invited" : requested ? "requested" : "form"
 
   return (
     <div className="p-4 sm:p-6 lg:p-8">
@@ -172,6 +175,16 @@ export default function IndicatorPage() {
             </div>
 
             <div className="mt-5">
+              {/* Checking → invited / requested / form, and form → requested
+                  after submitting: cross-fades instead of swapping in a frame */}
+              <AnimatePresence mode="wait" initial={false}>
+              <motion.div
+                key={statusKey}
+                initial={{ opacity: 0, y: 4 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, transition: { duration: 0.12 } }}
+                transition={{ duration: 0.22, ease: EASE_OUT }}
+              >
               {loading ? (
                 <div className="flex items-center gap-2 text-xs text-gray-600">
                   <Loader2 className="size-3.5 animate-spin" /> Checking your status…
@@ -212,12 +225,12 @@ export default function IndicatorPage() {
                       className="mt-1.5 w-full rounded-xl border border-white/15 bg-white/[0.04] px-3.5 py-2.5 text-sm text-white placeholder:text-gray-600 focus:border-purple-500/40 focus:outline-none focus:ring-1 focus:ring-purple-500/50 disabled:opacity-60"
                     />
                   </label>
-                  {error && (
-                    <div className="flex items-start gap-2 text-xs text-red-400">
+                  <Collapse show={!!error} className="pb-3">
+                    <div role="alert" className="flex items-start gap-2 text-xs text-red-400">
                       <AlertTriangle className="mt-0.5 size-3.5 shrink-0" />
                       {error}
                     </div>
-                  )}
+                  </Collapse>
                   <button
                     type="submit"
                     disabled={submitting || !username.trim()}
@@ -228,6 +241,8 @@ export default function IndicatorPage() {
                   </button>
                 </form>
               )}
+              </motion.div>
+              </AnimatePresence>
             </div>
           </div>
 

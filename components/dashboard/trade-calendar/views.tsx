@@ -9,6 +9,7 @@ import {
   addDays,
   dayKey,
   type DayStat,
+  fmtCellPnl,
   fmtMoney,
   type Goal,
   heat,
@@ -97,7 +98,9 @@ export function MonthView({ y, m, dayMap, today, weekends, selectedKey, onSelect
                   whileTap={reduce ? undefined : { scale: 0.96 }}
                   style={heat(s?.pnl ?? 0, maxAbs)}
                   className={cn(
-                    "group relative flex min-h-[60px] flex-col justify-between rounded-lg border p-1.5 text-left transition-[border-color,background-color,box-shadow] sm:min-h-[84px] sm:rounded-xl sm:p-2.5 xl:min-h-[96px]",
+                    "group relative flex min-h-[60px] min-w-0 flex-col justify-between rounded-lg border text-left transition-[border-color,background-color,box-shadow] sm:min-h-[84px] sm:rounded-xl sm:p-2.5 xl:min-h-[96px]",
+                    // 7 columns on a phone leave ~40px per cell: thinner padding
+                    weekends ? "p-1" : "p-1.5",
                     focusRing,
                     s ? "hover:brightness-110" : "border-white/15 bg-white/[0.015] hover:border-white/30 hover:bg-white/[0.04]",
                     s && s.pnl === 0 && "border-white/25 bg-white/[0.05]",
@@ -124,7 +127,10 @@ export function MonthView({ y, m, dayMap, today, weekends, selectedKey, onSelect
                   </div>
                   {s ? (
                     <span className={cn("font-semibold tabular-nums", pnlText(s.pnl))}>
-                      <span className="text-[11px] sm:hidden">{fmtMoney(s.pnl, { signed: true, compact: true })}</span>
+                      {/* Phones: short whole-dollar form that fits the cell; no "$" in the 7-column grid */}
+                      <span className={cn("block whitespace-nowrap leading-none sm:hidden", weekends ? "text-[10px] tracking-tight" : "text-[11px]")}>
+                        {fmtCellPnl(s.pnl, { dollar: !weekends })}
+                      </span>
                       <span className="hidden text-sm sm:inline xl:text-[15px]">{fmtMoney(s.pnl, { signed: true })}</span>
                     </span>
                   ) : (

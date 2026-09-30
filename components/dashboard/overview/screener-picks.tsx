@@ -5,6 +5,7 @@ import useSWR from "swr"
 
 import type { ScreenerResult, ScreenerTicker } from "@/app/api/screener/route"
 import { formatPrice } from "@/components/dashboard/market-ticker"
+import { Loaded } from "@/components/ui/motion"
 import { fetcher } from "@/lib/swr"
 import { cn } from "@/lib/utils"
 
@@ -30,11 +31,16 @@ export function ScreenerPicks() {
       sub={result ? `Last scan ${timeAgo(result.generatedAt)}${result.stale ? ", may be out of date" : ""}` : "Top movers ranked by AI"}
       action={<CardLink href="/dashboard/ai-screener">Screener</CardLink>}
     >
-      {!data && !error ? (
-        <div className="space-y-2.5">
-          {[0, 1, 2, 3].map((i) => <Skeleton key={i} className="h-14 w-full" />)}
-        </div>
-      ) : picks.length === 0 ? (
+      <Loaded
+        loading={!data && !error}
+        className="flex flex-1 flex-col"
+        fallback={
+          <div className="space-y-2.5">
+            {[0, 1, 2, 3].map((i) => <Skeleton key={i} className="h-14 w-full" />)}
+          </div>
+        }
+      >
+      {picks.length === 0 ? (
         <EmptyState
           title="No scan yet"
           body="Run the free AI Screener to find the stocks and crypto with the strongest momentum right now."
@@ -80,6 +86,7 @@ export function ScreenerPicks() {
           })}
         </ul>
       )}
+      </Loaded>
     </OverviewCard>
   )
 }

@@ -1,7 +1,8 @@
 "use client"
 
 import * as Dialog from "@radix-ui/react-dialog"
-import { Activity, BookOpen, Bot, Calculator, CalendarDays, Flame, LayoutDashboard, LifeBuoy, Lock, Settings, X, Zap } from "lucide-react"
+import { LayoutGroup, motion } from "framer-motion"
+import { Activity, BookOpen, Bot, Calculator, CalendarDays, Flame, LayoutDashboard, Lock, Settings, X, Zap } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
@@ -10,7 +11,7 @@ import { useEffect } from "react"
 
 import { useMobileNav } from "@/components/dashboard/mobile-nav-context"
 import { PlanCard } from "@/components/dashboard/plan-card"
-import { siteConfig } from "@/config/site"
+import { useFreeAnalysis } from "@/lib/use-free-analysis"
 import { cn } from "@/lib/utils"
 
 export const NAV_MAIN = [
@@ -48,6 +49,20 @@ function Logo() {
   )
 }
 
+// The active item's highlight is one shared element that slides to the new
+// item on navigation, instead of jumping (framer layoutId). Each sidebar (desktop
+// rail, mobile drawer) has its own LayoutGroup so the two never share it.
+function ActivePill() {
+  return (
+    <motion.span
+      layoutId="sidebar-active"
+      aria-hidden
+      className="absolute inset-0 -z-10 rounded-xl bg-purple-500/[0.12]"
+      transition={{ type: "spring", stiffness: 520, damping: 42 }}
+    />
+  )
+}
+
 function SidebarBody({ onNavigate }: { onNavigate?: () => void }) {
   const pathname = usePathname()
   const router = useRouter()
@@ -56,13 +71,16 @@ function SidebarBody({ onNavigate }: { onNavigate?: () => void }) {
   // Only once the session is known: while it loads, Pro users would
   // otherwise see lock icons on their own tools for a moment
   const isFree = sessionStatus === "authenticated" && plan === "free"
+  // Chart Analysis shows "1 free" instead of a lock while the free one is unused
+  const { state: freeState } = useFreeAnalysis()
 
   const isActive = (href: string) =>
     href === "/dashboard" ? pathname === href : pathname.startsWith(href)
 
   const renderItem = ({ label, href, icon: Icon, lockable }: (typeof NAV_MAIN)[number]) => {
     const active = isActive(href)
-    const locked = lockable && isFree
+    const freeTry = isFree && href === "/dashboard/chart-analysis" && (freeState === "available" || freeState === "verify")
+    const locked = lockable && isFree && !freeTry
     return (
       <Link
         key={href}
@@ -70,15 +88,21 @@ function SidebarBody({ onNavigate }: { onNavigate?: () => void }) {
         onClick={onNavigate}
         onMouseEnter={() => router.prefetch(href)}
         className={cn(
-          "flex items-center gap-3 rounded-xl px-3 py-3 text-sm font-medium transition-all duration-150 lg:py-2.5",
+          "relative isolate flex items-center gap-3 rounded-xl px-3 py-3 text-sm font-medium transition-colors duration-150 lg:py-2.5",
           active
-            ? "bg-purple-500/[0.12] text-purple-400"
+            ? "text-purple-400"
             : "text-gray-500 hover:bg-white/[0.04] hover:text-gray-200"
         )}
       >
+        {active && <ActivePill />}
         <Icon className={cn("size-4 shrink-0", active ? "text-purple-400" : "text-gray-500")} />
         <span className="flex-1">{label}</span>
         {locked && <Lock className="size-3 shrink-0 text-gray-600" />}
+        {freeTry && (
+          <span className="shrink-0 rounded-full border border-emerald-400/30 bg-emerald-500/10 px-1.5 py-px text-[10px] font-semibold text-emerald-300">
+            1 free
+          </span>
+        )}
       </Link>
     )
   }
@@ -86,6 +110,7 @@ function SidebarBody({ onNavigate }: { onNavigate?: () => void }) {
   return (
     <>
       {/* Navigation */}
+      <LayoutGroup id={onNavigate ? "sidebar-drawer" : "sidebar-rail"}>
       <nav className="flex-1 space-y-0.5 overflow-y-auto p-3">
         <p className="mb-2 mt-3 px-3 text-[10px] font-semibold uppercase tracking-widest text-gray-600">
           Main Menu
@@ -112,26 +137,20 @@ function SidebarBody({ onNavigate }: { onNavigate?: () => void }) {
               onClick={onNavigate}
               onMouseEnter={() => router.prefetch("/dashboard/settings")}
               className={cn(
-                "flex items-center gap-3 rounded-xl px-3 py-3 text-sm font-medium transition-all duration-150 lg:py-2.5",
+                "relative isolate flex items-center gap-3 rounded-xl px-3 py-3 text-sm font-medium transition-colors duration-150 lg:py-2.5",
                 active
-                  ? "bg-purple-500/[0.12] text-purple-400"
+                  ? "text-purple-400"
                   : "text-gray-500 hover:bg-white/[0.04] hover:text-gray-200"
               )}
             >
+              {active && <ActivePill />}
               <Settings className={cn("size-4 shrink-0", active ? "text-purple-400" : "text-gray-500")} />
               Settings
             </Link>
           )
         })()}
-        <a
-          href={siteConfig.links.email}
-          onClick={onNavigate}
-          className="flex items-center gap-3 rounded-xl px-3 py-3 text-sm font-medium text-gray-500 transition-all duration-150 hover:bg-white/[0.04] hover:text-gray-200 lg:py-2.5"
-        >
-          <LifeBuoy className="size-4 shrink-0 text-gray-500" />
-          Help &amp; Support
-        </a>
       </nav>
+      </LayoutGroup>
 
       {/* Plan card */}
       <div className="shrink-0 p-3">

@@ -21,6 +21,26 @@ export type Release = {
 
 export const CHANGELOG: Release[] = [
   {
+    version: "2.4",
+    date: "2026-10-01",
+    title: "Try it free, and a smoother EntrixAlgo",
+    summary: "Free accounts get one AI chart analysis, and the whole site moves more smoothly, especially on phones.",
+    items: [
+      { kind: "new", text: "One free AI chart analysis for every Free account with a verified email. If the AI can't read your screenshot, it doesn't count.", href: "/dashboard/chart-analysis" },
+      { kind: "new", text: "A Free plan on the pricing page, so you can see what's included before signing up." },
+      { kind: "new", text: "The This month card shows a preview and a quick way to log a trade when your month has no trades yet.", href: "/dashboard/trade-journal" },
+      { kind: "improved", text: "Smoother everywhere: tabs fade in, the sidebar highlight slides, and messages, alerts and lists ease in instead of popping." },
+      { kind: "improved", text: "Chart Analysis results are easier to read, with patterns and risk side by side and a cleaner layout on phones." },
+      { kind: "improved", text: "Daily P&L in the calendars stays inside its day square on phones, with short amounts like +1.2K." },
+      { kind: "improved", text: "The AI Trading Bot fits shorter phone screens without scrolling the page." },
+      { kind: "improved", text: "Tidier dashboard shortcuts and home page on phones, plus slimmer scrollbars." },
+      { kind: "improved", text: "Our support email is shown in full wherever you need it, so you can write to us from any email app." },
+      { kind: "fixed", text: "Chart Analysis no longer fails on instruments with very long names, like some futures contracts." },
+      { kind: "fixed", text: "The menu on the home page no longer covers its own close button on phones." },
+      { kind: "fixed", text: "Bug fixes and small visual polish." },
+    ],
+  },
+  {
     version: "2.3",
     date: "2026-09-30",
     title: "Smoother and faster",

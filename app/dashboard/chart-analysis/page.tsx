@@ -1,15 +1,19 @@
 "use client"
 
 import { AnimatePresence, motion } from "framer-motion"
-import { Clock, CloudUpload, Lightbulb, Loader2, Minus, Ruler, Tag, TrendingDown, TrendingUp, XCircle, Zap, ZoomIn } from "lucide-react"
+import { Activity, ArrowUpRight, Bot, CheckCircle, Clock, CloudUpload, Gift, Lightbulb, Loader2, Minus, Ruler, Sparkles, Tag, TrendingDown, TrendingUp, XCircle, Zap, ZoomIn } from "lucide-react"
 import dynamic from "next/dynamic"
+import Link from "next/link"
 import { useSession } from "next-auth/react"
 import { useCallback, useMemo, useState } from "react"
 import useSWR from "swr"
 
 import { FeatureLock } from "@/components/dashboard/feature-lock"
+import { Collapse, Loaded } from "@/components/ui/motion"
 import { ApiError, requestJson, userMessage } from "@/lib/api-client"
+import type { FreeAnalysisState } from "@/lib/free-analysis"
 import { fetcher } from "@/lib/swr"
+import { useFreeAnalysis } from "@/lib/use-free-analysis"
 import { cn } from "@/lib/utils"
 
 // Only rendered once a result exists (never on initial tab-open) — split out
@@ -213,12 +217,12 @@ function DropZone({
       />
     </label>
 
-    {error && (
-      <p role="alert" className="mt-3 flex items-center gap-1.5 text-xs text-red-400">
+    <Collapse show={!!error} className="pt-3">
+      <p role="alert" className="flex items-center gap-1.5 text-xs text-red-400">
         <XCircle className="size-3.5 shrink-0" />
         {error}
       </p>
-    )}
+    </Collapse>
     </>
   )
 }
@@ -266,17 +270,12 @@ function SelectedView({
       </div>
 
       {/* API error banner */}
-      {error && (
-        <motion.div
-          role="alert"
-          initial={{ opacity: 0, y: -4 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="flex items-start gap-2.5 rounded-xl border border-red-500/20 bg-red-500/[0.07] px-4 py-3"
-        >
+      <Collapse show={!!error} className="pb-4">
+        <div role="alert" className="flex items-start gap-2.5 rounded-xl border border-red-500/20 bg-red-500/[0.07] px-4 py-3">
           <XCircle className="mt-0.5 size-4 shrink-0 text-red-400" />
           <p className="text-sm text-red-400">{error}</p>
-        </motion.div>
-      )}
+        </div>
+      </Collapse>
 
       <button
         onClick={onAnalyze}
@@ -780,14 +779,138 @@ function AdminLogicSwitch({ options, value, onChange }: { options: VariantOption
   )
 }
 
+// ─── Free analysis (Free accounts) ────────────────────────────────────────────
+// Free accounts get one analysis (lib/free-analysis.ts). These are the notes
+// around it: the offer above the uploader, the lock cards once it's out of
+// reach, and the upgrade card under the finished result.
+
+const UPGRADE_BUTTON =
+  "mt-4 inline-flex w-full items-center justify-center gap-2 rounded-xl border border-purple-500/20 bg-purple-500/10 px-4 py-2.5 text-sm font-medium text-purple-400 transition-colors hover:bg-purple-500/15"
+
+function FreeOfferBanner() {
+  return (
+    // Same pill as the dashboard's "What's new" banner (announcement-banner.tsx),
+    // in green. Centered over the full-width uploader until xl, where the
+    // uploader moves into the left column and the pill lines up with it.
+    <aside
+      aria-label="Free analysis"
+      className="mx-auto flex w-fit max-w-full items-center gap-2.5 rounded-full border border-emerald-500/25 bg-gradient-to-r from-emerald-500/[0.12] via-teal-500/[0.05] to-emerald-500/[0.12] py-1 pl-1.5 pr-4 shadow-lg shadow-emerald-950/30 sm:gap-3 xl:mx-0"
+    >
+      <span className="flex shrink-0 items-center gap-1 whitespace-nowrap rounded-full bg-emerald-500/20 px-2 py-1 text-[11px] font-semibold uppercase tracking-wide text-emerald-200">
+        <Gift className="size-3" aria-hidden="true" />
+        Free
+      </span>
+      <p className="min-w-0 truncate py-1 text-xs text-gray-200 sm:text-sm">
+        Your first analysis is on us
+      </p>
+    </aside>
+  )
+}
+
+function ResendVerification() {
+  const [status, setStatus] = useState<"idle" | "sending" | "sent" | "limited">("idle")
+  const resend = async () => {
+    setStatus("sending")
+    try {
+      const res = await fetch("/api/auth/resend-verification", { method: "POST" })
+      setStatus(res.ok ? "sent" : res.status === 429 ? "limited" : "idle")
+    } catch {
+      setStatus("idle")
+    }
+  }
+  if (status === "sent") {
+    return (
+      <p className="mt-4 flex items-center justify-center gap-1.5 text-xs text-emerald-400">
+        <CheckCircle className="size-3.5" /> Sent. Open the link, then come back to this tab.
+      </p>
+    )
+  }
+  if (status === "limited") {
+    return <p className="mt-4 text-xs text-amber-300">Resend limit reached. Check your spam folder for the email.</p>
+  }
+  return (
+    <button type="button" onClick={resend} disabled={status === "sending"} className={cn(UPGRADE_BUTTON, "disabled:opacity-60")}>
+      {status === "sending" && <Loader2 className="size-3.5 animate-spin" />}
+      Resend verification email
+    </button>
+  )
+}
+
+function lockCard(state: FreeAnalysisState | undefined) {
+  if (state === "verify") {
+    return {
+      title: "Verify your email to get a free analysis",
+      description: "Free accounts get one AI chart analysis. Confirm your email with the link we sent you to unlock it.",
+      action: <ResendVerification />,
+    }
+  }
+  if (state === "used") {
+    return {
+      title: "You've used your free analysis",
+      description: "Upgrade to Pro to keep analyzing your charts, plus the AI Trading Bot and the TradingView indicator.",
+    }
+  }
+  return undefined
+}
+
+// Fintech look: faint grid, glow orbs as baked radial gradients (no blur
+// filter, see the landing performance work), glowing icon chips and button.
+const PRO_PERKS = [
+  { icon: Zap,      text: "Chart Analysis",        chip: "bg-purple-500/20 text-purple-200 ring-purple-400/40 shadow-[0_0_18px_-2px_rgba(168,85,247,0.65)]" },
+  { icon: Bot,      text: "AI Trading Bot",        chip: "bg-fuchsia-500/20 text-fuchsia-200 ring-fuchsia-400/40 shadow-[0_0_18px_-2px_rgba(217,70,239,0.65)]" },
+  { icon: Activity, text: "TradingView indicator", chip: "bg-sky-500/20 text-sky-200 ring-sky-400/40 shadow-[0_0_18px_-2px_rgba(56,189,248,0.6)]" },
+]
+
+function FreeUsedUpsell() {
+  return (
+    <section className="relative overflow-hidden rounded-2xl border border-purple-500/30 bg-[#0c0a1c] p-5 shadow-[0_0_40px_-12px_rgba(168,85,247,0.45)] sm:p-6">
+      {/* Glow orbs, grid and a lit top edge */}
+      <div aria-hidden className="pointer-events-none absolute inset-0 bg-[radial-gradient(420px_circle_at_100%_0%,rgba(217,70,239,0.22),transparent_60%),radial-gradient(380px_circle_at_0%_100%,rgba(124,58,237,0.22),transparent_60%)]" />
+      <div aria-hidden className="pointer-events-none absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.035)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.035)_1px,transparent_1px)] bg-[size:28px_28px] [mask-image:radial-gradient(ellipse_at_center,black,transparent_78%)]" />
+      <div aria-hidden className="pointer-events-none absolute inset-x-10 top-0 h-px bg-gradient-to-r from-transparent via-fuchsia-400/70 to-transparent" />
+
+      <div className="relative flex items-center gap-3">
+        <div className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-purple-500/20 ring-1 ring-purple-400/40 shadow-[0_0_20px_-2px_rgba(168,85,247,0.7)]">
+          <Sparkles className="size-5 text-purple-100" aria-hidden />
+        </div>
+        <div className="min-w-0">
+          <h3 className="text-base font-semibold text-white">That was your free analysis</h3>
+          <p className="text-xs text-purple-200/70">Keep going with Pro, from $49/month or $299 lifetime</p>
+        </div>
+      </div>
+
+      <ul className="relative mt-5 grid gap-2.5 sm:grid-cols-3">
+        {PRO_PERKS.map(({ icon: Icon, text, chip }) => (
+          // Solid fill (not translucent) so the grid doesn't show through
+          <li key={text} className="flex items-center gap-3 rounded-xl border border-white/10 bg-[#121026] px-3.5 py-3 text-sm font-medium text-white">
+            <span className={cn("flex size-8 shrink-0 items-center justify-center rounded-lg ring-1", chip)}>
+              <Icon className="size-4" aria-hidden />
+            </span>
+            {text}
+          </li>
+        ))}
+      </ul>
+
+      <Link
+        href="/#pricing"
+        className="relative mt-5 flex min-h-11 w-full items-center justify-center gap-1.5 rounded-xl bg-gradient-to-r from-purple-600 to-fuchsia-600 px-6 text-sm font-semibold text-white shadow-[0_0_28px_-4px_rgba(217,70,239,0.7)] transition-[filter,box-shadow] hover:shadow-[0_0_36px_-4px_rgba(217,70,239,0.9)] hover:brightness-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-purple-300 sm:ml-auto sm:w-fit"
+      >
+        Upgrade to Pro
+        <ArrowUpRight className="size-4" aria-hidden />
+      </Link>
+    </section>
+  )
+}
+
 // ─── Main page ────────────────────────────────────────────────────────────────
 
 export default function ChartAnalysisPage() {
   const { data: session, status: sessionStatus } = useSession()
   const plan = (session?.user as { plan?: string })?.plan ?? "free"
-  // Lock only once the plan is known: while the session loads, a Pro user
-  // would otherwise see the "Pro feature" lock flash over their own page
-  const locked = sessionStatus === "authenticated" && plan === "free"
+  const { state: freeState, setState: setFreeState, refresh: refreshFree } = useFreeAnalysis()
+  // Set once this visit's free analysis succeeds: keeps its result on screen
+  // (unlocked) with the upgrade card under it, until "Analyze Another"
+  const [freeJustUsed, setFreeJustUsed] = useState(false)
 
   const [phase,    setPhase]    = useState<Phase>("idle")
   const [variant,  setVariant]  = useState("v2")
@@ -796,6 +919,11 @@ export default function ChartAnalysisPage() {
   const [result,   setResult]   = useState<AnalysisResult | null>(null)
   const [apiError, setApiError] = useState<string | null>(null)
   const [uploadError, setUploadError] = useState<string | null>(null)
+  // Lock only once the plan is known: while the session loads, a Pro user
+  // would otherwise see the "Pro feature" lock flash over their own page.
+  // Free accounts stay unlocked while their free analysis is available.
+  const freeOffer = freeState === "available"
+  const locked = sessionStatus === "authenticated" && plan === "free" && !freeOffer && !(freeJustUsed && phase === "results")
   // Cached via SWR (shared with the Dashboard Overview page's own useSWR call
   // on this same key) so returning to this tab shows the already-fetched
   // analyses instantly instead of flashing back to an empty/loading state.
@@ -867,25 +995,26 @@ export default function ChartAnalysisPage() {
 
       const analysis = data.analysis
       setResult(analysis)
-
-      const row: RawAnalysisRow = {
-        id:         crypto.randomUUID(),
-        pair:       analysis.pair,
-        timeframe:  analysis.timeframe,
-        signal:     analysis.signal,
-        confidence: analysis.confidence,
-        entry:      analysis.entry,
-        createdAt:  new Date().toISOString(),
+      if (freeOffer) {
+        setFreeJustUsed(true)
+        setFreeState("used")
       }
-      mutateAnalyses((prev) => [row, ...(prev ?? [])], { revalidate: false })
+
+      // Refetch the saved rows rather than adding a client-made one: its
+      // made-up id got swapped for the real one on the next refresh, which the
+      // list's enter animation would then play a second time
+      void mutateAnalyses()
       setPhase("results")
     } catch (err) {
       setApiError(userMessage(err))
       setPhase("selected")
+      // The server says the free analysis is out of reach: show the right card
+      if (err instanceof ApiError && err.code?.startsWith("free_")) refreshFree()
     }
   }
 
   const handleReset = () => {
+    setFreeJustUsed(false)
     setPhase("idle")
     setFile(null)
     setPreview(null)
@@ -908,13 +1037,29 @@ export default function ChartAnalysisPage() {
         </p>
       </div>
 
+      <Collapse show={freeOffer && phase !== "results"} className="pb-5">
+        <FreeOfferBanner />
+      </Collapse>
+
       {/* 2-column layout */}
-      <FeatureLock locked={locked} feature="Chart Analysis">
+      <FeatureLock
+        locked={locked}
+        feature="Chart Analysis"
+        card={lockCard(freeState)}
+        // Free account whose free-analysis status hasn't loaded yet
+        pending={sessionStatus === "authenticated" && plan === "free" && freeState === undefined}
+      >
       <div className="grid grid-cols-1 gap-6 xl:grid-cols-3">
         {/* Main analyser */}
         <div className="xl:col-span-2">
-          <div className="rounded-2xl border border-white/25 bg-white/[0.025] p-4 sm:p-6" aria-busy={phase === "analyzing"}>
-            <AnimatePresence mode="wait">
+          {/* Framed from sm up only: on phones the frame was a third nested box
+              (page > frame > inner cards), so the content sits on the page */}
+          <div className="sm:rounded-2xl sm:border sm:border-white/25 sm:bg-white/[0.025] sm:p-6" aria-busy={phase === "analyzing"}>
+            {/* initial={false}: the drop zone is there on first paint, like the rest
+                of the page. Its fade-in used to start it invisible (even in the
+                server HTML) until the JS ran, so on phones it showed up late.
+                Later swaps (preview, results, back) still cross-fade. */}
+            <AnimatePresence mode="wait" initial={false}>
               {(phase === "idle" || phase === "dragging") && (
                 <motion.div key="dropzone" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
                   <DropZone
@@ -950,6 +1095,7 @@ export default function ChartAnalysisPage() {
                   filename={file?.name ?? ""}
                   result={result}
                   onReset={handleReset}
+                  footer={freeJustUsed ? <FreeUsedUpsell /> : undefined}
                 />
               )}
             </AnimatePresence>
@@ -958,7 +1104,7 @@ export default function ChartAnalysisPage() {
 
         {/* Sidebar */}
         <div className="space-y-5">
-          <div className="rounded-2xl border border-white/25 bg-white/[0.025] p-5">
+          <div className="sm:rounded-2xl sm:border sm:border-white/25 sm:bg-white/[0.025] sm:p-5">
             <div className="mb-4 flex items-center gap-2.5">
               <div className="flex size-8 items-center justify-center rounded-lg border border-sky-400/30 bg-gradient-to-br from-sky-500/25 to-cyan-600/5">
                 <Clock className="size-4 text-sky-300" strokeWidth={1.75} />
@@ -969,7 +1115,9 @@ export default function ChartAnalysisPage() {
               </div>
             </div>
 
-            {recentLoading ? (
+            <Loaded
+              loading={recentLoading}
+              fallback={
               <div className="space-y-2.5" aria-hidden="true">
                 {[0, 1, 2].map((i) => (
                   <div key={i} className="rounded-xl border border-white/15 bg-[#070712] px-3.5 py-3">
@@ -985,7 +1133,9 @@ export default function ChartAnalysisPage() {
                   </div>
                 ))}
               </div>
-            ) : recent.length === 0 ? (
+              }
+            >
+            {recent.length === 0 ? (
               <div className="relative flex flex-col items-center gap-2 overflow-hidden rounded-xl border border-dashed border-white/20 bg-[#070712] py-7 text-center">
                 <div className="flex size-10 items-center justify-center rounded-xl border border-sky-400/20 bg-gradient-to-br from-sky-500/15 to-cyan-600/5">
                   <Clock className="size-4 text-sky-300/80" strokeWidth={1.75} />
@@ -995,14 +1145,27 @@ export default function ChartAnalysisPage() {
               </div>
             ) : (
               <div className="space-y-2.5">
-                {recent.map((r) => (
-                  <RecentCard key={r.id} r={r} />
-                ))}
+                {/* A new analysis slides in on top, the others move down */}
+                <AnimatePresence initial={false}>
+                  {recent.map((r) => (
+                    <motion.div
+                      key={r.id}
+                      layout
+                      initial={{ opacity: 0, y: -8 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0 }}
+                      transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
+                    >
+                      <RecentCard r={r} />
+                    </motion.div>
+                  ))}
+                </AnimatePresence>
               </div>
             )}
+            </Loaded>
           </div>
 
-          <div className="rounded-2xl border border-white/25 bg-white/[0.025] p-5">
+          <div className="sm:rounded-2xl sm:border sm:border-white/25 sm:bg-white/[0.025] sm:p-5">
             <div className="mb-4 flex items-center gap-2.5">
               <div className="flex size-8 items-center justify-center rounded-lg border border-purple-400/30 bg-gradient-to-br from-purple-500/25 to-fuchsia-600/5">
                 <Lightbulb className="size-4 text-purple-300" strokeWidth={1.75} />

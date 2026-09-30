@@ -15,6 +15,7 @@ import { ScreenerPicks } from "@/components/dashboard/overview/screener-picks"
 import type { Goal } from "@/components/dashboard/trade-calendar/utils"
 import { fetcher } from "@/lib/swr"
 import type { TradeRow } from "@/lib/trades"
+import { useFreeAnalysis } from "@/lib/use-free-analysis"
 import { cn } from "@/lib/utils"
 
 // sessionStorage so the entrance plays once, on the first /dashboard visit of
@@ -40,11 +41,14 @@ export default function DashboardPage() {
   const { data: session, status } = useSession()
   const plan = (session?.user as { plan?: string } | undefined)?.plan
   const isFree = status === "authenticated" && (plan ?? "free") === "free"
+  const { state: freeState } = useFreeAnalysis()
+  const freeTry = freeState === "available" || freeState === "verify"
 
   // Same SWR keys as the Journal, Calendar and Chart Analysis pages, so
   // switching tabs shows cached data instantly instead of refetching.
   const { data: tradesData }   = useSWR<TradeRow[]>("/api/trades", fetcher)
-  const { data: analysesData } = useSWR<AnalysisRow[]>(isFree ? null : "/api/analyses", fetcher)
+  // Free accounts too: their one free analysis ticks the onboarding step
+  const { data: analysesData } = useSWR<AnalysisRow[]>("/api/analyses", fetcher)
   const { data: goalsData }    = useSWR<Goal[]>("/api/trading-goals", fetcher)
 
   const trades   = useMemo(() => tradesData ?? [], [tradesData])
@@ -76,10 +80,14 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      <OnboardingChecklist hasTrades={trades.length > 0} hasAnalyses={analyses.length > 0} />
+      <OnboardingChecklist
+        hasTrades={trades.length > 0}
+        hasAnalyses={analyses.length > 0}
+        loading={status === "loading" || tradesData === undefined || analysesData === undefined}
+      />
 
       <Item index={0} reveal={reveal}>
-        <QuickActions isFree={isFree} />
+        <QuickActions isFree={isFree} freeTry={freeTry} />
       </Item>
 
       {/* "This month" is the tall card; the market cards stack beside it */}
@@ -97,7 +105,7 @@ export default function DashboardPage() {
           <ScreenerPicks />
         </Item>
         <Item index={5} reveal={reveal} className="xl:col-span-5">
-          <AiAnalysesCard analyses={analyses} loading={status === "loading" || (!isFree && analysesData === undefined)} isFree={isFree} />
+          <AiAnalysesCard analyses={analyses} loading={status === "loading" || (!isFree && analysesData === undefined)} isFree={isFree} freeTry={freeTry} />
         </Item>
       </div>
     </div>

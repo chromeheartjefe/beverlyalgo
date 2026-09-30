@@ -6,6 +6,7 @@ import { useEffect, useRef, useState } from "react"
 import { toast } from "sonner"
 import useSWR from "swr"
 
+import { Collapse } from "@/components/ui/motion"
 import { fetcher } from "@/lib/swr"
 import type { TradeRow } from "@/lib/trades"
 
@@ -199,7 +200,9 @@ export function TradeFormModal({
               </p>
             </div>
 
-            {error && <p role="alert" className="text-xs text-red-400">{error}</p>}
+            <Collapse show={!!error} className="pb-4">
+              <p role="alert" className="text-xs text-red-400">{error}</p>
+            </Collapse>
 
             <button
               type="submit"

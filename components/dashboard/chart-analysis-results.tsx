@@ -100,8 +100,12 @@ function ConfidenceCircle({ value, color, size, stroke }: { value: number; color
         />
       </svg>
       <div className="absolute inset-0 flex flex-col items-center justify-center px-1">
-        <span className={cn("font-black leading-none text-white", size >= 100 ? "text-2xl" : "text-lg")}>{value}</span>
-        <span className="mt-0.5 whitespace-nowrap text-[8px] font-semibold uppercase tracking-wide text-gray-500 sm:text-[9px]">confidence</span>
+        <span className={cn("font-black leading-none text-white", size >= 100 ? "text-2xl" : "text-xl")}>{value}</span>
+        {/* Smaller, tighter label on the small (phone) ring so it clears the ring's inner edge */}
+        <span className={cn(
+          "mt-0.5 whitespace-nowrap font-semibold uppercase text-gray-500",
+          size >= 100 ? "text-[9px] tracking-wide" : "text-[7px] tracking-normal",
+        )}>confidence</span>
       </div>
     </div>
   )
@@ -542,7 +546,7 @@ function CardShell({ accent, icon: Icon, title, sub, badge, className, children 
 }) {
   const a = ACCENT[accent]
   return (
-    <div className={cn("relative overflow-hidden rounded-2xl border border-white/15 bg-[#070712] p-5", className)}>
+    <div className={cn("relative flex flex-col overflow-hidden rounded-2xl border border-white/15 bg-[#070712] p-5", className)}>
       <span className={cn("pointer-events-none absolute inset-x-8 top-0 h-px bg-gradient-to-r from-transparent to-transparent", a.line)} />
       <div className={cn("pointer-events-none absolute -right-14 -top-16 size-40 rounded-full blur-3xl", a.blob)} />
       <div className="relative mb-4 flex items-start justify-between gap-3">
@@ -557,7 +561,7 @@ function CardShell({ accent, icon: Icon, title, sub, badge, className, children 
         </div>
         {badge}
       </div>
-      <div className="relative">{children}</div>
+      <div className="relative flex flex-1 flex-col">{children}</div>
     </div>
   )
 }
@@ -596,7 +600,7 @@ function PatternsCard({ result }: { result: AnalysisResult }) {
         </span>
       }
     >
-      <ul className="space-y-2">
+      <ul className="mb-4 space-y-2">
         {result.patterns.map((p, i) => {
           const kind = PATTERN_KIND[patternKind(p)]
           const primary = i === 0
@@ -629,7 +633,8 @@ function PatternsCard({ result }: { result: AnalysisResult }) {
         })}
       </ul>
 
-      <div className="mt-4 border-t border-white/15 pt-4">
+      {/* Pinned to the bottom, so a card stretched beside Risk has no dead band under it */}
+      <div className="mt-auto border-t border-white/15 pt-4">
         <LevelMeter
           label="Pattern strength"
           value={result.patternStrength}
@@ -657,7 +662,7 @@ function RiskCard({ result }: { result: AnalysisResult }) {
         </span>
       }
     >
-      <div className="space-y-4">
+      <div className="flex flex-1 flex-col justify-around gap-4">
         <LevelMeter label="Overall risk" value={result.risk} level={riskLevel} moreIsBetter={false} delay={0.1} />
         <LevelMeter label="Volatility" value={result.volatility} level={VOL_LEVEL[result.volatility] ?? 2} moreIsBetter={false} delay={0.2} />
         <LevelMeter label="Trend alignment" value={result.trendAlignment} level={ALIGN_LEVEL[result.trendAlignment] ?? 2} moreIsBetter delay={0.3} />
@@ -681,11 +686,14 @@ export function ResultsView({
   filename,
   result,
   onReset,
+  footer,
 }: {
   preview: string | null
   filename: string
   result: AnalysisResult
   onReset: () => void
+  // Shown under the full analysis, e.g. the upgrade card after a free one
+  footer?: React.ReactNode
 }) {
   return (
     <motion.div
@@ -771,13 +779,14 @@ export function ResultsView({
         </span>
 
         <div className="space-y-4">
-          {/* Patterns left; Risk + Market structure share the right column */}
+          {/* Patterns and Risk side by side (similar heights with the usual 2-3
+              patterns), Market structure full width under them. Patterns used
+              to sit beside Risk + Structure stacked, which left its bottom half
+              empty unless 4 patterns were found. */}
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <PatternsCard result={result} />
-            <div className="flex flex-col gap-4">
-              <RiskCard result={result} />
-              {result.structure && <StructureCard result={result} className="flex-1" />}
-            </div>
+            <RiskCard result={result} />
+            {result.structure && <StructureCard result={result} className="sm:col-span-2" />}
           </div>
         </div>
       </motion.div>
@@ -807,6 +816,8 @@ export function ResultsView({
         </span>
         <RisksTab result={result} />
       </motion.div>
+
+      {footer}
 
       <p className="text-center text-[11px] text-gray-700">
         AI-generated analysis for educational purposes only. Not financial advice.

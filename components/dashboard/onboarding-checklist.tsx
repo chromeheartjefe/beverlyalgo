@@ -3,34 +3,43 @@
 import { BookOpen, Calculator, CheckCircle2, Circle, Settings, X, Zap } from "lucide-react"
 import Link from "next/link"
 import { useSession } from "next-auth/react"
-import { useEffect, useState } from "react"
+import { useMemo, useState, useSyncExternalStore } from "react"
 
-import { dismissOnboarding, getOnboardingState } from "@/lib/onboarding"
+import { Collapse } from "@/components/ui/motion"
+import { dismissOnboarding, parseOnboardingState, readOnboardingRaw } from "@/lib/onboarding"
 import { cn } from "@/lib/utils"
+
+function subscribeStorage(onChange: () => void) {
+  window.addEventListener("storage", onChange)
+  return () => window.removeEventListener("storage", onChange)
+}
 
 export function OnboardingChecklist({
   hasTrades,
   hasAnalyses,
+  loading,
 }: {
   hasTrades:   boolean
   hasAnalyses: boolean
+  // Trades/analyses not known yet: every step would read as not done
+  loading:     boolean
 }) {
   const { data: session } = useSession()
   const userId = session?.user?.id
 
-  const [dismissed,        setDismissed]        = useState(false)
-  const [visitedRiskCalc,  setVisitedRiskCalc]  = useState(false)
-  const [visitedSettings,  setVisitedSettings]  = useState(false)
+  // Read the saved state during render, not in an effect: an effect showed
+  // the card for a frame on every visit before hiding it for dismissed users,
+  // shifting the whole Overview. null on the server and during hydration.
+  const raw = useSyncExternalStore(
+    subscribeStorage,
+    () => (userId ? readOnboardingRaw(userId) : null),
+    () => null,
+  )
+  const state = useMemo(() => (raw ? parseOnboardingState(raw) : null), [raw])
+  const [dismissedNow, setDismissedNow] = useState(false)
 
-  useEffect(() => {
-    if (!userId) return
-    const state = getOnboardingState(userId)
-    setDismissed(!!state.dismissed)
-    setVisitedRiskCalc(!!state.visitedRiskCalc)
-    setVisitedSettings(!!state.visitedSettings)
-  }, [userId])
-
-  if (!userId || dismissed) return null
+  const visitedRiskCalc = !!state?.visitedRiskCalc
+  const visitedSettings = !!state?.visitedSettings
 
   const steps = [
     { label: "Log your first trade",     done: hasTrades,        href: "/dashboard/trade-journal",   icon: BookOpen   },
@@ -40,17 +49,20 @@ export function OnboardingChecklist({
   ]
 
   const doneCount = steps.filter((s) => s.done).length
-  if (doneCount === steps.length) return null
+  const show = !!userId && !!state && !loading && !state.dismissed && !dismissedNow && doneCount < steps.length
 
+  // Opens and closes in height, so the Overview below slides instead of
+  // jumping when the card appears after loading or is dismissed
   return (
-    <div className="mb-8 rounded-2xl border border-white/25 bg-white/[0.025] p-5">
+    <Collapse show={show} className="mb-8">
+    <div className="rounded-2xl border border-white/25 bg-white/[0.025] p-5">
       <div className="mb-4 flex items-center justify-between">
         <div>
           <h2 className="text-sm font-semibold text-white">Get started with EntrixAlgo</h2>
           <p className="mt-0.5 text-xs text-gray-500">{doneCount} of {steps.length} steps complete</p>
         </div>
         <button
-          onClick={() => { setDismissed(true); dismissOnboarding(userId) }}
+          onClick={() => { setDismissedNow(true); if (userId) dismissOnboarding(userId) }}
           className="-mr-1.5 -mt-1.5 flex size-9 shrink-0 items-center justify-center rounded-lg text-gray-600 transition-colors hover:bg-white/[0.06] hover:text-gray-300"
         >
           <X className="size-4" />
@@ -81,5 +93,6 @@ export function OnboardingChecklist({
         ))}
       </div>
     </div>
+    </Collapse>
   )
 }

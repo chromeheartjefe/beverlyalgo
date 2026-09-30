@@ -18,6 +18,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import { Loaded } from "@/components/ui/motion"
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
 import { signOutToLanding } from "@/lib/sign-out"
 import { cn } from "@/lib/utils"
@@ -149,17 +150,18 @@ export function DashboardHeader() {
                 />
               )}
               <div className="hidden text-left md:block">
-                {sessionLoading ? (
-                  <span aria-hidden="true" className="block">
-                    <span className="block h-3 w-20 animate-pulse rounded bg-white/[0.08] motion-reduce:animate-none" />
-                    <span className="mt-1.5 block h-2.5 w-14 animate-pulse rounded bg-white/[0.06] motion-reduce:animate-none" />
-                  </span>
-                ) : (
-                  <>
-                    <p className="text-sm font-semibold leading-none text-white">{name}</p>
-                    <p className="mt-0.5 text-[11px] capitalize leading-none text-gray-500">{plan} Trader</p>
-                  </>
-                )}
+                <Loaded
+                  loading={sessionLoading}
+                  fallback={
+                    <span aria-hidden="true" className="block">
+                      <span className="block h-3 w-20 animate-pulse rounded bg-white/[0.08] motion-reduce:animate-none" />
+                      <span className="mt-1.5 block h-2.5 w-14 animate-pulse rounded bg-white/[0.06] motion-reduce:animate-none" />
+                    </span>
+                  }
+                >
+                  <p className="text-sm font-semibold leading-none text-white">{name}</p>
+                  <p className="mt-0.5 text-[11px] capitalize leading-none text-gray-500">{plan} Trader</p>
+                </Loaded>
               </div>
               <ChevronDown className="hidden size-3.5 text-gray-600 md:block" />
             </button>

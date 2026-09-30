@@ -204,6 +204,28 @@ export function fmtMoney(n: number, opts: { signed?: boolean; compact?: boolean 
   return `${sign}$${body}`
 }
 
+const cellK = new Intl.NumberFormat("en-US", { notation: "compact", maximumFractionDigits: 1 })
+const cellKWhole = new Intl.NumberFormat("en-US", { notation: "compact", maximumFractionDigits: 0 })
+
+/**
+ * Day P&L for the month grid on phones, where a cell is ~30-45px wide:
+ * whole dollars, K/M from 1,000 ("+1.2K", "-12K"), always signed, so it
+ * stays within 5-6 characters. `dollar: false` drops the "$" for the
+ * 7-column (weekends on) grid, the narrowest case.
+ */
+export function fmtCellPnl(n: number, { dollar = true }: { dollar?: boolean } = {}): string {
+  const abs  = Math.abs(n)
+  // Round first, so -999.6 reads "-1K" rather than "-1000"
+  const r    = Math.round(abs)
+  const body = abs < 1 ? abs.toFixed(2)
+    : r >= 1_000_000 ? cellK.format(r)      // "2.5M"
+    : r >= 10_000 ? cellKWhole.format(r)    // "13K"
+    : r >= 1000 ? cellK.format(r)           // "1.2K"
+    : String(r)
+  const sign = n < 0 ? "-" : n > 0 ? "+" : ""
+  return `${sign}${dollar ? "$" : ""}${body}`
+}
+
 // ─── Heat ────────────────────────────────────────────────────────────────────
 
 const GREEN = "16,185,129"

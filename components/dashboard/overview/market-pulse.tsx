@@ -3,6 +3,7 @@
 import { Activity, Minus, TrendingDown, TrendingUp } from "lucide-react"
 
 import { formatPrice, type TickerItem, useMarketSnapshot } from "@/components/dashboard/market-ticker"
+import { Loaded } from "@/components/ui/motion"
 import { cn } from "@/lib/utils"
 
 import { OverviewCard, Skeleton } from "./card"
@@ -59,19 +60,21 @@ export function MarketPulse() {
 
   return (
     <OverviewCard accent="sky" icon={Activity} title="Market pulse" sub="Daily change, updates every minute">
-      {items.length === 0 ? (
-        error ? (
-          <p className="flex flex-1 items-center justify-center py-10 text-sm text-gray-500">Market data is unavailable right now.</p>
-        ) : (
+      {items.length === 0 && error ? (
+        <p className="flex flex-1 items-center justify-center py-10 text-sm text-gray-500">Market data is unavailable right now.</p>
+      ) : (
+        <Loaded
+          loading={items.length === 0}
+          className="flex flex-1 flex-col"
+          fallback={
           <div className="space-y-4">
             <Skeleton className="h-12 w-full" />
             <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-4">
               {FEATURED.map((f) => <Skeleton key={f} className="h-[4.75rem]" />)}
             </div>
           </div>
-        )
-      ) : (
-        <>
+          }
+        >
           {/* Breadth: how many tracked markets are up vs down today */}
           <div className="rounded-xl border border-white/10 bg-white/[0.03] p-3.5">
             <div className="flex items-center justify-between gap-3">
@@ -92,7 +95,7 @@ export function MarketPulse() {
           <div className="mt-3 grid grid-cols-2 gap-2.5 sm:grid-cols-4">
             {featured.map((item) => <Tile key={item.label} item={item} />)}
           </div>
-        </>
+        </Loaded>
       )}
     </OverviewCard>
   )

@@ -7,6 +7,7 @@ import { useCallback, useState } from "react"
 import useSWR from "swr"
 
 import type { ScreenerResult } from "@/app/api/screener/route"
+import { Collapse } from "@/components/ui/motion"
 import { ApiError, requestJson, userMessage } from "@/lib/api-client"
 import { fetcher } from "@/lib/swr"
 
@@ -236,17 +237,12 @@ export default function AiScreenerPage() {
       </div>
 
       <div>
-        {error && (
-          <motion.div
-            role="alert"
-            initial={{ opacity: 0, y: -4 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="mb-4 flex items-start gap-2.5 rounded-xl border border-red-500/20 bg-red-500/[0.07] px-4 py-3"
-          >
+        <Collapse show={!!error} className="pb-4">
+          <div role="alert" className="flex items-start gap-2.5 rounded-xl border border-red-500/20 bg-red-500/[0.07] px-4 py-3">
             <XCircle className="mt-0.5 size-4 shrink-0 text-red-400" />
             <p className="text-sm text-red-400">{error}</p>
-          </motion.div>
-        )}
+          </div>
+        </Collapse>
 
         <AnimatePresence mode="wait">
           {scanning ? (

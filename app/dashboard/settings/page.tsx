@@ -9,7 +9,8 @@ import { toast } from "sonner"
 
 import { Avatar } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
-import { siteConfig } from "@/config/site"
+import { Collapse } from "@/components/ui/motion"
+import { SupportEmail } from "@/components/ui/support-email"
 import { markVisited } from "@/lib/onboarding"
 import { signOutToLanding } from "@/lib/sign-out"
 import { cn } from "@/lib/utils"
@@ -415,11 +416,11 @@ export default function SettingsPage() {
             </div>
           </div>
 
-          {avatarError && (
-            <p role="alert" className="mt-4 rounded-lg border border-red-500/20 bg-red-500/[0.08] px-3.5 py-2.5 text-sm text-red-400">
+          <Collapse show={!!avatarError} className="pt-4">
+            <p role="alert" className="rounded-lg border border-red-500/20 bg-red-500/[0.08] px-3.5 py-2.5 text-sm text-red-400">
               {avatarError}
             </p>
-          )}
+          </Collapse>
 
           <div className="mt-6 space-y-4">
             <div>
@@ -468,11 +469,11 @@ export default function SettingsPage() {
               </div>
             )}
 
-            {saveError && (
+            <Collapse show={!!saveError} className="pb-4">
               <p role="alert" className="rounded-lg border border-red-500/20 bg-red-500/[0.08] px-3.5 py-2.5 text-sm text-red-400">
                 {saveError}
               </p>
-            )}
+            </Collapse>
 
             <div className="flex items-center gap-3">
               <Button
@@ -580,11 +581,11 @@ export default function SettingsPage() {
               </div>
             </div>
 
-            {pwError && (
+            <Collapse show={!!pwError} className="pb-4">
               <p role="alert" className="rounded-lg border border-red-500/20 bg-red-500/[0.08] px-3.5 py-2.5 text-sm text-red-400">
                 {pwError}
               </p>
-            )}
+            </Collapse>
 
             <div className="flex items-center gap-3">
               <Button
@@ -637,16 +638,14 @@ export default function SettingsPage() {
               </button>
             )}
           </div>
-          {portalError && (
-            <p role="alert" className="mt-3 rounded-lg border border-red-500/20 bg-red-500/[0.08] px-3.5 py-2.5 text-sm text-red-400">
+          <Collapse show={!!portalError} className="pt-3">
+            <p role="alert" className="rounded-lg border border-red-500/20 bg-red-500/[0.08] px-3.5 py-2.5 text-sm text-red-400">
               {portalError}
             </p>
-          )}
+          </Collapse>
           <p className="mt-4 border-t border-white/15 pt-4 text-xs text-gray-500">
             Questions about billing or a payment?{" "}
-            <a href={siteConfig.links.email} className="font-medium text-purple-400 hover:text-purple-300">
-              Contact support
-            </a>
+            Email us at <SupportEmail />
           </p>
         </SectionCard>
 
@@ -654,11 +653,7 @@ export default function SettingsPage() {
         <div className="rounded-2xl border border-red-500/20 bg-red-500/[0.04] p-6">
           <h2 className="mb-1 text-sm font-semibold text-red-400">Danger Zone</h2>
           <p className="mb-4 text-xs text-gray-500">
-            Signing out will end your current session. To delete your account and its data, email{" "}
-            <a href={siteConfig.links.email} className="text-gray-400 underline-offset-2 hover:text-gray-200 hover:underline">
-              {siteConfig.supportEmail}
-            </a>
-            .
+            Signing out will end your current session.
           </p>
           <Button
             variant="destructive"

@@ -4,6 +4,7 @@ import { Check, Crown, Sparkles } from "lucide-react"
 import Link from "next/link"
 import useSWR from "swr"
 
+import { Loaded } from "@/components/ui/motion"
 import type { PlanStatus } from "@/lib/plan-status"
 import { fetcher } from "@/lib/swr"
 import { cn } from "@/lib/utils"
@@ -22,9 +23,17 @@ const STATUS = {
 
 // ─── Pro ──────────────────────────────────────────────────────────────────────
 
+// The billing line arrives from Stripe after the card renders: it fades in
+// over its placeholder instead of popping in
 function Detail({ data }: { data: PlanStatus | undefined }) {
-  if (!data) return <span className="block h-3 w-28 animate-pulse rounded bg-white/[0.06]" aria-hidden="true" />
+  return (
+    <Loaded loading={!data} fallback={<span className="block h-3 w-28 animate-pulse rounded bg-white/[0.06]" aria-hidden="true" />}>
+      {data && <DetailText data={data} />}
+    </Loaded>
+  )
+}
 
+function DetailText({ data }: { data: PlanStatus }) {
   if (data.billing === "monthly") {
     if (data.status === "ended") {
       return (

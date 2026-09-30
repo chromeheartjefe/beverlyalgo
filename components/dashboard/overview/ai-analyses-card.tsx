@@ -3,6 +3,7 @@
 import { Activity, ArrowUpRight, Bot, Brain, Sparkles, Zap } from "lucide-react"
 import Link from "next/link"
 
+import { Loaded } from "@/components/ui/motion"
 import { cn } from "@/lib/utils"
 
 import { CardLink, EmptyState, OverviewCard, Skeleton, timeAgo } from "./card"
@@ -38,7 +39,7 @@ function ConfidenceRing({ value, color }: { value: number; color: string }) {
   )
 }
 
-function UpgradeCard() {
+function UpgradeCard({ freeTry }: { freeTry: boolean }) {
   const perks = [
     { icon: Zap, text: "AI Chart Analysis from any screenshot" },
     { icon: Bot, text: "AI Trading Bot with live market data" },
@@ -92,10 +93,25 @@ function UpgradeCard() {
           </li>
         ))}
       </ul>
-      <div className="relative mt-auto pt-4">
+      {/* While the free analysis is unused, trying it comes first */}
+      <div className={cn("relative mt-auto grid gap-2 pt-4", freeTry && "grid-cols-2")}>
+        {freeTry && (
+          <Link
+            href="/dashboard/chart-analysis"
+            className="flex min-h-11 items-center justify-center gap-1.5 rounded-xl bg-gradient-to-r from-purple-600 to-fuchsia-600 px-3 text-sm font-semibold text-white shadow-lg shadow-purple-950/40 transition-[filter] hover:brightness-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-purple-300"
+          >
+            Try it free
+            <Zap className="size-4" aria-hidden />
+          </Link>
+        )}
         <Link
           href="/#pricing"
-          className="flex min-h-11 items-center justify-center gap-1.5 rounded-xl bg-gradient-to-r from-purple-600 to-fuchsia-600 px-4 text-sm font-semibold text-white shadow-lg shadow-purple-950/40 transition-[filter] hover:brightness-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-purple-300"
+          className={cn(
+            "flex min-h-11 items-center justify-center gap-1.5 rounded-xl px-3 text-sm font-semibold transition-[filter,background-color] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-purple-300",
+            freeTry
+              ? "border border-purple-400/30 bg-purple-500/10 text-purple-200 hover:bg-purple-500/20"
+              : "bg-gradient-to-r from-purple-600 to-fuchsia-600 text-white shadow-lg shadow-purple-950/40 hover:brightness-110",
+          )}
         >
           Upgrade to Pro
           <ArrowUpRight className="size-4" aria-hidden />
@@ -105,8 +121,8 @@ function UpgradeCard() {
   )
 }
 
-export function AiAnalysesCard({ analyses, loading, isFree }: { analyses: AnalysisRow[]; loading: boolean; isFree: boolean }) {
-  if (isFree) return <UpgradeCard />
+export function AiAnalysesCard({ analyses, loading, isFree, freeTry = false }: { analyses: AnalysisRow[]; loading: boolean; isFree: boolean; freeTry?: boolean }) {
+  if (isFree) return <UpgradeCard freeTry={freeTry} />
 
   const recent = analyses.slice(0, 4)
   const month = analyses.filter((a) => Date.now() - new Date(a.createdAt).getTime() <= THIRTY_DAYS_MS)
@@ -121,11 +137,16 @@ export function AiAnalysesCard({ analyses, loading, isFree }: { analyses: Analys
       sub={loading ? "Loading…" : `${month.length} in 30 days${avg !== null ? `, avg confidence ${avg}%` : ""}`}
       action={<CardLink href="/dashboard/chart-analysis">Analyze</CardLink>}
     >
-      {loading ? (
-        <div className="space-y-2.5">
-          {[0, 1, 2, 3].map((i) => <Skeleton key={i} className="h-16 w-full" />)}
-        </div>
-      ) : recent.length === 0 ? (
+      <Loaded
+        loading={loading}
+        className="flex flex-1 flex-col"
+        fallback={
+          <div className="space-y-2.5">
+            {[0, 1, 2, 3].map((i) => <Skeleton key={i} className="h-16 w-full" />)}
+          </div>
+        }
+      >
+      {recent.length === 0 ? (
         <EmptyState
           title="No analyses yet"
           body="Upload a chart screenshot and the AI returns a signal with entry, target and stop levels."
@@ -162,6 +183,7 @@ export function AiAnalysesCard({ analyses, loading, isFree }: { analyses: Analys
           })}
         </ul>
       )}
+      </Loaded>
     </OverviewCard>
   )
 }

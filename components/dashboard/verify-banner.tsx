@@ -4,14 +4,21 @@ import { CheckCircle, Loader2, MailWarning, X } from "lucide-react"
 import { useSession } from "next-auth/react"
 import { useState } from "react"
 
+import { Collapse } from "@/components/ui/motion"
+import { useFreeAnalysis } from "@/lib/use-free-analysis"
+
 export function VerifyBanner() {
   const { data: session } = useSession()
   const [dismissed, setDismissed] = useState(false)
   const [sending,   setSending]   = useState(false)
   const [sent,      setSent]      = useState(false)
   const [limited,   setLimited]   = useState(false)
+  // Free accounts unlock their free Chart Analysis by verifying
+  const freeWaiting = useFreeAnalysis().state === "verify"
 
-  if (dismissed || !session?.user || session.user.emailVerified) return null
+  // Slides open/closed (Collapse) instead of popping, so the page under it
+  // doesn't jump when it's dismissed or the email gets verified
+  const visible = !dismissed && !!session?.user && !session.user.emailVerified
 
   const handleResend = async () => {
     setSending(true)
@@ -25,11 +32,14 @@ export function VerifyBanner() {
   }
 
   return (
+    <Collapse show={visible}>
     <div className="flex items-center justify-between gap-2 whitespace-nowrap border-b border-amber-500/20 bg-amber-500/[0.06] px-3 py-2 text-xs sm:gap-3 sm:px-6 sm:py-2.5 sm:text-sm lg:px-8">
       <div className="flex min-w-0 items-center gap-1.5 text-amber-300 sm:gap-2">
         <MailWarning className="size-3.5 shrink-0 sm:size-4" />
-        <span className="sm:hidden">Verify your email.</span>
-        <span className="hidden sm:inline">Verify your email to secure your account.</span>
+        <span className="sm:hidden">{freeWaiting ? "Verify for a free analysis." : "Verify your email."}</span>
+        <span className="hidden sm:inline">
+          {freeWaiting ? "Verify your email to unlock your free AI chart analysis." : "Verify your email to secure your account."}
+        </span>
         {sent ? (
           <span className="flex shrink-0 items-center gap-1 text-emerald-400">
             <CheckCircle className="size-3.5" />
@@ -61,5 +71,6 @@ export function VerifyBanner() {
         <span className="sr-only">Dismiss</span>
       </button>
     </div>
+    </Collapse>
   )
 }

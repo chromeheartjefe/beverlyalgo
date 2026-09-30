@@ -1,5 +1,6 @@
 "use client"
 
+import { AnimatePresence, motion } from "framer-motion"
 import {
   ArrowDown,
   ArrowUp,
@@ -393,12 +394,21 @@ export default function TradeJournalPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-white/[0.04]">
+              {/* Rows fade in when a trade is added (or restored with Undo) and
+                  out when deleted. Keyed to the search/filter/sort, so those
+                  changes remount the list instantly instead of fading rows on
+                  every keystroke. */}
+              <AnimatePresence initial={false} key={`${filter}|${search}|${sortKey}|${sortDir}`}>
               {sorted.map((trade) => {
                 const { pnl } = trade
                 const result = tradeResult(pnl)
                 return (
-                  <tr
+                  <motion.tr
                     key={trade.id}
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0, transition: { duration: 0.15 } }}
+                    transition={{ duration: 0.25 }}
                     className={cn(
                       "transition-colors hover:bg-white/[0.025]",
                       selected.has(trade.id) && "bg-purple-500/[0.04]"
@@ -508,9 +518,10 @@ export default function TradeJournalPage() {
                         </div>
                       )}
                     </td>
-                  </tr>
+                  </motion.tr>
                 )
               })}
+              </AnimatePresence>
             </tbody>
           </table>
         </div>

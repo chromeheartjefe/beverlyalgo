@@ -8,12 +8,26 @@ function key(userId: string) {
   return `ba_onboarding_${userId}`
 }
 
-export function getOnboardingState(userId: string): OnboardingState {
+// Raw stored JSON, "{}" when unset. A string, so it can be a stable
+// useSyncExternalStore snapshot (read during render, no flash).
+export function readOnboardingRaw(userId: string): string {
   try {
-    return JSON.parse(localStorage.getItem(key(userId)) ?? "{}")
+    return localStorage.getItem(key(userId)) ?? "{}"
+  } catch {
+    return "{}"
+  }
+}
+
+export function parseOnboardingState(raw: string): OnboardingState {
+  try {
+    return JSON.parse(raw)
   } catch {
     return {}
   }
+}
+
+export function getOnboardingState(userId: string): OnboardingState {
+  return parseOnboardingState(readOnboardingRaw(userId))
 }
 
 function setOnboardingState(userId: string, patch: OnboardingState) {

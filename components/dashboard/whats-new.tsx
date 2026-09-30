@@ -6,9 +6,9 @@ import Link from "next/link"
 import { useSession } from "next-auth/react"
 import { createContext, type ReactNode, useContext, useEffect, useLayoutEffect, useState } from "react"
 
+import { SupportEmail } from "@/components/ui/support-email"
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
 import { type ChangeKind, CHANGELOG, type Release } from "@/config/changelog"
-import { siteConfig } from "@/config/site"
 import { cn } from "@/lib/utils"
 
 const LATEST = CHANGELOG[0]?.version ?? null
@@ -176,7 +176,8 @@ export function WhatsNew() {
             className="relative flex size-9 shrink-0 items-center justify-center rounded-xl border border-white/15 bg-white/[0.03] text-gray-500 transition-colors hover:text-gray-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-purple-400/60 data-[state=open]:border-purple-500/30 data-[state=open]:text-purple-300"
             aria-label={unread ? "What's new, new update available" : "What's new"}
           >
-            <Sparkles className="size-4" aria-hidden />
+            {/* Mirrored: small sparkles top-left/bottom-right, clear of the unread dot */}
+            <Sparkles className="size-4 -scale-x-100" aria-hidden />
             {unread && (
               <span aria-hidden className="absolute right-1.5 top-1.5 flex size-2">
                 <span className="absolute inline-flex size-full animate-ping rounded-full bg-purple-400 opacity-60 motion-reduce:hidden" />
@@ -237,13 +238,10 @@ export function WhatsNew() {
           </div>
 
           <div className="shrink-0 border-t border-white/10 px-5 py-3 pb-[max(0.75rem,env(safe-area-inset-bottom))]">
-            <a
-              href={siteConfig.links.email}
-              className="flex min-h-11 items-center gap-2 rounded-lg text-xs text-gray-500 transition-colors hover:text-gray-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-purple-400/60 sm:min-h-0"
-            >
+            <p className="flex flex-wrap items-center gap-x-2 gap-y-0.5 text-xs text-gray-500">
               <LifeBuoy className="size-3.5" aria-hidden />
-              Questions or ideas? <span className="font-medium text-purple-400">Contact support</span>
-            </a>
+              Questions or ideas? Email us at <SupportEmail />
+            </p>
           </div>
         </Dialog.Content>
       </Dialog.Portal>

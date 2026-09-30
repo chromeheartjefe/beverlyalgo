@@ -1,6 +1,6 @@
 "use client"
 
-import { Target } from "lucide-react"
+import { BookOpen, Target } from "lucide-react"
 import Link from "next/link"
 import { useId, useMemo } from "react"
 
@@ -9,6 +9,7 @@ import {
   dayKey,
   daysInMonth,
   daysWithPrefix,
+  fmtCellPnl,
   fmtMoney,
   type Goal,
   heat,
@@ -20,6 +21,7 @@ import {
   summarize,
   todayUTC,
 } from "@/components/dashboard/trade-calendar/utils"
+import { Loaded } from "@/components/ui/motion"
 import type { TradeRow } from "@/lib/trades"
 import { cn } from "@/lib/utils"
 
@@ -84,9 +86,73 @@ function Stat({ label, value, tone }: { label: string; value: string; tone?: "up
 }
 
 // Calendar cells are narrow: whole dollars under $1K, compact above (+$341, -$15.8K)
-const cellMoney = (n: number) => (Math.abs(n) >= 1000 ? fmtMoney(n, { signed: true, compact: true }) : `${n < 0 ? "-" : n > 0 ? "+" : ""}$${Math.round(Math.abs(n))}`)
+// Same short form as the Trade Calendar's 7-column month grid ("+123", "-1.2K",
+// "+13K"): these cells are even narrower, and "+$12.3K" used to get cut off
+const cellMoney = (n: number) => fmtCellPnl(n, { dollar: false })
 
 const WEEKDAY_INITIALS = ["M", "T", "W", "T", "F", "S", "S"]
+
+function monthData(trades: TradeRow[], mk: string) {
+  const map = buildDayMap(trades)
+  let wins = 0, losses = 0, grossWin = 0, grossLoss = 0
+  for (const t of trades) {
+    if (!t.date.startsWith(mk)) continue
+    if (t.pnl >= 0) { wins++; grossWin += t.pnl } else { losses++; grossLoss += -t.pnl }
+  }
+  const count = wins + losses
+  return {
+    dayMap:  map,
+    summary: summarize(daysWithPrefix(map, mk)),
+    stats: {
+      count,
+      winRate:      count ? (wins / count) * 100 : null,
+      profitFactor: grossLoss > 0 ? grossWin / grossLoss : null,
+      avgWin:       wins ? grossWin / wins : null,
+      avgLoss:      losses ? grossLoss / losses : null,
+    },
+  }
+}
+
+// Made-up weekday results for this month, only ever shown blurred behind the
+// empty-state message, so the card previews what it becomes instead of
+// sitting there as an empty grid.
+const DEMO_PNL = [180, -60, 240, 95, -140, 310, 55, -35, 150, 420, -90, 130, 70, -210, 260, 45, 190, -75, 115, 335, -50, 85]
+
+function demoTrades(y: number, m: number, mk: string): TradeRow[] {
+  const out: TradeRow[] = []
+  let i = 0
+  for (let d = 1; d <= daysInMonth(y, m); d++) {
+    const weekday = new Date(Date.UTC(y, m, d)).getUTCDay()
+    if (weekday === 0 || weekday === 6) continue
+    const pnl = DEMO_PNL[i++ % DEMO_PNL.length]
+    out.push({ id: `demo-${d}`, date: `${mk}-${String(d).padStart(2, "0")}`, pair: "DEMO", direction: "Buy", entry: 0, exit: 0, pnl })
+  }
+  return out
+}
+
+function EmptyOverlay({ hasTrades }: { hasTrades: boolean }) {
+  return (
+    <div className="absolute inset-0 flex items-center justify-center p-4">
+      <div className="w-full max-w-[18rem] rounded-2xl border border-amber-500/25 bg-[#0b0a14]/85 p-5 text-center shadow-[0_0_40px_-12px_rgba(245,158,11,0.35)]">
+        <div className="mx-auto flex size-11 items-center justify-center rounded-xl bg-amber-500/15 ring-1 ring-amber-400/30">
+          <BookOpen className="size-5 text-amber-300" aria-hidden />
+        </div>
+        <h3 className="mt-3 text-sm font-semibold text-white">
+          {hasTrades ? "No trades this month yet" : "No trades logged yet"}
+        </h3>
+        <p className="mt-1 text-xs leading-relaxed text-gray-400">
+          Log a trade and this card fills in with your daily P&amp;L, win rate and best days.
+        </p>
+        <Link
+          href="/dashboard/trade-journal"
+          className="mt-4 inline-flex min-h-11 w-full items-center justify-center rounded-xl border border-amber-500/30 bg-amber-500/15 px-4 text-sm font-semibold text-amber-100 transition-colors hover:border-amber-400/50 hover:bg-amber-500/25 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400/60"
+        >
+          {hasTrades ? "Log a trade" : "Log your first trade"}
+        </Link>
+      </div>
+    </div>
+  )
+}
 
 export function GoalCard({ trades, goals, loading }: { trades: TradeRow[]; goals: Goal[]; loading: boolean }) {
   const today = todayUTC()
@@ -95,26 +161,12 @@ export function GoalCard({ trades, goals, loading }: { trades: TradeRow[]; goals
   const mk = monthKey(y, m)
   const todayKey = dayKey(today)
 
-  const { dayMap, summary, stats } = useMemo(() => {
-    const map = buildDayMap(trades)
-    let wins = 0, losses = 0, grossWin = 0, grossLoss = 0
-    for (const t of trades) {
-      if (!t.date.startsWith(mk)) continue
-      if (t.pnl >= 0) { wins++; grossWin += t.pnl } else { losses++; grossLoss += -t.pnl }
-    }
-    const count = wins + losses
-    return {
-      dayMap:  map,
-      summary: summarize(daysWithPrefix(map, mk)),
-      stats: {
-        count,
-        winRate:      count ? (wins / count) * 100 : null,
-        profitFactor: grossLoss > 0 ? grossWin / grossLoss : null,
-        avgWin:       wins ? grossWin / wins : null,
-        avgLoss:      losses ? grossLoss / losses : null,
-      },
-    }
-  }, [trades, mk])
+  const real = useMemo(() => monthData(trades, mk), [trades, mk])
+  // No trades this month: the card keeps its full layout, filled with
+  // example numbers and blurred behind a message (see EmptyOverlay)
+  const empty = !loading && real.stats.count === 0
+  const demo = useMemo(() => (empty ? monthData(demoTrades(y, m, mk), mk) : null), [empty, y, m, mk])
+  const { dayMap, summary, stats } = demo ?? real
 
   const goal = resolveGoal(goals, mk)
   const progress = goal ? Math.min(1, Math.max(0, summary.pnl / goal.amount)) : 0
@@ -131,7 +183,10 @@ export function GoalCard({ trades, goals, loading }: { trades: TradeRow[]; goals
       sub={MONTHS_LONG[m]}
       action={<CardLink href="/dashboard/trade-calendar">Calendar</CardLink>}
     >
-      {loading ? (
+      <Loaded
+        loading={loading}
+        className="flex flex-1 flex-col"
+        fallback={
         <div className="space-y-4">
           <div className="flex items-center gap-4">
             <Skeleton className="size-28 rounded-full" />
@@ -139,8 +194,14 @@ export function GoalCard({ trades, goals, loading }: { trades: TradeRow[]; goals
           </div>
           <Skeleton className="h-36 w-full" />
         </div>
-      ) : (
-        <>
+        }
+      >
+        <div className="relative flex flex-1 flex-col">
+        <div
+          aria-hidden={empty || undefined}
+          inert={empty || undefined}
+          className={cn("flex flex-1 flex-col", empty && "pointer-events-none select-none opacity-50 blur-[3px]")}
+        >
           <div className="flex items-center gap-4">
             {goal ? (
               <GoalRing progress={progress} reached={reached} label={`${Math.round((summary.pnl / goal.amount) * 100)}%`} />
@@ -215,11 +276,12 @@ export function GoalCard({ trades, goals, loading }: { trades: TradeRow[]; goals
             </div>
           </div>
 
+          {/* Best/Worst day: same short form as the day squares, with "$" ("+$1.2K") */}
           <div className="mt-4 grid grid-cols-4 gap-2">
             <Stat label="Green days" value={String(summary.greenDays)} tone="up" />
             <Stat label="Red days" value={String(summary.redDays)} tone="down" />
-            <Stat label="Best day" value={summary.best && summary.best.pnl > 0 ? fmtMoney(summary.best.pnl, { signed: true, compact: true }) : EMPTY} tone={summary.best && summary.best.pnl > 0 ? "up" : undefined} />
-            <Stat label="Worst day" value={summary.worst && summary.worst.pnl < 0 ? fmtMoney(summary.worst.pnl, { signed: true, compact: true }) : EMPTY} tone={summary.worst && summary.worst.pnl < 0 ? "down" : undefined} />
+            <Stat label="Best day" value={summary.best && summary.best.pnl > 0 ? fmtCellPnl(summary.best.pnl) : EMPTY} tone={summary.best && summary.best.pnl > 0 ? "up" : undefined} />
+            <Stat label="Worst day" value={summary.worst && summary.worst.pnl < 0 ? fmtCellPnl(summary.worst.pnl) : EMPTY} tone={summary.worst && summary.worst.pnl < 0 ? "down" : undefined} />
           </div>
           <div className="mt-2 grid grid-cols-3 gap-2">
             <Stat label="Win rate" value={stats.winRate === null ? EMPTY : `${stats.winRate.toFixed(1)}%`} />
@@ -232,8 +294,10 @@ export function GoalCard({ trades, goals, loading }: { trades: TradeRow[]; goals
               value={stats.count === 0 ? EMPTY : `${stats.avgWin === null ? "$0" : fmtMoney(stats.avgWin, { compact: true })} / ${stats.avgLoss === null ? "$0" : fmtMoney(stats.avgLoss, { compact: true })}`}
             />
           </div>
-        </>
-      )}
+        </div>
+        {empty && <EmptyOverlay hasTrades={trades.length > 0} />}
+        </div>
+      </Loaded>
     </OverviewCard>
   )
 }
