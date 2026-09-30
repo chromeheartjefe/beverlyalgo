@@ -3,7 +3,7 @@ import type { Metadata } from "next"
 import Image from "next/image"
 import Link from "next/link"
 
-import { siteConfig } from "@/config/site"
+import { SupportEmail } from "@/components/ui/support-email"
 
 export const metadata: Metadata = {
   title:       "Terms of Service – EntrixAlgo",
@@ -100,7 +100,7 @@ export default function TermsPage() {
             <p>
               We may suspend or terminate accounts that violate these terms, including abuse of rate limits or
               fraudulent payment activity. You may stop using EntrixAlgo and delete your account at any time by
-              emailing <a href={siteConfig.links.email} className="text-purple-400 hover:text-purple-300">{siteConfig.supportEmail}</a>.
+              emailing <SupportEmail />.
             </p>
           </Section>
 
@@ -120,7 +120,7 @@ export default function TermsPage() {
           </Section>
 
           <Section title="10. Contact">
-            <p>Questions about these terms? Email us at <a href={siteConfig.links.email} className="text-purple-400 hover:text-purple-300">{siteConfig.supportEmail}</a>.</p>
+            <p>Questions about these terms? Email us at <SupportEmail />.</p>
           </Section>
         </div>
       </main>

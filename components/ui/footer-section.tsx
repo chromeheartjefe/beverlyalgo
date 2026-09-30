@@ -4,7 +4,6 @@ import Image from 'next/image';
 import type { ComponentProps, ReactNode } from 'react';
 import React from 'react';
 
-import { siteConfig } from '@/config/site';
 
 interface FooterLink {
     title: string;
@@ -31,7 +30,6 @@ const footerLinks: FooterSection[] = [
         links: [
             { title: 'FAQs', href: '#faq' },
             { title: 'About Us', href: '/about' },
-            { title: 'Contact Support', href: siteConfig.links.email },
             { title: 'Privacy Policy', href: '/privacy' },
             { title: 'Terms of Services', href: '/terms' },
         ],

@@ -156,7 +156,7 @@ export function HeroHeader() {
 }
 
 // Shared by the headline and its glow layer, so both lay out identically
-const HEADLINE_CLASS = "text-balance text-6xl font-black tracking-tight md:text-7xl xl:text-[5.25rem]"
+const HEADLINE_CLASS = "text-balance text-5xl font-black tracking-tight sm:text-6xl md:text-7xl xl:text-[5.25rem]"
 
 // Fade and rise, no blur: an animated blur over the headline block would be
 // recomputed every frame for 1.5s, right while the page is still loading.
@@ -297,7 +297,7 @@ export function HeroSection() {
                 </div>
 
                 {/* Subtext */}
-                <p className="mx-auto mt-8 max-w-2xl text-balance text-base text-muted-foreground sm:text-lg">
+                <p className="mx-auto mt-8 max-w-2xl text-balance text-sm text-muted-foreground sm:text-lg">
                   <span className="sm:hidden">
                     Professionally designed AI-based TradingView algorithm that elevates your trading. Join thousands of traders using EntrixAlgo.
                   </span>
@@ -321,10 +321,10 @@ export function HeroSection() {
               >
                 {/* An array, not a fragment: AnimatedGroup wraps each child separately */}
                 {isAuthed
-                  ? <StardustButton href="/dashboard">Dashboard</StardustButton>
+                  ? <StardustButton href="/dashboard" mobileSize="md">Dashboard</StardustButton>
                   : [
-                      <StardustButton key="access" href="#pricing">Get Access</StardustButton>,
-                      <StardustButton key="login" href="/sign-in">Login</StardustButton>,
+                      <StardustButton key="access" href="#pricing" mobileSize="md">Get Access</StardustButton>,
+                      <StardustButton key="login" href="/sign-in" mobileSize="md">Login</StardustButton>,
                     ]}
               </AnimatedGroup>
             </div>

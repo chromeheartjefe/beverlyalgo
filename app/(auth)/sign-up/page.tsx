@@ -9,6 +9,7 @@ import { signIn } from "next-auth/react"
 import { useMemo, useState } from "react"
 
 import { GoogleSignInButton } from "@/components/auth/google-button"
+import { Collapse } from "@/components/ui/motion"
 import { checkPassword, type PasswordCheck } from "@/lib/password-strength"
 import { cn } from "@/lib/utils"
 
@@ -229,16 +230,11 @@ export default function SignUpPage() {
           </div>
 
           {/* Error */}
-          {error && (
-            <motion.p
-              role="alert"
-              initial={{ opacity: 0, y: -4 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="rounded-lg border border-red-500/20 bg-red-500/[0.08] px-3.5 py-2.5 text-sm text-red-400"
-            >
+          <Collapse show={!!error} className="pb-5">
+            <p role="alert" className="rounded-lg border border-red-500/20 bg-red-500/[0.08] px-3.5 py-2.5 text-sm text-red-400">
               {error}
-            </motion.p>
-          )}
+            </p>
+          </Collapse>
 
           {/* Submit */}
           <button

@@ -10,7 +10,8 @@ import { useSession } from "next-auth/react"
 import { Suspense, useEffect, useState } from "react"
 
 import { GoogleSignInButton } from "@/components/auth/google-button"
-import { siteConfig } from "@/config/site"
+import { Collapse } from "@/components/ui/motion"
+import { SupportEmail } from "@/components/ui/support-email"
 import { cn } from "@/lib/utils"
 
 // Errors that come back in ?error= from Google sign-in (our own codes from
@@ -159,16 +160,11 @@ function SignInForm() {
           </div>
 
           {/* Error */}
-          {error && (
-            <motion.p
-              role="alert"
-              initial={{ opacity: 0, y: -4 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="rounded-lg border border-red-500/20 bg-red-500/[0.08] px-3.5 py-2.5 text-sm text-red-400"
-            >
+          <Collapse show={!!error} className="pb-5">
+            <p role="alert" className="rounded-lg border border-red-500/20 bg-red-500/[0.08] px-3.5 py-2.5 text-sm text-red-400">
               {error}
-            </motion.p>
-          )}
+            </p>
+          </Collapse>
 
           {/* Submit */}
           <button
@@ -202,9 +198,7 @@ function SignInForm() {
         </p>
         <p>
           Trouble signing in?{" "}
-          <a href={siteConfig.links.email} className="font-medium text-purple-400 hover:text-purple-300">
-            Contact support
-          </a>
+          Email us at <SupportEmail />
         </p>
       </div>
     </motion.div>

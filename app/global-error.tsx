@@ -3,7 +3,7 @@
 import * as Sentry from "@sentry/nextjs"
 import { useEffect, useState } from "react"
 
-import { siteConfig } from "@/config/site"
+import { SupportEmail } from "@/components/ui/support-email"
 
 // Crashes that come from the framework or from the DOM being changed under
 // React (translation, extensions), not from our own logic. After one of these
@@ -68,9 +68,7 @@ export default function GlobalError({
             </div>
             <p className="text-xs text-gray-500">
               Still not working?{" "}
-              <a href={siteConfig.links.email} className="text-purple-400 hover:text-purple-300">
-                Contact support
-              </a>
+              Email us at <SupportEmail />
             </p>
           </>
         )}

@@ -1,5 +1,6 @@
 "use client"
 
+import { AnimatePresence, motion } from "framer-motion"
 import { ArrowUp, Check, RotateCcw, UserRound, X } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
@@ -7,6 +8,7 @@ import { usePathname } from "next/navigation"
 import { useSession } from "next-auth/react"
 import { type FormEvent, type ReactNode, useEffect, useId, useRef, useState } from "react"
 
+import { Collapse, EASE_OUT, FadeIn } from "@/components/ui/motion"
 import { siteConfig } from "@/config/site"
 import { QUICK_REPLIES, SUPPORT_CHAT, SUPPORT_LINKS } from "@/config/support-chat"
 import { cn } from "@/lib/utils"
@@ -46,7 +48,7 @@ function RichText({ text, onNavigate }: { text: string; onNavigate: () => void }
         <p key={i} className={cn(i > 0 && "mt-1.5")}>
           {line.split(LINKABLE).map((part, j, parts) => {
             if (j % 2 === 0) return part
-            if (part.includes("@")) return <a key={j} href={siteConfig.links.email} className={linkClass}>{part}</a>
+            if (part.includes("@")) return <span key={j} className="font-medium text-purple-400">{part}</span>
             // Only a path that starts a word, not the tail of "https://x.com/sign-up".
             if (!SUPPORT_LINKS.has(part) || /[\w.:/]$/.test(parts[j - 1])) return part
             return <Link key={j} href={part} onClick={onNavigate} className={linkClass}>{part}</Link>
@@ -257,7 +259,9 @@ function ContactCard({
           className="absolute -left-[9999px] size-px opacity-0"
         />
       </div>
-      {formError && <p role="alert" className="mt-2.5 text-xs text-red-400">{formError}</p>}
+      <Collapse show={!!formError} className="pt-2.5">
+        <p role="alert" className="text-xs text-red-400">{formError}</p>
+      </Collapse>
       <div className="mt-3 flex gap-2">
         <button
           type="submit"
@@ -438,8 +442,16 @@ export function SupportChatPanel({ id, open, onClose }: { id: string; open: bool
         <div role="log" aria-live="polite" aria-label="Conversation" className="space-y-3">
           <Bubble role="assistant">{GREETING}</Bubble>
 
+          {/* New messages fade in; the restored conversation and the greeting
+              just appear (initial={false}). Quick replies fade out on the
+              first message. */}
+          <AnimatePresence initial={false}>
           {messages.length === 0 && !contact && (
-            <div className="flex flex-wrap gap-2 pl-9">
+            <motion.div
+              key="quick-replies"
+              exit={{ opacity: 0, transition: { duration: 0.15 } }}
+              className="flex flex-wrap gap-2 pl-9"
+            >
               {QUICK_REPLIES.map((reply) => (
                 <button
                   key={reply.label}
@@ -450,17 +462,25 @@ export function SupportChatPanel({ id, open, onClose }: { id: string; open: bool
                   {reply.label}
                 </button>
               ))}
-            </div>
+            </motion.div>
           )}
 
           {messages.map((m) => (
-            <Bubble key={m.id} role={m.role}>
-              {m.role === "assistant" ? <RichText text={m.content} onNavigate={onNavigate} /> : m.content}
-            </Bubble>
+            <motion.div
+              key={m.id}
+              initial={{ opacity: 0, y: 6 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.22, ease: EASE_OUT }}
+            >
+              <Bubble role={m.role}>
+                {m.role === "assistant" ? <RichText text={m.content} onNavigate={onNavigate} /> : m.content}
+              </Bubble>
+            </motion.div>
           ))}
+          </AnimatePresence>
 
           {pending && (
-            <div className="flex items-end gap-2">
+            <FadeIn className="flex items-end gap-2">
               <BotAvatar />
               <div className="flex items-center gap-1 rounded-2xl rounded-bl-md border border-white/10 bg-white/[0.04] px-3.5 py-3">
                 <span className="sr-only">The assistant is typing</span>
@@ -473,10 +493,11 @@ export function SupportChatPanel({ id, open, onClose }: { id: string; open: bool
                   />
                 ))}
               </div>
-            </div>
+            </FadeIn>
           )}
 
           {error && (
+            <FadeIn>
             <div role="alert" className="ml-9 rounded-xl border border-red-500/25 bg-red-500/[0.08] px-3 py-2 text-xs text-red-300">
               {error}
               {lastIsUser && !pending && (
@@ -489,19 +510,20 @@ export function SupportChatPanel({ id, open, onClose }: { id: string; open: bool
                 </button>
               )}
             </div>
+            </FadeIn>
           )}
         </div>
 
-        {contact && (
-          <div className="mt-3">
+        <Collapse show={!!contact} className="pt-3">
+          {contact && (
             <ContactCard
               contact={contact}
               transcript={messages}
               onSent={(email) => setContact((c) => (c ? { ...c, sentTo: email } : c))}
               onCancel={() => setContact(null)}
             />
-          </div>
-        )}
+          )}
+        </Collapse>
       </div>
 
       {/* Composer */}

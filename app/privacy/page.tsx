@@ -3,7 +3,7 @@ import type { Metadata } from "next"
 import Image from "next/image"
 import Link from "next/link"
 
-import { siteConfig } from "@/config/site"
+import { SupportEmail } from "@/components/ui/support-email"
 
 export const metadata: Metadata = {
   title:       "Privacy Policy – EntrixAlgo",
@@ -39,7 +39,7 @@ export default function PrivacyPage() {
 
       <main id="main-content" className="mx-auto max-w-3xl px-6 py-14">
         <h1 className="text-3xl font-bold text-white">Privacy Policy</h1>
-        <p className="mt-2 text-sm text-gray-600">Last updated: September 28, 2026</p>
+        <p className="mt-2 text-sm text-gray-600">Last updated: September 30, 2026</p>
 
         <div className="mt-10 space-y-10">
           <Section title="1. What We Collect">
@@ -51,7 +51,7 @@ export default function PrivacyPage() {
               <li><span className="text-gray-300">AI Trading Bot conversations:</span> the messages you send to the AI assistant and its replies, kept until you clear your chat history.</li>
               <li><span className="text-gray-300">Support chat:</span> messages you send to the support assistant on our site are sent to our AI provider to generate replies and are not stored on our servers. If you ask to contact our team, the name, email and message you enter, together with that chat, are emailed to our support inbox so we can reply.</li>
               <li><span className="text-gray-300">Billing information:</span> subscription and payment details are handled entirely by Stripe. We store only your Stripe customer/subscription IDs and plan status, never your card details.</li>
-              <li><span className="text-gray-300">Usage and activity data:</span> when you sign in and last used the dashboard, the IP address of sign-in attempts, account actions (such as password or email changes and scans), and how much of our AI services each account uses. We use this to run the product, enforce fair-use limits, detect abuse and resolve support issues.</li>
+              <li><span className="text-gray-300">Usage and activity data:</span> when you sign in and last used the dashboard, the IP address of sign-in attempts and of free-analysis use, account actions (such as password or email changes and scans), and how much of our AI services each account uses. We use this to run the product, enforce fair-use limits, detect abuse and resolve support issues.</li>
             </ul>
           </Section>
 
@@ -82,7 +82,7 @@ export default function PrivacyPage() {
               We retain your account data for as long as your account is active. Chart analysis history and trade
               journal entries are retained until you delete them or close your account. Activity logs (sign-ins and
               account actions) are kept for 12 months. You can request account deletion at any time by emailing{" "}
-              <a href={siteConfig.links.email} className="text-purple-400 hover:text-purple-300">{siteConfig.supportEmail}</a>.
+              <SupportEmail />.
             </p>
           </Section>
 
@@ -110,7 +110,7 @@ export default function PrivacyPage() {
           </Section>
 
           <Section title="8. Contact">
-            <p>Questions about this policy or your data? Email us at <a href={siteConfig.links.email} className="text-purple-400 hover:text-purple-300">{siteConfig.supportEmail}</a>.</p>
+            <p>Questions about this policy or your data? Email us at <SupportEmail />.</p>
           </Section>
         </div>
       </main>

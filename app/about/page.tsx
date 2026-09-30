@@ -3,7 +3,7 @@ import type { Metadata } from "next"
 import Image from "next/image"
 import Link from "next/link"
 
-import { siteConfig } from "@/config/site"
+import { SupportEmail } from "@/components/ui/support-email"
 
 export const metadata: Metadata = {
   title:       "About – EntrixAlgo",
@@ -100,7 +100,7 @@ export default function AboutPage() {
           <Section title="Get in touch">
             <p>
               Questions, feedback, or partnership inquiries? Email us at{" "}
-              <a href={siteConfig.links.email} className="text-purple-400 hover:text-purple-300">{siteConfig.supportEmail}</a>.
+              <SupportEmail />.
             </p>
           </Section>
         </div>

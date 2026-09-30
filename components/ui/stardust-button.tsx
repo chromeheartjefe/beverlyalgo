@@ -5,12 +5,14 @@ import React from 'react';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
-type StardustButtonSize = 'sm' | 'default';
+type StardustButtonSize = 'sm' | 'md' | 'default';
 
 interface StardustButtonBaseProps {
   children?: React.ReactNode;
   className?: string;
   size?: StardustButtonSize;
+  // Size used below 640px instead of `size` (phones)
+  mobileSize?: StardustButtonSize;
 }
 
 type StardustButtonProps = StardustButtonBaseProps &
@@ -23,6 +25,7 @@ type StardustButtonProps = StardustButtonBaseProps &
 
 const sizeTokens: Record<StardustButtonSize, { fontSize: string; padding: string; gap: string }> = {
   sm:      { fontSize: '13px', padding: '9px 22px',  gap: '7px'  },
+  md:      { fontSize: '15px', padding: '14px 28px', gap: '9px'  },
   default: { fontSize: '17px', padding: '16px 32px', gap: '10px' },
 };
 
@@ -32,6 +35,16 @@ const sizeTokens: Record<StardustButtonSize, { fontSize: string; padding: string
 // glow scales proportionally at every size instead of using a fixed rem value.
 //
 const PEARL_CSS = `
+  /* size: variables set inline per button; phones may swap to --pearl-*-m */
+  .pearl-button { font-size: var(--pearl-fs); }
+  .pearl-button .wrap { padding: var(--pearl-pad); }
+  .pearl-button .wrap p { gap: var(--pearl-gap); }
+  @media (max-width: 639px) {
+    .pearl-button[data-mobile-size] { font-size: var(--pearl-fs-m); }
+    .pearl-button[data-mobile-size] .wrap { padding: var(--pearl-pad-m); }
+    .pearl-button[data-mobile-size] .wrap p { gap: var(--pearl-gap-m); }
+  }
+
   /* wrap pseudo-elements: glass orb (::before) + top-edge highlight (::after) */
   .pearl-button .wrap::before,
   .pearl-button .wrap::after {
@@ -103,15 +116,21 @@ export const StardustButton = ({
   children = 'Get Access',
   className = '',
   size = 'default',
+  mobileSize,
   ...props
 }: StardustButtonProps) => {
   const { fontSize, padding, gap } = sizeTokens[size];
+  const mobile = mobileSize ? sizeTokens[mobileSize] : null;
 
-  // font-size is set on the outer element so em units in box-shadow are correct
+  // font-size is set on the outer element (via --pearl-fs, see PEARL_CSS) so
+  // em units in box-shadow are correct at every size
   const buttonStyle: React.CSSProperties & Record<string, string | number> = {
     '--bg': '#0a1929',
     '--radius': '100px',
-    fontSize,
+    '--pearl-fs': fontSize,
+    '--pearl-pad': padding,
+    '--pearl-gap': gap,
+    ...(mobile && { '--pearl-fs-m': mobile.fontSize, '--pearl-pad-m': mobile.padding, '--pearl-gap-m': mobile.gap }),
     outline: 'none',
     cursor: 'pointer',
     border: 0,
@@ -134,7 +153,6 @@ export const StardustButton = ({
   const wrapStyle: React.CSSProperties = {
     fontWeight: 500,
     color: 'rgba(129, 216, 255, 0.9)',
-    padding,
     borderRadius: 'inherit',
     position: 'relative',
     overflow: 'hidden',
@@ -143,7 +161,6 @@ export const StardustButton = ({
   const pStyle: React.CSSProperties = {
     display: 'flex',
     alignItems: 'center',
-    gap,
     margin: 0,
     transition: 'transform 0.2s ease',
     transform: 'translateY(2%)',
@@ -154,7 +171,7 @@ export const StardustButton = ({
   // React 19: <style href precedence> is hoisted to <head> and deduplicated —
   // only one copy in the DOM regardless of how many buttons are on the page.
   const styleTag = (
-    <style href="pearl-button-v1" precedence="default">
+    <style href="pearl-button-v2" precedence="default">
       {PEARL_CSS}
     </style>
   );
@@ -178,6 +195,7 @@ export const StardustButton = ({
           href={href}
           className={`pearl-button${className ? ` ${className}` : ''}`}
           style={buttonStyle as React.CSSProperties}
+          data-mobile-size={mobileSize}
           {...(anchorProps as Omit<React.AnchorHTMLAttributes<HTMLAnchorElement>, 'href'>)}
         >
           {inner}
@@ -193,6 +211,7 @@ export const StardustButton = ({
       <button
         className={`pearl-button${className ? ` ${className}` : ''}`}
         style={buttonStyle as React.CSSProperties}
+        data-mobile-size={mobileSize}
         {...buttonProps}
       >
         {inner}

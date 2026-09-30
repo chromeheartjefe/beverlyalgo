@@ -3,7 +3,7 @@
 import Image from 'next/image';
 import React, { useState } from 'react';
 
-import { siteConfig } from '@/config/site';
+import { SupportEmail } from "@/components/ui/support-email"
 
 interface SocialIconProps {
   href: string;
@@ -121,9 +121,7 @@ export function SocialConnect() {
 
         <p className="text-muted-foreground text-center text-sm">
           Need help with your account or billing?{' '}
-          <a href={siteConfig.links.email} className="font-medium text-purple-400 transition-colors hover:text-purple-300">
-            Contact support
-          </a>
+          Email us at <SupportEmail />
         </p>
       </div>
     </section>

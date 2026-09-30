@@ -6,7 +6,7 @@ import Image from "next/image"
 import Link from "next/link"
 import { useState } from "react"
 
-import { siteConfig } from "@/config/site"
+import { SupportEmail } from "@/components/ui/support-email"
 import { cn } from "@/lib/utils"
 
 export default function ForgotPasswordPage() {
@@ -120,9 +120,7 @@ export default function ForgotPasswordPage() {
         <Link href="/sign-in" className="hover:text-gray-300">← Back to sign in</Link>
         <p>
           Need help?{" "}
-          <a href={siteConfig.links.email} className="font-medium text-purple-400 hover:text-purple-300">
-            Contact support
-          </a>
+          Email us at <SupportEmail />
         </p>
       </div>
     </motion.div>

@@ -10,7 +10,7 @@ import { Reveal, RevealGroup,revealItem } from "@/components/ui/reveal";
 import { Sparkles as SparklesComp } from "@/components/ui/sparkles";
 import { cn } from "@/lib/utils";
 
-const FEATURES = [
+const PRO_FEATURES = [
   "Everything included:",
   "Invite-only TradingView indicator access",
   "Unlimited AI chart analysis",
@@ -22,24 +22,59 @@ const FEATURES = [
   "Early feature access",
 ];
 
-const plans = [
+// The Free plan's first line is the hook: one real Chart Analysis before paying
+const FREE_FEATURES = [
+  "Free forever:",
+  "1 AI chart analysis, on us",
+  "AI Screener",
+  "Trade journal",
+  "Trade calendar",
+  "Risk calculator",
+  "No card required",
+];
+
+type Plan = {
+  name: string
+  description: string
+  price: number
+  period: "month" | "lifetime" | "free"
+  buttonText: string
+  popular: boolean
+  // Stripe Payment Link; null for Free (account sign-up instead)
+  buttonHref: string | null
+  features: string[]
+}
+
+const plans: Plan[] = [
+  {
+    name: "EntrixAlgo Free",
+    description: "Try the AI on your own chart and use the trading tools. Upgrade whenever you want.",
+    price: 0,
+    period: "free",
+    buttonText: "Create free account",
+    popular: false,
+    buttonHref: null,
+    features: FREE_FEATURES,
+  },
   {
     name: "EntrixAlgo PRO™ Monthly",
     description: "Billed monthly. Cancel anytime.",
     price: 49,
-    period: "month" as const,
+    period: "month",
     buttonText: "Get started",
     popular: false,
     buttonHref: "https://buy.stripe.com/4gMcMYeZkeoI5Pibz26wE04",
+    features: PRO_FEATURES,
   },
   {
     name: "EntrixAlgo PRO™ Lifetime",
     description: "One-time payment. Yours forever, no renewals.",
     price: 299,
-    period: "lifetime" as const,
+    period: "lifetime",
     buttonText: "Get lifetime access",
     popular: true,
     buttonHref: "https://buy.stripe.com/00w14geZkdkE6Tm1Ys6wE0a",
+    features: PRO_FEATURES,
   },
 ];
 
@@ -56,6 +91,12 @@ export default function PricingSection4() {
     });
     return `${baseHref}?${params.toString()}`;
   };
+
+  // Free: make an account, or go straight in when already signed in
+  const hrefFor = (plan: Plan) =>
+    plan.buttonHref ? getCheckoutHref(plan.buttonHref) : status === "authenticated" ? "/dashboard" : "/sign-up";
+  const labelFor = (plan: Plan) =>
+    !plan.buttonHref && status === "authenticated" ? "Go to dashboard" : plan.buttonText;
 
   return (
     <div className="min-h-screen mx-auto relative overflow-x-hidden">
@@ -90,7 +131,8 @@ export default function PricingSection4() {
           </h2>
 
           <p className="text-gray-400 text-base mt-4">
-            Trusted by traders worldwide. One plan, full access. Choose monthly or lifetime billing.
+            Trusted by traders worldwide. Start free with one AI chart analysis, then unlock everything
+            with Pro, billed monthly or once for life.
           </p>
 
           {/* Social proof strip */}
@@ -121,12 +163,20 @@ export default function PricingSection4() {
       />
 
       {/* Pricing cards */}
-      <RevealGroup className="grid md:grid-cols-2 max-w-4xl gap-6 py-6 mx-auto px-4" stagger={0.12}>
+      {/* Free spans both columns at md, three across from lg. From md up each
+          card is a 3-row subgrid (header / button / features) of this grid, so
+          the buttons line up even when a title or description wraps to more
+          lines in one card than another. */}
+      <RevealGroup className="grid md:grid-cols-2 lg:grid-cols-3 max-w-6xl gap-6 py-6 mx-auto px-4" stagger={0.12}>
         {plans.map((plan) => (
-          <motion.div key={plan.name} variants={revealItem}>
+          <motion.div
+            key={plan.name}
+            variants={revealItem}
+            className={cn("md:row-span-3 md:grid md:grid-rows-subgrid md:gap-y-0", plan.period === "free" && "md:col-span-2 lg:col-span-1")}
+          >
             <Card
               className={cn(
-                "relative text-white h-full",
+                "relative text-white h-full md:row-span-3 md:grid md:grid-rows-subgrid md:gap-y-0",
                 plan.popular
                   ? "border-purple-500/40 bg-gradient-to-b from-neutral-800 to-neutral-900 shadow-[0px_-8px_120px_0px_rgba(147,51,234,0.5)] z-20"
                   : "border-white/25 bg-gradient-to-b from-neutral-900 to-neutral-950 z-10"
@@ -148,7 +198,7 @@ export default function PricingSection4() {
                     <NumberFlow value={plan.price} className="text-4xl font-bold" />
                   </span>
                   <span className="text-gray-400 text-sm">
-                    {plan.period === "lifetime" ? "one-time" : `/${plan.period}`}
+                    {plan.period === "lifetime" ? "one-time" : plan.period === "free" ? "forever" : `/${plan.period}`}
                   </span>
                 </div>
                 <p className="text-sm text-gray-400 mt-2 leading-relaxed">
@@ -156,9 +206,9 @@ export default function PricingSection4() {
                 </p>
               </CardHeader>
 
-              <CardContent className="pt-0">
+              <CardContent className="pt-0 pb-0">
                 <a
-                  href={getCheckoutHref(plan.buttonHref)}
+                  href={hrefFor(plan)}
                   className={cn(
                     "w-full mb-6 p-3.5 text-base font-semibold rounded-xl text-center block transition-transform hover:scale-[1.02] active:scale-[0.98] cursor-pointer",
                     plan.popular
@@ -166,23 +216,29 @@ export default function PricingSection4() {
                       : "bg-gradient-to-b from-neutral-700 to-neutral-900 shadow-lg shadow-neutral-950 border border-white/20 text-white"
                   )}
                 >
-                  {plan.buttonText}
+                  {labelFor(plan)}
                 </a>
+              </CardContent>
 
+              <CardContent className="pt-0">
                 <div className="space-y-3 pt-4 border-t border-white/15">
                   <h4 className="font-semibold text-sm text-white mb-3">
-                    {FEATURES[0]}
+                    {plan.features[0]}
                   </h4>
                   <ul className="space-y-2.5">
-                    {FEATURES.slice(1).map((feature, featureIndex) => (
-                      <li
-                        key={featureIndex}
-                        className="flex items-center gap-2.5"
-                      >
-                        <span className="h-1.5 w-1.5 bg-purple-500 rounded-full flex-shrink-0" />
-                        <span className="text-sm text-gray-300">{feature}</span>
-                      </li>
-                    ))}
+                    {plan.features.slice(1).map((feature, featureIndex) => {
+                      // The free analysis is the Free plan's headline, in the green used for it in the dashboard
+                      const highlight = plan.period === "free" && featureIndex === 0
+                      return (
+                        <li
+                          key={featureIndex}
+                          className="flex items-center gap-2.5"
+                        >
+                          <span className={cn("h-1.5 w-1.5 rounded-full flex-shrink-0", highlight ? "bg-emerald-400" : "bg-purple-500")} />
+                          <span className={cn("text-sm", highlight ? "font-semibold text-emerald-300" : "text-gray-300")}>{feature}</span>
+                        </li>
+                      )
+                    })}
                   </ul>
                 </div>
               </CardContent>
@@ -193,7 +249,7 @@ export default function PricingSection4() {
 
       {/* Bottom note */}
       <p className="text-center text-xs text-gray-500 pb-16 px-4">
-        Monthly cancels anytime · Lifetime is a one-time payment. Prices in USD.
+        Free needs no card · Monthly cancels anytime · Lifetime is a one-time payment. Prices in USD.
       </p>
     </div>
   );

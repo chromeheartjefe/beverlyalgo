@@ -8,7 +8,7 @@ import { useSearchParams } from "next/navigation"
 import { useSession } from "next-auth/react"
 import { Suspense, useEffect, useState } from "react"
 
-import { siteConfig } from "@/config/site"
+import { SupportEmail } from "@/components/ui/support-email"
 
 type Status = "verifying" | "success" | "error"
 
@@ -146,9 +146,7 @@ function VerifyEmailContent() {
         <Link href="/" className="hover:text-gray-300">← Back to landing page</Link>
         <p>
           Need help?{" "}
-          <a href={siteConfig.links.email} className="font-medium text-purple-400 hover:text-purple-300">
-            Contact support
-          </a>
+          Email us at <SupportEmail />
         </p>
       </div>
     </motion.div>

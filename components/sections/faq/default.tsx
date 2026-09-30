@@ -1,7 +1,7 @@
 import { ReactNode } from "react";
 
 import { BackgroundGradientAnimation } from "@/components/ui/background-gradient-animation";
-import { siteConfig } from "@/config/site";
+import { SupportEmail } from "@/components/ui/support-email"
 
 import {
   Accordion,
@@ -103,9 +103,7 @@ export default function FAQ({
       answer: (
         <p className="text-muted-foreground mb-4 max-w-[580px]">
           Email us at{" "}
-          <a href={siteConfig.links.email} className="text-purple-400 underline-offset-2 hover:underline">
-            {siteConfig.supportEmail}
-          </a>{" "}
+          <SupportEmail />{" "}
           with any question about your account, billing, or the tools. Include the email you signed up with so we can find your account quickly.
         </p>
       ),

@@ -4,6 +4,9 @@
 @import "tw-animate-css";
 
 @custom-variant dark (&:where(.dark, .dark *));
+/* Short screens (small phones, phones with browser bars showing): pages
+   sized to the screen, like the AI Trading Bot, tighten up here */
+@custom-variant short (@media (max-height: 740px));
 
 @theme inline {
   --color-brand: var(--brand);
@@ -400,5 +403,43 @@
   ::view-transition-old(*),
   ::view-transition-new(*) {
     animation: none !important;
+  }
+}
+
+/* ─── Scrollbars (site-wide) ──────────────────────────────────────────────────
+   Quiet by design: a 3px pill of translucent white on no track, so it takes a
+   hint of whatever it sits over instead of adding a color. On hover it widens
+   to 5px and brightens so it's still easy to grab. The width comes from a
+   transparent border around the thumb (background-clip: padding-box).
+   Chrome 121+ ignores ::-webkit-scrollbar on any element that sets the
+   standard scrollbar-width/scrollbar-color, so those two are only given to
+   browsers without ::-webkit-scrollbar (Firefox), which get a thin bar in the
+   same tone. Phones use overlay scrollbars and are unaffected. */
+::-webkit-scrollbar {
+  width: 7px;
+  height: 7px;
+}
+::-webkit-scrollbar-track,
+::-webkit-scrollbar-corner {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.14) padding-box;
+  border: 2px solid transparent;
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  border-width: 1px;
+  background: rgba(255, 255, 255, 0.3) padding-box;
+}
+::-webkit-scrollbar-thumb:active {
+  border-width: 1px;
+  background: rgba(255, 255, 255, 0.42) padding-box;
+}
+
+@supports not selector(::-webkit-scrollbar) {
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 255, 255, 0.18) transparent;
   }
 }
