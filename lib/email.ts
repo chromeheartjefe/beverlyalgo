@@ -163,6 +163,46 @@ Reply to this email to reach the user directly.`,
   })
 }
 
+// Update to Pro users waiting for indicator access while it's being finished,
+// sent from the admin console (Indicator queue). One builder, so the console
+// can preview exactly what goes out. Doesn't mention how access is granted.
+export function indicatorUpdateEmail({ tradingviewUsername }: { tradingviewUsername: string | null }) {
+  const handle = tradingviewUsername ? ` for <strong style="color:#e5e7eb;">@${escapeHtml(tradingviewUsername)}</strong>` : ""
+  const handleText = tradingviewUsername ? ` for @${tradingviewUsername}` : ""
+  const url = `${baseUrl()}/dashboard`
+  const subject = "Your EntrixAlgo indicator is almost ready"
+  const html = wrapper(
+    "Your indicator is almost ready",
+    `Hi there,<br /><br />
+Thank you for requesting access to the EntrixAlgo TradingView indicator${handle}. Your request is saved, and you don't need to do anything else.<br /><br />
+We're sorry for the wait. We're taking a few extra days to finish the indicator, because we want it to be genuinely useful on your charts from day one: clear signals and settings that hold up in live markets. We'd rather get it right than rush it.<br /><br />
+As soon as it's ready, you'll get access and we'll email you to let you know. We expect that within the next few days.<br /><br />
+In the meantime, everything else in your Pro plan is ready to use, including AI Chart Analysis and the AI Trading Bot.<br /><br />
+Thanks for your patience, and for trading with us.<br />
+The EntrixAlgo team`,
+    "Open your dashboard",
+    url,
+  )
+  const text = [
+    "Hi there,",
+    `Thank you for requesting access to the EntrixAlgo TradingView indicator${handleText}. Your request is saved, and you don't need to do anything else.`,
+    "We're sorry for the wait. We're taking a few extra days to finish the indicator, because we want it to be genuinely useful on your charts from day one: clear signals and settings that hold up in live markets. We'd rather get it right than rush it.",
+    "As soon as it's ready, you'll get access and we'll email you to let you know. We expect that within the next few days.",
+    "In the meantime, everything else in your Pro plan is ready to use, including AI Chart Analysis and the AI Trading Bot.",
+    `Open your dashboard: ${url}`,
+    "Thanks for your patience, and for trading with us.\nThe EntrixAlgo team",
+    `Need help? Reply to this email or write to ${siteConfig.supportEmail}.`,
+  ].join("\n\n")
+  return { subject, html, text }
+}
+
+export async function sendIndicatorUpdateEmail(to: string, user: { tradingviewUsername: string | null }) {
+  const resendClient = client()
+  if (!resendClient) throw new Error("RESEND_API_KEY is not set.")
+  const { subject, html, text } = indicatorUpdateEmail(user)
+  await deliver(resendClient, { from: fromAddress(), replyTo: siteConfig.supportEmail, to, subject, html, text })
+}
+
 // Support request from the site's chat widget ("talk to a person"). Goes to
 // support only: no copy is sent to the visitor, because the address they type
 // is unverified and a copy would let anyone send our emails to any inbox.

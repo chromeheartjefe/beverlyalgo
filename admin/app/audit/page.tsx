@@ -10,6 +10,8 @@ const LABEL: Record<string, [string, "gray" | "purple" | "green" | "amber" | "re
   mark_invited:        ["Marked invited", "green"],
   resend_verification: ["Resent verification", "blue"],
   resend_verification_all: ["Bulk verification resend", "blue"],
+  indicator_update_sent: ["Indicator update email", "purple"],
+  indicator_update_all:  ["Indicator update (bulk)", "purple"],
   force_sign_out:      ["Forced sign-out", "red"],
   chat_viewed:         ["Viewed bot chat", "amber"],
 }

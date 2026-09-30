@@ -9,6 +9,7 @@ const LINKS = [
   { href: "/",          label: "Overview" },
   { href: "/users",     label: "Users" },
   { href: "/revenue",   label: "Revenue" },
+  { href: "/funnel",    label: "Checkout funnel" },
   { href: "/ai",        label: "AI & costs" },
   { href: "/indicator", label: "Indicator queue" },
   { href: "/system",    label: "System health" },

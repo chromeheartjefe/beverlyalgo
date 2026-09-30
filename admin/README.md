@@ -16,7 +16,9 @@ no public URL, and only answers requests addressed to `127.0.0.1:3100` /
      `session_version`, replace email-verify tokens and append to the audit log.
 3. **Stripe key**: Stripe Dashboard → Developers → API keys → *Create
    restricted key*. Give **Read** to: Customers, Charges, Subscriptions,
-   Invoices, Prices, Products. Everything else: None.
+   Invoices, Prices, Products, Checkout Sessions. Everything else: None.
+   (Checkout Sessions was added for the Checkout funnel page; an older key
+   can be edited to add it.)
 4. **Env**: copy `admin/.env.local.example` to `admin/.env.local` and fill it in.
    Build the two database URLs from the site's `DATABASE_URL` by swapping the
    `user:password` part.
@@ -39,6 +41,7 @@ Open http://127.0.0.1:3100
 | Users | Search and filter (plan, verified, at risk, indicator pending), sort by spend/activity |
 | User detail | Live Stripe status and payments, AI spend per feature, today's limits, last 10 analyses with full result, activity timeline, trading stats, indicator, sign-ins, debug chat viewer, safe actions |
 | Revenue | MRR, live/canceling/past-due subscriptions, renewals in 7 days, net revenue per month, refunds and disputes, webhook feed |
+| Checkout funnel | Stripe payment page opens vs purchases (7/30/90 days, 12 months), conversion, Monthly vs Lifetime, new accounts → checkout → paid, median days to first purchase, people who opened checkout but didn't buy, recent sessions |
 | AI & costs | Spend per day and per model/thinking level, cost per analysis/message/scan, top spenders, screenshot rejection reasons |
 | Indicator queue | Pending TradingView requests, oldest first, with "Mark invited" |
 | System health | Twelve Data credits and backoff, caches, failed sign-in throttles, table sizes, links |

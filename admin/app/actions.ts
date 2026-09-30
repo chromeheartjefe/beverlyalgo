@@ -5,7 +5,7 @@ import { revalidatePath } from "next/cache"
 
 import { adminAuditLog, authTokens, chatMessages, users } from "@/db/schema"
 import { newAuthToken } from "@/lib/auth-tokens"
-import { sendVerificationEmail } from "@/lib/email"
+import { sendIndicatorUpdateEmail, sendVerificationEmail } from "@/lib/email"
 import { readDb, writeDb } from "~/lib/db"
 
 // The console's only writes. Each one runs on the restricted write login
@@ -122,6 +122,57 @@ export async function resendVerificationToAll(): Promise<ActionResult> {
     revalidatePath("/audit")
     return failed.length === 0
       ? { ok: true, message: `Sent ${sent} verification emails.` }
+      : { ok: false, message: `Sent ${sent}, failed ${failed.length}: ${failed.join(", ")}` }
+  } catch (err) {
+    return fail(err)
+  }
+}
+
+// "Still being finished" update to everyone waiting for indicator access
+// (requested, not yet invited). One per user ever: each send is logged
+// per user in the audit log, and anyone already logged is skipped, so a
+// second click only reaches people who requested since. Paced like the bulk
+// verification resend (Resend free: 2/s, 100/day shared with other emails).
+const INDICATOR_UPDATE_ACTION = "indicator_update_sent"
+
+export async function sendIndicatorUpdateToWaiting(): Promise<ActionResult> {
+  try {
+    if (!process.env.AUTH_URL?.startsWith("https://")) return { ok: false, message: AUTH_URL_HINT }
+    const db = writeDb()
+
+    const already = await db
+      .select({ userId: adminAuditLog.targetUserId })
+      .from(adminAuditLog)
+      .where(eq(adminAuditLog.action, INDICATOR_UPDATE_ACTION))
+    const done = new Set(already.map((r) => r.userId))
+
+    const waiting = await db
+      .select({ id: users.id, email: users.email, username: users.tradingviewUsername })
+      .from(users)
+      .where(and(isNotNull(users.indicatorRequestedAt), isNull(users.indicatorInvitedAt)))
+      .orderBy(asc(users.indicatorRequestedAt))
+    const list = waiting.filter((u) => !done.has(u.id)).slice(0, BULK_MAX)
+    if (list.length === 0) return { ok: false, message: "Everyone waiting already has this update." }
+
+    let sent = 0
+    const failed: string[] = []
+    for (const u of list) {
+      try {
+        await sendIndicatorUpdateEmail(u.email, { tradingviewUsername: u.username })
+        await audit(INDICATOR_UPDATE_ACTION, u.id, { tradingviewUsername: u.username })
+        sent++
+      } catch (err) {
+        console.error("[admin indicator update]", u.email, err)
+        failed.push(u.email)
+      }
+      await new Promise((r) => setTimeout(r, BULK_GAP_MS))
+    }
+
+    await audit("indicator_update_all", null, { sent, failed })
+    revalidatePath("/indicator")
+    revalidatePath("/audit")
+    return failed.length === 0
+      ? { ok: true, message: `Sent the update to ${sent} user${sent === 1 ? "" : "s"}.` }
       : { ok: false, message: `Sent ${sent}, failed ${failed.length}: ${failed.join(", ")}` }
   } catch (err) {
     return fail(err)

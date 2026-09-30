@@ -49,6 +49,7 @@ function describe(e: TimelineRow): { label: string; detail: string; color: "gray
     case "login_failed":        return { label: "Failed sign-in", detail: m.ip ? `IP ${m.ip}` : "", color: "red" }
     case "analysis":            return { label: "Chart analysis", detail: `${m.pair} ${m.timeframe} · ${m.signal}${m.signal !== "NEUTRAL" ? ` ${m.confidence}%` : ""}`, color: "purple" }
     case "analysis_rejected":   return { label: "Screenshot rejected", detail: String(m.reason ?? ""), color: "amber" }
+    case "free_analysis_used":  return { label: "Used free analysis", detail: "", color: "green" }
     case "bot_messages":        return { label: "AI Bot", detail: `${m.count} message${m.count === 1 ? "" : "s"} that day`, color: "blue" }
     case "chat_cleared":        return { label: "Cleared bot chat", detail: "", color: "gray" }
     case "screener_scan":       return { label: m.fresh === true ? "Screener scan" : "Screener (cached)", detail: "", color: "gray" }
