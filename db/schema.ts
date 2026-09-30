@@ -185,6 +185,20 @@ export const rateLimitHits = pgTable("rate_limit_hits", {
 
 export type RateLimitHit = typeof rateLimitHits.$inferSelect
 
+// One free Chart Analysis per Free account (lib/free-analysis.ts). email_key
+// is the normalized inbox and unique, so one inbox gets one free analysis
+// however many accounts it makes; user_id goes NULL on account deletion so
+// re-creating the account doesn't earn another. ip backs the network limit.
+export const freeAnalysisClaims = pgTable("free_analysis_claims", {
+  id:        text("id").primaryKey().$defaultFn(() => crypto.randomUUID()),
+  userId:    text("user_id").unique().references(() => users.id, { onDelete: "set null" }),
+  emailKey:  varchar("email_key", { length: 255 }).notNull().unique(),
+  ip:        varchar("ip", { length: 64 }),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+}, (table) => [
+  index("free_analysis_claims_ip_created_at_idx").on(table.ip, table.createdAt),
+])
+
 // Records each Stripe webhook event id we've successfully processed, so a
 // retried/replayed delivery of the same event (Stripe's own retries, or a
 // malicious replay) can be detected and skipped instead of silently re-running

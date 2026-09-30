@@ -9,7 +9,8 @@ import { isBudgetExceeded, recordAiUsage } from "@/lib/ai-budget"
 import { canPickVariant, resolveVariant } from "@/lib/chart-analysis"
 import { normalizeTimeframe } from "@/lib/chart-analysis/timeframe"
 import { logEvent } from "@/lib/events"
-import { checkRateLimit, countHits } from "@/lib/rate-limit"
+import { claimFreeAnalysis, type ClaimResult, FREE_DAILY_ATTEMPTS, releaseFreeAnalysis } from "@/lib/free-analysis"
+import { checkRateLimit, clientIp, countHits } from "@/lib/rate-limit"
 import { DAILY_ANALYSIS_LIMIT, DAY_MS } from "@/lib/usage-limits"
 import { UserFacingError } from "@/lib/user-error"
 
@@ -29,6 +30,15 @@ const VALIDATION_ERRORS: Record<string, string> = {
   MULTIPLE_CHARTS: "This screenshot has several charts. Upload one chart at a time so the analysis reads the right one.",
 }
 
+// Why a Free account can't run its free analysis. `code` lets the page show
+// the right card (verify email / upgrade) instead of just the message.
+const FREE_DENIED: Record<Extract<ClaimResult, { ok: false }>["reason"], string> = {
+  verify:  "Verify your email to unlock your free analysis. The link is in your inbox.",
+  used:    "You've used your free analysis. Upgrade to Pro to keep analyzing your charts.",
+  blocked: "The free analysis isn't available for temporary email addresses. Upgrade to Pro to use Chart Analysis.",
+  network: "The free analysis has already been used on this network. Upgrade to Pro to keep analyzing.",
+}
+
 // Fit a DB varchar column; ends with "…" when shortened
 function clip(s: string, max: number): string {
   return s.length <= max ? s : s.slice(0, max - 1).trimEnd() + "…"
@@ -38,12 +48,13 @@ export async function POST(req: NextRequest) {
   const session = await auth()
   if (!session?.user?.id) return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
 
-  // Pro-only. The page's FeatureLock is just UI; this is the real gate.
-  // Read from the DB, not the session, so a lapsed plan applies immediately.
-  const [user] = await db.select({ plan: users.plan, email: users.email, emailVerified: users.emailVerified }).from(users).where(eq(users.id, session.user.id)).limit(1)
-  if (!user || user.plan === "free") {
-    return NextResponse.json({ error: "Chart Analysis is a Pro feature." }, { status: 403 })
-  }
+  // Pro, or a Free account's one free analysis (claimed further down, once
+  // the upload itself is valid). The page's lock is just UI; this is the real
+  // gate. Read from the DB, not the session, so a lapsed plan applies at once.
+  const [user] = await db.select({ id: users.id, plan: users.plan, email: users.email, emailVerified: users.emailVerified }).from(users).where(eq(users.id, session.user.id)).limit(1)
+  if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+  const isFree = user.plan === "free"
+  const dailyLimit = isFree ? FREE_DAILY_ATTEMPTS : DAILY_ANALYSIS_LIMIT
 
   if (!process.env.OPENAI_API_KEY) {
     console.error("[/api/analyze] OPENAI_API_KEY is not set")
@@ -61,11 +72,11 @@ export async function POST(req: NextRequest) {
   }
 
   const dailyKey = `analyze-daily:${session.user.id}`
-  if ((await countHits(dailyKey, DAY_MS)) >= DAILY_ANALYSIS_LIMIT) {
-    return NextResponse.json(
-      { error: `You've hit the daily analysis limit (${DAILY_ANALYSIS_LIMIT}/day). Try again later.` },
-      { status: 429 },
-    )
+  const dailyLimitError = isFree
+    ? "Too many attempts today. Try again tomorrow with a clear chart screenshot."
+    : `You've hit the daily analysis limit (${DAILY_ANALYSIS_LIMIT}/day). Try again later.`
+  if ((await countHits(dailyKey, DAY_MS)) >= dailyLimit) {
+    return NextResponse.json({ error: dailyLimitError }, { status: 429 })
   }
 
   // Real dollar ceiling shared with the AI Trading Bot — see lib/ai-budget.ts.
@@ -74,6 +85,16 @@ export async function POST(req: NextRequest) {
       { error: "Chart Analysis is temporarily unavailable due to high demand. Please try again later." },
       { status: 503 },
     )
+  }
+
+  // Set once a Free account's free analysis is reserved; handed back if the
+  // attempt ends without an analysis (rejected screenshot, AI error, ...).
+  let freeClaimId: string | null = null
+  const giveBackFree = async () => {
+    if (!freeClaimId) return
+    const id = freeClaimId
+    freeClaimId = null
+    await releaseFreeAnalysis(id).catch((err) => console.error("[/api/analyze] Couldn't release free analysis claim:", err))
   }
 
   try {
@@ -91,16 +112,22 @@ export async function POST(req: NextRequest) {
     const base64 = Buffer.from(await file.arrayBuffer()).toString("base64")
     const mime   = file.type || "image/jpeg"
 
+    if (isFree) {
+      const claim = await claimFreeAnalysis(user, clientIp(req))
+      if (!claim.ok) {
+        return NextResponse.json({ error: FREE_DENIED[claim.reason], code: `free_${claim.reason}` }, { status: 403 })
+      }
+      freeClaimId = claim.claimId
+    }
+
     // Every AI call counts toward the daily cap, including screenshots the
     // model rejects (not a chart, blurry, ...). Those cost the same as a full
     // analysis, and used to be free to repeat because only saved analyses
     // were counted. The early countHits check above just fails fast; this
     // atomic reserve is what actually enforces the cap under parallel requests.
-    if (!(await checkRateLimit(dailyKey, DAILY_ANALYSIS_LIMIT, DAY_MS))) {
-      return NextResponse.json(
-        { error: `You've hit the daily analysis limit (${DAILY_ANALYSIS_LIMIT}/day). Try again later.` },
-        { status: 429 },
-      )
+    if (!(await checkRateLimit(dailyKey, dailyLimit, DAY_MS))) {
+      await giveBackFree()
+      return NextResponse.json({ error: dailyLimitError }, { status: 429 })
     }
 
     const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY })
@@ -170,6 +197,7 @@ export async function POST(req: NextRequest) {
       const msg = VALIDATION_ERRORS[parsed.error]
         ?? "Image could not be analyzed. Please try a different screenshot."
       await logEvent(session.user.id, "analysis_rejected", { reason: parsed.error, variant: variant.id })
+      await giveBackFree()
       return NextResponse.json({ error: msg }, { status: 422 })
     }
 
@@ -212,6 +240,7 @@ export async function POST(req: NextRequest) {
       completionTokens,
       costUsd,
     })
+    if (freeClaimId) await logEvent(session.user.id, "free_analysis_used")
 
     return NextResponse.json(
       canPick ? { analysis: data, variant: variant.id } : { analysis: data },
@@ -219,6 +248,7 @@ export async function POST(req: NextRequest) {
 
   } catch (err) {
     console.error("[/api/analyze]", err)
+    await giveBackFree()
 
     // OpenAI API errors (rate-limit, quota, auth, bad params…)
     // Never expose API-layer details to the client.

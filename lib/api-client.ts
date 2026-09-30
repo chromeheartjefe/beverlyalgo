@@ -8,7 +8,13 @@ export const MSG_BUSY    = "Our servers are busy right now. Please try again in 
 export const MSG_OFFLINE = "We couldn't reach our servers. Check your internet connection and try again."
 export const MSG_SESSION = "Your session has expired. Please sign in again."
 
-export class ApiError extends Error {}
+export class ApiError extends Error {
+  // Machine-readable reason some routes add next to the message, e.g.
+  // "free_used" from /api/analyze, so a page can react (show a card).
+  constructor(message: string, readonly code?: string) {
+    super(message)
+  }
+}
 
 /** Our API routes always answer errors as {"error": "..."} written for users. */
 function messageFor(status: number, body: unknown): string {
@@ -34,7 +40,10 @@ export async function requestJson<T>(input: RequestInfo | URL, init?: RequestIni
   // Not JSON means it didn't come from our route (host error page, proxy, crash)
   const body: unknown = await res.json().catch(() => null)
 
-  if (!res.ok) throw new ApiError(messageFor(res.status, body))
+  if (!res.ok) {
+    const code = body && typeof body === "object" && "code" in body ? (body as { code: unknown }).code : undefined
+    throw new ApiError(messageFor(res.status, body), typeof code === "string" ? code : undefined)
+  }
   if (body === null) throw new ApiError(MSG_BUSY)
   return body as T
 }

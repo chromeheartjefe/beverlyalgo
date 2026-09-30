@@ -10,6 +10,7 @@ export type UserEventType =
   | "google_signup"         // new account created with Google
   | "google_linked"         // Google attached to an existing account, meta.passwordCleared
   | "analysis_rejected"     // screenshot refused (not a chart, blurry, ...), meta.reason
+  | "free_analysis_used"    // a Free account ran its one free Chart Analysis
   | "screener_scan"         // meta.fresh: true = ran a real (paid) scan, false = got the cached result
   | "chat_cleared"
   | "password_changed"
