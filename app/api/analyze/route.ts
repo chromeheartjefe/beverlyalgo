@@ -29,6 +29,11 @@ const VALIDATION_ERRORS: Record<string, string> = {
   MULTIPLE_CHARTS: "This screenshot has several charts. Upload one chart at a time so the analysis reads the right one.",
 }
 
+// Fit a DB varchar column; ends with "…" when shortened
+function clip(s: string, max: number): string {
+  return s.length <= max ? s : s.slice(0, max - 1).trimEnd() + "…"
+}
+
 export async function POST(req: NextRequest) {
   const session = await auth()
   if (!session?.user?.id) return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
@@ -188,8 +193,10 @@ export async function POST(req: NextRequest) {
 
     await db.insert(chartAnalyses).values({
       userId:     session.user.id,
-      pair:       String(data.pair ?? "—"),
-      timeframe:  String(data.timeframe ?? "—"),
+      // Columns are varchar(32)/varchar(16); long names like "Micro E-mini
+      // Nasdaq-100 Index Futures" would fail the insert. Full name stays in result.
+      pair:       clip(String(data.pair ?? "—"), 32),
+      timeframe:  clip(String(data.timeframe ?? "—"), 16),
       signal:     data.signal,
       confidence: Number(data.confidence) || 0,
       entry:      data.entry ?? null,
