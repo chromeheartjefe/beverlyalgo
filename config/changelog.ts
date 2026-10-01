@@ -21,6 +21,39 @@ export type Release = {
 
 export const CHANGELOG: Release[] = [
   {
+    version: "2.6",
+    date: "2026-10-02",
+    title: "Trading Glossary and a fresher EntrixAlgo",
+    summary: "Look up any trading term in plain words, plus an easier sign-up and a refreshed home page.",
+    items: [
+      { kind: "new", text: "Trading Glossary: 198 trading terms explained in plain words, with chart pictures, examples and related terms. Search understands shorthand like FVG, BOS or R:R, and you can save the terms you want to revisit.", href: "/dashboard/glossary" },
+      { kind: "new", text: "Tap a highlighted term in any Academy lesson to see what it means without leaving the lesson." },
+      { kind: "improved", text: "Sign-up spots common email typos, like gmail.con or gmaik.com, before you create your account." },
+      { kind: "improved", text: "Verifying your email is easier: every link we send keeps working, the resend button shows a short countdown, and Wrong email? takes you straight to changing it." },
+      { kind: "improved", text: "Our emails are more likely to land in your inbox instead of spam." },
+      { kind: "improved", text: "A refreshed home page: cleaner text, tighter spacing, shorter feature cards, a new Chart Analysis demo and reviews from traders using EntrixAlgo.", href: "/" },
+      { kind: "improved", text: "The support chat button stays out of the way while you learn in the Academy and Glossary." },
+      { kind: "fixed", text: "The home page now opens in browsers that block cookies or have graphics acceleration turned off." },
+      { kind: "fixed", text: "Bug fixes and small visual polish." },
+    ],
+  },
+  {
+    version: "2.5",
+    date: "2026-10-01",
+    title: "Entrix Academy is here",
+    summary: "A free trading course inside your dashboard: short lessons, quick checks, XP and daily streaks.",
+    items: [
+      { kind: "new", text: "Entrix Academy: learn trading from zero in bite-size lessons with animations, interactive charts and quick checks. Free for every account.", href: "/dashboard/academy" },
+      { kind: "new", text: "The full course is live: 129 lessons across five levels, from how markets and orders work to candlesticks, market structure, patterns and indicators." },
+      { kind: "new", text: "A full Smart Money Concepts and ICT level: liquidity, fair value gaps, order blocks, breakers, killzones, Power of 3, and entry models like Silver Bullet and Unicorn." },
+      { kind: "new", text: "Earn XP, climb from Novice to Market Wizard, and keep a daily streak going. One missed day a week is forgiven." },
+      { kind: "new", text: "Becoming a Trader: risk management and position sizing, building and backtesting a strategy, trading psychology, news, and playbooks for forex, crypto, stocks, futures and gold." },
+      { kind: "new", text: "Practice: questions you miss come back for review, spaced out over days so they stick, plus quick refreshers from finished lessons.", href: "/dashboard/academy/practice" },
+      { kind: "new", text: "Finish every lesson, pass the 30-question final exam, and earn a shareable Entrix Academy certificate." },
+      { kind: "new", text: "Rank up with a celebration every time your XP takes you to a new rank." },
+    ],
+  },
+  {
     version: "2.4",
     date: "2026-10-01",
     title: "Try it free, and a smoother EntrixAlgo",
