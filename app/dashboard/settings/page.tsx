@@ -14,6 +14,7 @@ import { SupportEmail } from "@/components/ui/support-email"
 import { markVisited } from "@/lib/onboarding"
 import { signOutToLanding } from "@/lib/sign-out"
 import { cn } from "@/lib/utils"
+import { FOCUS_EMAIL_EVENT } from "@/lib/verify-sent"
 
 const MAX_AVATAR_SOURCE_BYTES = 20 * 1024 * 1024 // client-side sanity cap before we even try to decode it
 
@@ -56,6 +57,15 @@ function SectionCard({ title, children }: { title: string; children: React.React
       {children}
     </div>
   )
+}
+
+function focusEmailField() {
+  requestAnimationFrame(() => {
+    const el = document.getElementById("profileEmail") as HTMLInputElement | null
+    el?.scrollIntoView({ block: "center", behavior: "smooth" })
+    el?.focus({ preventScroll: true })
+    el?.select()
+  })
 }
 
 export default function SettingsPage() {
@@ -141,13 +151,30 @@ export default function SettingsPage() {
       })
       .catch(() => {})
       .finally(() => {
-        if (!cancelled) setLoaded(true)
+        if (cancelled) return
+        setLoaded(true)
+        // Opened from the verify banner's "Wrong email?" link: go straight to the field
+        if (window.location.hash === "#email") focusEmailField()
       })
 
     return () => {
       cancelled = true
     }
   }, [status, session?.user?.id])
+
+  // Same link clicked while Settings is already open: Next only changes the
+  // hash then, so listen for the banner's signal (and plain hash changes)
+  useEffect(() => {
+    if (!loaded) return
+    const onSignal = () => focusEmailField()
+    const onHash = () => window.location.hash === "#email" && focusEmailField()
+    window.addEventListener(FOCUS_EMAIL_EVENT, onSignal)
+    window.addEventListener("hashchange", onHash)
+    return () => {
+      window.removeEventListener(FOCUS_EMAIL_EVENT, onSignal)
+      window.removeEventListener("hashchange", onHash)
+    }
+  }, [loaded])
 
   const handleSave = async () => {
     setSaving(true)

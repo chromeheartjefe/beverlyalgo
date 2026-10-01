@@ -33,7 +33,8 @@ export async function POST(req: NextRequest) {
   }
 
   await db.update(users).set({ emailVerified: new Date() }).where(eq(users.id, row.userId))
-  await db.delete(authTokens).where(eq(authTokens.id, row.id))
+  // Verified: every other outstanding verification link is now pointless
+  await db.delete(authTokens).where(and(eq(authTokens.userId, row.userId), eq(authTokens.type, "email_verify")))
   await logEvent(row.userId, "email_verified")
 
   return NextResponse.json({ success: true })

@@ -1,4 +1,4 @@
-import { and, eq } from "drizzle-orm"
+import { and, desc, eq, inArray } from "drizzle-orm"
 import { NextResponse } from "next/server"
 
 import { auth } from "@/auth"
@@ -27,7 +27,17 @@ export async function POST() {
     return NextResponse.json({ error: "Too many requests. Check your inbox and spam folder, or try again in an hour." }, { status: 429 })
   }
 
-  await db.delete(authTokens).where(and(eq(authTokens.userId, session.user.id), eq(authTokens.type, "email_verify")))
+  // Earlier emails keep working: people often open the first email after
+  // pressing resend. Only expired links and all but the 2 newest go, so at
+  // most 3 links (these 2 plus the new one) are valid at once.
+  const existing = await db
+    .select({ id: authTokens.id, expiresAt: authTokens.expiresAt })
+    .from(authTokens)
+    .where(and(eq(authTokens.userId, session.user.id), eq(authTokens.type, "email_verify")))
+    .orderBy(desc(authTokens.createdAt))
+  const now = Date.now()
+  const stale = existing.filter((t, i) => i >= 2 || t.expiresAt.getTime() <= now).map((t) => t.id)
+  if (stale.length > 0) await db.delete(authTokens).where(inArray(authTokens.id, stale))
 
   const { token, hash } = newAuthToken()
   await db.insert(authTokens).values({

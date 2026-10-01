@@ -9,6 +9,7 @@ import { useSession } from "next-auth/react"
 import { Suspense, useEffect, useState } from "react"
 
 import { SupportEmail } from "@/components/ui/support-email"
+import { markVerificationSent } from "@/lib/verify-sent"
 
 type Status = "verifying" | "success" | "error"
 
@@ -53,7 +54,10 @@ function VerifyEmailContent() {
     setResending(true)
     try {
       const res = await fetch("/api/auth/resend-verification", { method: "POST" })
-      if (res.ok) setResent(true)
+      if (res.ok) {
+        markVerificationSent()
+        setResent(true)
+      }
       else if (res.status === 429) setLimited(true)
     } finally {
       setResending(false)
@@ -122,7 +126,7 @@ function VerifyEmailContent() {
 
               {sessionStatus === "authenticated" && (
                 resent ? (
-                  <p className="mt-2 text-sm text-emerald-400">New verification email sent — check your inbox.</p>
+                  <p className="mt-2 text-sm text-emerald-400">New verification email sent. Check your inbox; any link we sent you will work.</p>
                 ) : limited ? (
                   <p className="mt-2 text-sm text-amber-300">Too many requests. Check your inbox and spam folder, or try again in an hour.</p>
                 ) : (

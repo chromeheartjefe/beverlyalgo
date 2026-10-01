@@ -6,12 +6,14 @@ import Image from "next/image"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { signIn } from "next-auth/react"
-import { useMemo, useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 
 import { GoogleSignInButton } from "@/components/auth/google-button"
 import { Collapse } from "@/components/ui/motion"
+import { suggestEmail } from "@/lib/email-typo"
 import { checkPassword, type PasswordCheck } from "@/lib/password-strength"
 import { cn } from "@/lib/utils"
+import { markVerificationSent } from "@/lib/verify-sent"
 
 const LEVEL_BAR  = ["bg-red-400", "bg-amber-400", "bg-lime-400", "bg-emerald-400"]
 const LEVEL_TEXT = ["text-red-400", "text-amber-300", "text-lime-300", "text-emerald-300"]
@@ -51,8 +53,18 @@ export default function SignUpPage() {
   const [error,           setError]           = useState("")
   const [loading,         setLoading]         = useState(false)
   const [pwFlagged,       setPwFlagged]       = useState(false)
+  // "Did you mean gmail.com?": shown once the field is left, and it stops the
+  // first submit so a typo can't silently lock someone out of verification
+  const [emailTouched,    setEmailTouched]    = useState(false)
+  const [focusSuggestion, setFocusSuggestion] = useState(0)
+  const [typoChecked,     setTypoChecked]     = useState("")
+
+  useEffect(() => {
+    if (focusSuggestion > 0) document.getElementById("email-suggestion")?.focus()
+  }, [focusSuggestion])
 
   const strength = useMemo(() => checkPassword(password, { email, name }), [password, email, name])
+  const emailSuggestion = useMemo(() => suggestEmail(email), [email])
   const mismatch = confirmPassword.length > 0 && confirmPassword.length >= password.length && confirmPassword !== password
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -70,6 +82,15 @@ export default function SignUpPage() {
       return
     }
 
+    // A likely typo: show the suggestion and wait for one more submit
+    if (emailSuggestion && typoChecked !== email) {
+      setEmailTouched(true)
+      setTypoChecked(email)
+      // Focused after React renders the suggestion (it may not exist yet here)
+      setFocusSuggestion((n) => n + 1)
+      return
+    }
+
     setLoading(true)
 
     try {
@@ -84,6 +105,9 @@ export default function SignUpPage() {
         setError(data.error ?? "Something went wrong. Please try again.")
         return
       }
+      // The verification email is on its way: the dashboard banner holds
+      // its Resend button for a minute instead of inviting an instant resend
+      markVerificationSent()
 
       const result = await signIn("credentials", { email, password, redirect: false })
       if (result?.error) {
@@ -161,10 +185,29 @@ export default function SignUpPage() {
                 autoComplete="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
+                onBlur={() => setEmailTouched(true)}
+                aria-describedby={emailSuggestion && emailTouched ? "email-suggestion-text" : undefined}
                 placeholder="you@example.com"
                 className="w-full rounded-xl border border-white/[0.08] bg-white/[0.04] py-2.5 pl-10 pr-4 text-sm text-white placeholder:text-gray-600 focus:border-purple-500/50 focus:outline-none focus:ring-1 focus:ring-purple-500/50"
               />
             </div>
+            {emailSuggestion && emailTouched && (
+              <p id="email-suggestion-text" className="mt-1.5 text-xs text-amber-300">
+                Did you mean{" "}
+                <button
+                  id="email-suggestion"
+                  type="button"
+                  onClick={() => {
+                    setEmail(emailSuggestion)
+                    setTypoChecked("")
+                  }}
+                  className="font-semibold text-amber-200 underline underline-offset-2 hover:text-white"
+                >
+                  {emailSuggestion}
+                </button>
+                ?{typoChecked === email ? " Tap it to fix, or submit again to keep what you typed." : ""}
+              </p>
+            )}
           </div>
 
           {/* Password */}

@@ -19,6 +19,24 @@ async function deliver(resendClient: Resend, payload: Parameters<Resend["emails"
   if (error) throw new Error(`Resend refused the email: ${error.name}: ${error.message}`)
 }
 
+/**
+ * The plain-text twin of wrapper(). HTML-only emails score worse with spam
+ * filters, and some people read mail as text, so account emails send both.
+ */
+function plainText(title: string, body: string, ctaLabel: string, ctaUrl: string): string {
+  return [
+    "EntrixAlgo",
+    "",
+    title,
+    "",
+    body,
+    "",
+    `${ctaLabel}: ${ctaUrl}`,
+    "",
+    `Need help? Reply to this email or write to ${siteConfig.supportEmail}.`,
+  ].join("\n")
+}
+
 function wrapper(title: string, body: string, ctaLabel: string, ctaUrl: string, { helpFooter = true } = {}) {
   return `
 <div style="background:#09090f;padding:40px 20px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;">
@@ -79,6 +97,12 @@ export async function sendVerificationEmail(to: string, token: string) {
       "Verify email",
       url
     ),
+    text: plainText(
+      "Verify your email",
+      "Confirm this is your email address to secure your EntrixAlgo account. This link expires in 24 hours.",
+      "Verify email",
+      url
+    ),
   })
 }
 
@@ -95,6 +119,12 @@ export async function sendPasswordResetEmail(to: string, token: string) {
     to,
     subject: "Reset your EntrixAlgo password",
     html: wrapper(
+      "Reset your password",
+      "We received a request to reset your EntrixAlgo password. This link expires in 1 hour. If you didn't request this, you can safely ignore this email.",
+      "Reset password",
+      url
+    ),
+    text: plainText(
       "Reset your password",
       "We received a request to reset your EntrixAlgo password. This link expires in 1 hour. If you didn't request this, you can safely ignore this email.",
       "Reset password",
@@ -122,6 +152,12 @@ export async function sendEmailChangedNotice(to: string, newEmail: string) {
     html: wrapper(
       "Your account email was changed",
       `The email on your EntrixAlgo account was just changed to ${escapeHtml(newEmail)}. If you made this change, no action is needed. If you didn't, contact EntrixAlgo support at <a href="mailto:${siteConfig.supportEmail}" style="color:#a855f7;">${siteConfig.supportEmail}</a> right away so we can secure your account.`,
+      "Open EntrixAlgo",
+      `${baseUrl()}/sign-in`
+    ),
+    text: plainText(
+      "Your account email was changed",
+      `The email on your EntrixAlgo account was just changed to ${newEmail}. If you made this change, no action is needed. If you didn't, contact EntrixAlgo support at ${siteConfig.supportEmail} right away so we can secure your account.`,
       "Open EntrixAlgo",
       `${baseUrl()}/sign-in`
     ),
