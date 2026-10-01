@@ -1,9 +1,16 @@
 @import "tailwindcss" source(none);
 @source "..";
 
+/* Fintech dark theme (ui-ux-pro-max: dark tech surfaces, layered glass
+   cards, one accent per business area). Accents: emerald = money,
+   sky = growth, fuchsia = engagement, amber = AI and costs, violet = brand
+   and command, rose = risk. */
 @theme {
-  --color-surface: #0d0d1c;
-  --color-page: #07070d;
+  --color-surface: #0c0c1a;
+  --color-surface-2: #11112a;
+  --color-page: #06060c;
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono: var(--font-mono-num), ui-monospace, "SFMono-Regular", Menlo, monospace;
 }
 
 html {
@@ -13,5 +20,39 @@ html {
 body {
   background: var(--color-page);
   color: #e5e7eb;
-  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Page glow on its own fixed layer: painted once, never repainted on scroll */
+.page-glow {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  transform: translateZ(0);
+  background:
+    radial-gradient(60rem 30rem at 85% -10%, rgba(124, 58, 237, 0.12), transparent 60%),
+    radial-gradient(50rem 28rem at -10% 110%, rgba(14, 165, 233, 0.07), transparent 60%);
+}
+
+/* Numbers line up in tables and KPI tiles */
+.num {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
+}
+
+:focus-visible {
+  outline: 2px solid #a78bfa;
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
 }

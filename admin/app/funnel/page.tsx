@@ -1,3 +1,4 @@
+import { Filter, Receipt } from "lucide-react"
 import Link from "next/link"
 
 import { StackedBars } from "~/components/charts"
@@ -43,6 +44,9 @@ export default async function FunnelPage({ searchParams }: { searchParams: Promi
 
   const header = (
     <PageHeader
+      icon={Filter}
+      accent="sky"
+      eyebrow="Growth"
       title="Checkout funnel"
       sub="Live from Stripe (read-only key). A checkout open = a signed-in user clicked a Pro button and Stripe's payment page opened. Days are UTC."
       right={
@@ -193,7 +197,7 @@ export default async function FunnelPage({ searchParams }: { searchParams: Promi
         </Table>
       </Card>
 
-      <Card title="Recent checkout sessions">
+      <Card accent="violet" icon={Receipt} title="Recent checkout sessions">
         <Table head={["When", "User", "Now", "Plan", "Amount", "Result"]} empty={period.length === 0}>
           {period.slice(0, 30).map((s) => {
             const [color, label] = STATUS_BADGE[s.status]

@@ -2,7 +2,9 @@ import "server-only"
 
 import type Stripe from "stripe"
 
+import { excludedRefs, STRIPE_SINCE } from "~/lib/excluded"
 import { monthlyAmount, periodEnd, stripe } from "~/lib/stripe"
+import { cached } from "~/lib/ttl-cache"
 
 export type SubRow = {
   id: string
@@ -27,8 +29,12 @@ export type ChargeRow = {
   description: string | null
 }
 
-/** Everything the Revenue page and the Overview MRR tile need from Stripe. */
-export async function getStripeData(): Promise<{ subs: SubRow[]; charges: ChargeRow[] } | null> {
+/** Everything the Revenue page and the Overview MRR tile need from Stripe (cached 2 min). */
+export function getStripeData(): Promise<{ subs: SubRow[]; charges: ChargeRow[] } | null> {
+  return cached("stripe-data", 2 * 60_000, loadStripeData)
+}
+
+async function loadStripeData(): Promise<{ subs: SubRow[]; charges: ChargeRow[] } | null> {
   const s = stripe()
   if (!s) return null
 
@@ -47,7 +53,8 @@ export async function getStripeData(): Promise<{ subs: SubRow[]; charges: Charge
     if (subs.length >= 1000) break
   }
 
-  const since = Math.floor(Date.now() / 1000) - 365 * 24 * 60 * 60
+  // Last 12 months, but never before this business started on Stripe
+  const since = Math.max(Math.floor(Date.now() / 1000) - 365 * 24 * 60 * 60, Math.floor(STRIPE_SINCE.getTime() / 1000))
   const charges: ChargeRow[] = []
   for await (const c of s.charges.list({ created: { gte: since }, limit: 100 })) {
     charges.push({
@@ -64,20 +71,27 @@ export async function getStripeData(): Promise<{ subs: SubRow[]; charges: Charge
     if (charges.length >= 2000) break
   }
 
-  return { subs, charges }
+  // Leave out excluded accounts (e.g. the owner's own test purchases)
+  const { customers } = await excludedRefs()
+  return {
+    subs: subs.filter((x) => !customers.has(x.customerId) && x.created >= STRIPE_SINCE),
+    charges: charges.filter((x) => !x.customerId || !customers.has(x.customerId)),
+  }
 }
 
 export function mrr(subs: SubRow[]): number {
   return subs.filter((s) => s.status === "active" || s.status === "past_due").reduce((t, s) => t + s.monthly, 0)
 }
 
-/** Net revenue per calendar month (UTC), last 12 months, oldest first. */
+/** Net revenue per calendar month (UTC), last 12 months from STRIPE_SINCE on, oldest first. */
 export function revenueByMonth(charges: ChargeRow[]): { month: string; revenue: number }[] {
   const out = new Map<string, number>()
   const now = new Date()
+  const first = STRIPE_SINCE.toISOString().slice(0, 7)
   for (let i = 11; i >= 0; i--) {
     const d = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() - i, 1))
-    out.set(d.toISOString().slice(0, 7), 0)
+    const key = d.toISOString().slice(0, 7)
+    if (key >= first) out.set(key, 0)
   }
   for (const c of charges) {
     if (!c.paid) continue

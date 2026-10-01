@@ -3,6 +3,7 @@ import "server-only"
 import { sql } from "drizzle-orm"
 
 import { one, rows } from "~/lib/db"
+import { USERS } from "~/lib/excluded"
 import { COST } from "~/lib/format"
 
 /** The last `n` days (UTC) as a generate_series, oldest first. */
@@ -29,7 +30,7 @@ export async function getKpis() {
       count(*) FILTER (WHERE plan <> 'free' AND stripe_subscription_id IS NOT NULL)::int AS monthly,
       count(*) FILTER (WHERE plan <> 'free' AND stripe_subscription_id IS NULL AND stripe_customer_id IS NOT NULL)::int AS lifetime,
       count(*) FILTER (WHERE plan <> 'free' AND stripe_subscription_id IS NULL AND stripe_customer_id IS NULL)::int AS manual
-    FROM users
+    FROM ${USERS} AS users
   `)
 }
 
@@ -42,33 +43,6 @@ export async function getMonthSpend() {
   return row ?? { spend: 0, estimated: 0 }
 }
 
-export async function getSignupsPerDay(days = 30) {
-  return rows<{ day: string; signups: number }>(sql`
-    SELECT to_char(d, 'YYYY-MM-DD') AS day, count(u.id)::int AS signups
-    FROM ${DAYS(days)} AS d
-    LEFT JOIN users u ON date_trunc('day', u.created_at) = d
-    GROUP BY d ORDER BY d
-  `)
-}
-
-// "Active" = did something we record (sign-in, analysis, bot message, trade,
-// scan...). Browsing alone only moves last_seen_at, which has no history.
-export async function getActivePerDay(days = 30) {
-  return rows<{ day: string; active: number }>(sql`
-    WITH act AS (
-      SELECT user_id, created_at FROM user_events
-      UNION ALL SELECT user_id, created_at FROM chart_analyses
-      UNION ALL SELECT user_id, created_at FROM chat_messages WHERE role = 'user'
-      UNION ALL SELECT user_id, created_at FROM trades
-      UNION ALL SELECT user_id, created_at FROM ai_usage WHERE user_id IS NOT NULL
-    )
-    SELECT to_char(d, 'YYYY-MM-DD') AS day, count(DISTINCT a.user_id)::int AS active
-    FROM ${DAYS(days)} AS d
-    LEFT JOIN act a ON a.created_at >= d AND a.created_at < d + interval '1 day'
-    GROUP BY d ORDER BY d
-  `)
-}
-
 export async function getAiCostPerDay(days = 30) {
   return rows<{ day: string; chart_analysis: number; chat: number; screener: number }>(sql`
     SELECT to_char(d, 'YYYY-MM-DD') AS day,
@@ -79,37 +53,5 @@ export async function getAiCostPerDay(days = 30) {
     LEFT JOIN (SELECT feature, created_at, ${COST()} AS cost FROM ai_usage) a
       ON a.created_at >= d AND a.created_at < d + interval '1 day'
     GROUP BY d ORDER BY d
-  `)
-}
-
-export async function getAnalysesPerDay(days = 30) {
-  return rows<{ day: string; buy: number; sell: number; neutral: number }>(sql`
-    SELECT to_char(d, 'YYYY-MM-DD') AS day,
-      count(c.id) FILTER (WHERE c.signal = 'BUY')::int AS buy,
-      count(c.id) FILTER (WHERE c.signal = 'SELL')::int AS sell,
-      count(c.id) FILTER (WHERE c.signal = 'NEUTRAL')::int AS neutral
-    FROM ${DAYS(days)} AS d
-    LEFT JOIN chart_analyses c ON c.created_at >= d AND c.created_at < d + interval '1 day'
-    GROUP BY d ORDER BY d
-  `)
-}
-
-export async function getMessagesPerDay(days = 30) {
-  return rows<{ day: string; messages: number }>(sql`
-    SELECT to_char(d, 'YYYY-MM-DD') AS day, count(m.id)::int AS messages
-    FROM ${DAYS(days)} AS d
-    LEFT JOIN chat_messages m ON m.role = 'user' AND m.created_at >= d AND m.created_at < d + interval '1 day'
-    GROUP BY d ORDER BY d
-  `)
-}
-
-export async function getTotals() {
-  return one<{ analyses_30d: number; messages_30d: number; trades_30d: number; scans_30d: number; scan_views_30d: number }>(sql`
-    SELECT
-      (SELECT count(*) FROM chart_analyses WHERE created_at >= now() - interval '30 days')::int AS analyses_30d,
-      (SELECT count(*) FROM chat_messages WHERE role = 'user' AND created_at >= now() - interval '30 days')::int AS messages_30d,
-      (SELECT count(*) FROM trades WHERE created_at >= now() - interval '30 days')::int AS trades_30d,
-      (SELECT count(*) FROM user_events WHERE type = 'screener_scan' AND meta::json->>'fresh' = 'true' AND created_at >= now() - interval '30 days')::int AS scans_30d,
-      (SELECT count(*) FROM user_events WHERE type = 'screener_scan' AND coalesce(meta::json->>'fresh', 'false') <> 'true' AND created_at >= now() - interval '30 days')::int AS scan_views_30d
   `)
 }

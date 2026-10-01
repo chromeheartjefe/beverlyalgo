@@ -4,8 +4,10 @@ import { sql } from "drizzle-orm"
 import Stripe from "stripe"
 
 import { rows } from "~/lib/db"
+import { excludedRefs, STRIPE_SINCE, USERS } from "~/lib/excluded"
 import { PLAN_KIND, type PlanKind } from "~/lib/format"
 import { stripe } from "~/lib/stripe"
+import { cached } from "~/lib/ttl-cache"
 
 // One Stripe Checkout Session = one opening of a payment page. The site's
 // Pro buttons append client_reference_id (the user id) to the Payment Link,
@@ -38,13 +40,18 @@ function status(s: Stripe.Checkout.Session): CheckoutStatus {
   return s.status === "open" ? "open" : "abandoned"
 }
 
-export async function getFunnelData(): Promise<FunnelData> {
+/** Checkout sessions from Stripe (cached 2 min) */
+export function getFunnelData(): Promise<FunnelData> {
+  return cached("stripe-funnel", 2 * 60_000, loadFunnelData)
+}
+
+async function loadFunnelData(): Promise<FunnelData> {
   const s = stripe()
   if (!s) return { state: "no-key" }
 
   const sessions: CheckoutRow[] = []
   try {
-    for await (const cs of s.checkout.sessions.list({ limit: 100 })) {
+    for await (const cs of s.checkout.sessions.list({ limit: 100, created: { gte: Math.floor(STRIPE_SINCE.getTime() / 1000) } })) {
       if (!cs.client_reference_id) continue
       sessions.push({
         id:       cs.id,
@@ -62,13 +69,16 @@ export async function getFunnelData(): Promise<FunnelData> {
     throw err
   }
 
+  const { ids: excluded } = await excludedRefs()
+  for (let i = sessions.length - 1; i >= 0; i--) if (excluded.has(sessions[i].userId)) sessions.splice(i, 1)
+
   // client_reference_id comes from a URL anyone could edit, so it's compared
   // as text (a non-uuid value just matches nobody instead of erroring).
   const ids = [...new Set(sessions.map((r) => r.userId))]
   const users = ids.length
     ? await rows<FunnelUser>(sql`
         SELECT u.id, u.email, u.created_at, ${PLAN_KIND()} AS kind
-        FROM users u
+        FROM ${USERS} u
         WHERE u.id::text IN (${sql.join(ids.map((id) => sql`${id}`), sql`, `)})
       `)
     : []
@@ -79,7 +89,7 @@ export async function getFunnelData(): Promise<FunnelData> {
 /** Ids of accounts created in the last `days` days. */
 export async function signupsSince(days: number): Promise<string[]> {
   const list = await rows<{ id: string }>(sql`
-    SELECT id FROM users WHERE created_at >= now() - make_interval(days => ${days})
+    SELECT id FROM ${USERS} AS users WHERE created_at >= now() - make_interval(days => ${days})
   `)
   return list.map((r) => r.id)
 }

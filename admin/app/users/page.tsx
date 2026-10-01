@@ -1,10 +1,12 @@
 import { sql } from "drizzle-orm"
+import { Users } from "lucide-react"
 import Link from "next/link"
 
 import { resendVerificationToAll } from "~/app/actions"
 import { ActionButton } from "~/components/action-button"
 import { Badge, Card, Muted, PageHeader, PlanBadge, Table, Td, UserLink } from "~/components/ui"
 import { one } from "~/lib/db"
+import { isExcludedEmail } from "~/lib/excluded"
 import { ago, dateOnly, num, usdSmall } from "~/lib/format"
 import { listUsers, PAGE_SIZE, type UserFilters } from "~/lib/queries/users"
 
@@ -43,7 +45,7 @@ export default async function UsersPage({ searchParams }: { searchParams: Promis
 
   return (
     <div className="space-y-5">
-      <PageHeader title="Users" sub={`${num(total)} matching`} />
+      <PageHeader icon={Users} accent="sky" eyebrow="Growth" title="Users" sub={`${num(total)} matching`} />
 
       {(unverified?.n ?? 0) > 0 && (
         <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-amber-400/30 bg-amber-500/10 px-4 py-3">
@@ -83,6 +85,7 @@ export default async function UsersPage({ searchParams }: { searchParams: Promis
             <tr key={u.id} className="hover:bg-white/[0.03]">
               <Td>
                 <UserLink id={u.id}>{u.email}</UserLink>
+                {isExcludedEmail(u.email) && <span className="ml-1.5"><Badge color="gray">excluded from metrics</Badge></span>}
                 <div className="text-xs text-gray-500">{u.name}</div>
               </Td>
               <Td><PlanBadge kind={u.plan_kind} /></Td>

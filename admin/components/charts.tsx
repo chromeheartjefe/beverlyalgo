@@ -1,12 +1,14 @@
 "use client"
 
+import { useId } from "react"
 import {
+  Area,
+  AreaChart,
   Bar,
   BarChart,
   CartesianGrid,
   Legend,
   Line,
-  LineChart,
   ResponsiveContainer,
   Tooltip,
   XAxis,
@@ -19,7 +21,7 @@ import {
 // for every chart form. A single series always takes slot 1.
 export const SERIES = ["#3987e5", "#d95926", "#199e70"] as const
 
-const SURFACE = "#0d0d1c"
+const SURFACE = "#0c0c1a"
 const GRID = "rgba(255,255,255,0.07)"
 const AXIS = "#9ca3af"
 
@@ -63,25 +65,76 @@ const FORMATTERS: Record<ValueFormat, (v: number) => string> = {
   usdSmall: (v) => (Math.abs(v) < 1 ? `$${v.toFixed(4)}` : `$${v.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`),
 }
 
-/** One measure over time, e.g. signups per day. */
-export function TrendLine({ data, dataKey, name, format: formatName = "number", height = 220 }: {
+// Accent colours for single-measure charts and sparklines (match the UI accents)
+export const ACCENT_HEX = {
+  violet: "#a78bfa",
+  sky: "#38bdf8",
+  emerald: "#34d399",
+  fuchsia: "#e879f9",
+  amber: "#fbbf24",
+  rose: "#fb7185",
+} as const
+export type ChartAccent = keyof typeof ACCENT_HEX
+
+/**
+ * One measure over time, e.g. signups per day, as a filled area. An optional
+ * second measure (`compareKey`) is drawn as a dashed line so the two never
+ * rely on colour alone.
+ */
+export function TrendLine({ data, dataKey, name, format: formatName = "number", height = 220, accent = "sky", compareKey, compareName }: {
   data: Row[]
   dataKey: string
   name: string
   format?: ValueFormat
   height?: number
+  accent?: ChartAccent
+  compareKey?: string
+  compareName?: string
 }) {
   const format = FORMATTERS[formatName]
+  const id = useId().replace(/:/g, "")
+  const color = ACCENT_HEX[accent]
   return (
     <div style={{ height }} role="img" aria-label={`${name} per day`}>
       <ResponsiveContainer width="100%" height="100%">
-        <LineChart data={data} margin={{ top: 8, right: 8, bottom: 0, left: -12 }}>
+        <AreaChart data={data} margin={{ top: 8, right: 8, bottom: 0, left: -12 }}>
+          <defs>
+            <linearGradient id={`fill-${id}`} x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor={color} stopOpacity={0.35} />
+              <stop offset="100%" stopColor={color} stopOpacity={0} />
+            </linearGradient>
+          </defs>
           <CartesianGrid stroke={GRID} vertical={false} />
           <XAxis dataKey="day" tickFormatter={shortDay} tick={{ fill: AXIS, fontSize: 11 }} tickLine={false} axisLine={false} minTickGap={24} />
           <YAxis tick={{ fill: AXIS, fontSize: 11 }} tickLine={false} axisLine={false} allowDecimals={false} tickFormatter={(v) => format(Number(v))} width={56} />
           <Tooltip content={<TooltipBox format={format} />} cursor={{ stroke: "rgba(255,255,255,0.25)" }} />
-          <Line type="monotone" dataKey={dataKey} name={name} stroke={SERIES[0]} strokeWidth={2} dot={false} activeDot={{ r: 4, stroke: SURFACE, strokeWidth: 2 }} />
-        </LineChart>
+          {compareKey && <Legend iconType="plainline" iconSize={14} wrapperStyle={{ fontSize: 11, color: AXIS, paddingTop: 4 }} />}
+          <Area type="monotone" dataKey={dataKey} name={name} stroke={color} strokeWidth={2} fill={`url(#fill-${id})`} dot={false} isAnimationActive={false} activeDot={{ r: 4, stroke: SURFACE, strokeWidth: 2 }} />
+          {compareKey && (
+            <Line type="monotone" dataKey={compareKey} name={compareName ?? compareKey} stroke="#e5e7eb" strokeOpacity={0.7} strokeWidth={1.5} strokeDasharray="4 4" dot={false} isAnimationActive={false} />
+          )}
+        </AreaChart>
+      </ResponsiveContainer>
+    </div>
+  )
+}
+
+/** Tiny trend for a KPI tile: no axes, just the shape */
+export function Sparkline({ data, dataKey, accent = "violet", height = 40 }: { data: Row[]; dataKey: string; accent?: ChartAccent; height?: number }) {
+  const id = useId().replace(/:/g, "")
+  const color = ACCENT_HEX[accent]
+  return (
+    <div style={{ height }} aria-hidden>
+      <ResponsiveContainer width="100%" height="100%">
+        <AreaChart data={data} margin={{ top: 2, right: 2, bottom: 0, left: 2 }}>
+          <defs>
+            <linearGradient id={`spark-${id}`} x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor={color} stopOpacity={0.4} />
+              <stop offset="100%" stopColor={color} stopOpacity={0} />
+            </linearGradient>
+          </defs>
+          <Area type="monotone" dataKey={dataKey} stroke={color} strokeWidth={1.75} fill={`url(#spark-${id})`} dot={false} isAnimationActive={false} />
+        </AreaChart>
       </ResponsiveContainer>
     </div>
   )
@@ -114,6 +167,7 @@ export function StackedBars({ data, series, format: formatName = "number", heigh
               stroke={SURFACE}
               strokeWidth={1}
               radius={i === Math.min(series.length, 3) - 1 ? [4, 4, 0, 0] : 0}
+              isAnimationActive={false}
             />
           ))}
         </BarChart>
@@ -126,12 +180,13 @@ const shortMonth = (month: string) =>
   new Date(`${month}-01T00:00:00Z`).toLocaleDateString("en-GB", { month: "short", year: "2-digit", timeZone: "UTC" })
 
 /** One value per month, e.g. net revenue. */
-export function MonthBars({ data, dataKey, name, format: formatName = "number", height = 220 }: {
+export function MonthBars({ data, dataKey, name, format: formatName = "number", height = 220, accent = "emerald" }: {
   data: Row[]
   dataKey: string
   name: string
   format?: ValueFormat
   height?: number
+  accent?: ChartAccent
 }) {
   const format = FORMATTERS[formatName]
   return (
@@ -152,7 +207,7 @@ export function MonthBars({ data, dataKey, name, format: formatName = "number", 
               ) : null
             }
           />
-          <Bar dataKey={dataKey} name={name} fill={SERIES[0]} radius={[4, 4, 0, 0]} />
+          <Bar dataKey={dataKey} name={name} fill={ACCENT_HEX[accent]} fillOpacity={0.85} radius={[4, 4, 0, 0]} isAnimationActive={false} />
         </BarChart>
       </ResponsiveContainer>
     </div>

@@ -5,6 +5,8 @@
   "scripts": {
     "dev": "next dev --turbopack",
     "admin": "next dev admin -p 3100 -H 127.0.0.1",
+    "admin:build": "next build admin",
+    "admin:start": "next start admin -p 3100 -H 127.0.0.1",
     "build": "next build",
     "start": "next start",
     "lint": "next lint",

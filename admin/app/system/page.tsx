@@ -1,4 +1,5 @@
 import { sql } from "drizzle-orm"
+import { Database, ExternalLink, Gauge, KeyRound, LineChart, ServerCog, Timer, Webhook } from "lucide-react"
 
 import { Badge, Card, Muted, PageHeader, Stat, Table, Td } from "~/components/ui"
 import { one, rows } from "~/lib/db"
@@ -19,7 +20,7 @@ const LINKS = [
 
 export default async function SystemPage() {
   const today = new Date().toISOString().slice(0, 10)
-  const [td, caches, logins, tables] = await Promise.all([
+  const [td, caches, logins, tables, events] = await Promise.all([
     one<{ minute: number; day: number; backoff: number; backoff_day: number }>(sql`
       SELECT
         (SELECT count(*) FROM rate_limit_hits WHERE key = 'twelvedata:credit' AND created_at > now() - interval '1 minute')::int AS minute,
@@ -51,6 +52,9 @@ export default async function SystemPage() {
         (SELECT count(*) FROM auth_tokens)::int AS auth_tokens,
         (SELECT count(*) FROM admin_audit_log)::int AS admin_audit_log
     `),
+    rows<{ id: string; type: string; created_at: string }>(sql`
+      SELECT id, type, created_at FROM processed_stripe_events ORDER BY created_at DESC LIMIT 20
+    `),
   ])
 
   let ticker: { label: string; price: number; changePercent: number }[] = []
@@ -60,21 +64,23 @@ export default async function SystemPage() {
 
   return (
     <div className="space-y-5">
-      <PageHeader title="System health" sub="Budgets, caches and abuse signals. Refresh the page to update." />
+      <PageHeader icon={ServerCog} accent="sky" eyebrow="Operations" title="System health" sub="Budgets, caches, webhooks and abuse signals. Refresh the page to update." />
 
       <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
-        <Stat label="Twelve Data credits, last minute" value={`${num(td?.minute)} / 8`} tone={(td?.minute ?? 0) >= 8 ? "warn" : undefined} />
-        <Stat label="Twelve Data credits today (UTC)" value={`${num(td?.day)} / 750`} hint="our cap, real limit 800" tone={(td?.day ?? 0) >= 700 ? "bad" : (td?.day ?? 0) >= 500 ? "warn" : undefined} />
+        <Stat accent="sky" icon={Gauge} label="Twelve Data credits, last minute" value={`${num(td?.minute)} / 8`} tone={(td?.minute ?? 0) >= 8 ? "warn" : undefined} />
+        <Stat accent="sky" icon={LineChart} label="Twelve Data credits today (UTC)" value={`${num(td?.day)} / 750`} hint="our cap, real limit 800" tone={(td?.day ?? 0) >= 700 ? "bad" : (td?.day ?? 0) >= 500 ? "warn" : undefined} />
         <Stat
+          accent="amber"
+          icon={Timer}
           label="Twelve Data backoff"
           value={td?.backoff_day ? "Until 00:00 UTC" : td?.backoff ? "2 min pause" : "None"}
           tone={td?.backoff_day ? "bad" : td?.backoff ? "warn" : "good"}
         />
-        <Stat label="Screener cache" value={ago(caches?.screener_at)} hint={dateTime(caches?.screener_at)} />
+        <Stat accent="violet" icon={Database} label="Screener cache" value={ago(caches?.screener_at)} hint={dateTime(caches?.screener_at)} />
       </div>
 
       <div className="grid gap-4 xl:grid-cols-2">
-        <Card title="Ticker cache (Twelve Data part)" sub={`Refreshed ${ago(caches?.ticker_at)}. Only refreshes while each market is open.`}>
+        <Card accent="sky" icon={LineChart} title="Ticker cache (Twelve Data part)" sub={`Refreshed ${ago(caches?.ticker_at)}. Only refreshes while each market is open.`}>
           <Table head={["Symbol", "Price", "24h"]} empty={ticker.length === 0}>
             {ticker.map((t) => (
               <tr key={t.label}>
@@ -86,7 +92,7 @@ export default async function SystemPage() {
           </Table>
         </Card>
 
-        <Card title="Failed sign-ins, last 24h" sub="Throttle keys. Blocks at 10 per email+IP, 30 per IP, 100 per email (15 min).">
+        <Card accent="rose" icon={KeyRound} title="Failed sign-ins, last 24h" sub="Throttle keys. Blocks at 10 per email+IP, 30 per IP, 100 per email (15 min).">
           <Table head={["Key", "Failures", "Last"]} empty={logins.length === 0}>
             {logins.map((l) => (
               <tr key={l.key}>
@@ -100,7 +106,7 @@ export default async function SystemPage() {
       </div>
 
       <div className="grid gap-4 xl:grid-cols-2">
-        <Card title="Table sizes" sub="Row counts">
+        <Card accent="violet" icon={Database} title="Table sizes" sub="Row counts">
           <div className="grid grid-cols-2 gap-x-6 gap-y-1.5 text-sm">
             {tables && Object.entries(tables).map(([k, v]) => (
               <div key={k} className="flex justify-between border-b border-white/[0.07] py-1">
@@ -111,7 +117,17 @@ export default async function SystemPage() {
           </div>
         </Card>
 
-        <Card title="Dashboards">
+        <Card accent="emerald" icon={Webhook} title="Processed Stripe webhooks" sub="What the site received and handled">
+          <Table head={["When", "Event", "Id"]} empty={events.length === 0}>
+            {events.map((e) => (
+              <tr key={e.id}><Td>{dateTime(e.created_at)}</Td><Td>{e.type}</Td><Td><Muted>{e.id}</Muted></Td></tr>
+            ))}
+          </Table>
+        </Card>
+      </div>
+
+      <div>
+        <Card accent="sky" icon={ExternalLink} title="Dashboards">
           <div className="flex flex-wrap gap-2">
             {LINKS.map(([label, href]) => (
               <a key={href} href={href} target="_blank" rel="noreferrer" className="rounded-lg border border-white/15 px-3 py-1.5 text-sm text-gray-200 hover:border-purple-400/40 hover:text-white">

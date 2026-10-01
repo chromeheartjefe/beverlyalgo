@@ -1,4 +1,5 @@
 import { sql } from "drizzle-orm"
+import { CheckCircle2, Radar } from "lucide-react"
 
 import { indicatorUpdateEmail } from "@/lib/email"
 import { markIndicatorInvited, sendIndicatorUpdateToWaiting } from "~/app/actions"
@@ -38,6 +39,9 @@ export default async function IndicatorPage() {
   return (
     <div className="space-y-5">
       <PageHeader
+        icon={Radar}
+        accent="violet"
+        eyebrow="Operations"
         title="Indicator queue"
         sub="Add each user to the invite-only script on TradingView, then mark them invited so their dashboard shows access. Oldest first."
       />
@@ -95,7 +99,7 @@ export default async function IndicatorPage() {
         </Table>
       </Card>
 
-      <Card title="Recently invited">
+      <Card accent="emerald" icon={CheckCircle2} title="Recently invited">
         <Table head={["TradingView", "User", "Requested", "Invited"]} empty={invited.length === 0}>
           {invited.map((r) => (
             <tr key={r.id}>

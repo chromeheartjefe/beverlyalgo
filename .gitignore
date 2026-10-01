@@ -12,6 +12,8 @@
 # next.js
 /.next/
 /admin/.next/
+# Admin console local data (ideas board, AI briefings, AI call log)
+/admin/data/
 /out/
 
 # production

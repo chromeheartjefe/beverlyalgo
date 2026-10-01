@@ -33,19 +33,58 @@ npm run admin
 
 Open http://127.0.0.1:3100
 
+## Run in the background (tray icon)
+
+`admin/tray/` starts the console with no terminal window and an icon in the
+taskbar notification area (bottom right):
+
+- `start-admin.bat`: start it now. Double-click the tray icon to open
+  http://127.0.0.1:3100; right-click for Open, Restart server (rebuild),
+  Dev mode, Show server log (`admin/data/server.log`) and **Stop admin and
+  exit** (kills the whole server process tree).
+- `install-autostart.bat`: adds a shortcut to your Windows Startup folder so it
+  starts hidden every time you sign in (and starts it right away).
+- `remove-autostart.bat`: removes that shortcut.
+
+**Fast mode (default):** the tray builds an optimised production version
+(`npm run admin:build`, about a minute, in the background) and serves it
+(`npm run admin:start`). Much faster than the dev server. Restart rebuilds, so
+code changes are picked up. If the build fails it falls back to dev mode.
+**Dev mode** (tray toggle, remembered): `npm run admin` with live reload, for
+when the admin code is being edited. Starting it twice just opens the console.
+
+Stripe data is cached for 2 minutes; the Refresh button on Overview and
+Revenue fetches it fresh.
+
 ## Pages
+
+Grouped in the sidebar: Command, Growth, Money, Operations.
 
 | Page | What |
 |---|---|
-| Overview | Users, active users, paying, MRR, conversion, verification, AI spend vs budget; charts for signups, active users, AI cost, analyses, bot messages |
+| Overview | Command center: MRR / paying / signups / active hero KPIs with trends and week-over-week change, health strip (free to Pro, week-one activation, stickiness, email verified, AI budget), automatic Signals (rule-based, no AI), lifecycle funnel, active + signups chart, feature adoption, net revenue per month, newest accounts |
+| AI analyst | AI briefing on the live aggregates (headline, five health scores, ranked actions with "Save as idea", risks), Ask-your-data questions, briefing history. Needs `OPENAI_API_KEY` |
+| Ideas | Kanban board (Inbox, Exploring, Planned, Building, Shipped, Parked), impact/effort priority, AI review per idea (score, verdict, pros/cons, first steps, success metric), "Suggest 3 ideas". Stored in `admin/data/ideas.json` |
 | Users | Search and filter (plan, verified, at risk, indicator pending), sort by spend/activity |
-| User detail | Live Stripe status and payments, AI spend per feature, today's limits, last 10 analyses with full result, activity timeline, trading stats, indicator, sign-ins, debug chat viewer, safe actions |
-| Revenue | MRR, live/canceling/past-due subscriptions, renewals in 7 days, net revenue per month, refunds and disputes, webhook feed |
-| Checkout funnel | Stripe payment page opens vs purchases (7/30/90 days, 12 months), conversion, Monthly vs Lifetime, new accounts → checkout → paid, median days to first purchase, people who opened checkout but didn't buy, recent sessions |
-| AI & costs | Spend per day and per model/thinking level, cost per analysis/message/scan, top spenders, screenshot rejection reasons |
-| Indicator queue | Pending TradingView requests, oldest first, with "Mark invited" |
-| System health | Twelve Data credits and backoff, caches, failed sign-in throttles, table sizes, links |
+| User detail | Live Stripe status and payments, AI spend per feature, last analyses, activity timeline, trading stats, indicator, sign-ins, debug chat viewer, safe actions |
+| Engagement | Active today/7d/30d, stickiness, activation, time to first value, weekly retention cohorts, churn watch (paying accounts by last activity), power users, feature adoption, free-analysis conversion, Academy |
+| Checkout funnel | Stripe payment page opens vs purchases, conversion, Monthly vs Lifetime, people who opened checkout but didn't buy, recent sessions |
+| Revenue | MRR, ARR run-rate, net revenue 30d vs previous, 12-month revenue and revenue per customer, subscriptions, renewals, refunds and disputes, payments |
+| AI & unit costs | Unit economics (AI cost per paying and per free account vs revenue per paying account), spend per day/model, cost per analysis/message/scan, top spenders, rejection reasons |
+| Indicator queue | Pending TradingView requests with "Mark invited", update email |
+| System health | Twelve Data credits and backoff, caches, Stripe webhook feed, failed sign-in throttles, table sizes, links |
 | Audit log | Every action and chat view from this console |
+
+## AI features and local data
+
+- The AI analyst and idea reviews send only aggregate numbers (counts, rates,
+  revenue totals) to OpenAI, never emails, names or ids (`aiSnapshot` in
+  `lib/business.ts`).
+- Calls use `ADMIN_AI_MODEL` (default gpt-6-luna), cost well under a cent each,
+  and are logged in `admin/data/ai-log.json`. They are not in the site's
+  `ai_usage` table, so they don't count toward the site's AI budget.
+- Ideas, briefings, answers and the AI log live in `admin/data/` (git-ignored,
+  this machine only). Back the folder up if the ideas matter.
 
 ## Safe actions (confirmed twice, audit-logged)
 

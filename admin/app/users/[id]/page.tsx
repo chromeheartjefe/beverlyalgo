@@ -1,3 +1,4 @@
+import { Activity, Bot, Cpu, Crown, LineChart, LogIn, Radar, ShieldCheck, UserRound } from "lucide-react"
 import Link from "next/link"
 import { notFound } from "next/navigation"
 import type { ReactNode } from "react"
@@ -6,6 +7,7 @@ import { forceSignOut, markIndicatorInvited, resendVerification } from "~/app/ac
 import { ActionButton } from "~/components/action-button"
 import { ChatViewer } from "~/components/chat-viewer"
 import { Badge, Card, Muted, Notice, PageHeader, PlanBadge, Stat, Table, Td } from "~/components/ui"
+import { isExcludedEmail } from "~/lib/excluded"
 import { ago, dateOnly, dateTime, num, pct, price, usd, usdSmall } from "~/lib/format"
 import {
   getAiUsage,
@@ -88,11 +90,15 @@ export default async function UserPage({ params }: { params: Promise<{ id: strin
   return (
     <div className="space-y-5">
       <PageHeader
+        icon={UserRound}
+        accent="sky"
+        eyebrow="User"
         title={user.name}
         sub={
           <span className="flex flex-wrap items-center gap-2">
             {user.email} <PlanBadge kind={user.plan_kind} />
             {user.email_verified ? <Badge color="green">Verified</Badge> : <Badge color="amber">Not verified</Badge>}
+            {isExcludedEmail(user.email) && <Badge color="gray">excluded from metrics</Badge>}
             <Muted>id {user.id}</Muted>
           </span>
         }
@@ -110,7 +116,7 @@ export default async function UserPage({ params }: { params: Promise<{ id: strin
 
       <div className="grid gap-4 xl:grid-cols-3">
         {/* Subscription */}
-        <Card title="Subscription" sub="Live from Stripe">
+        <Card accent="emerald" icon={Crown} title="Subscription" sub="Live from Stripe">
           <Row label="Plan">{user.plan_kind === "free" ? "Free" : `Pro (${user.plan_kind})`}</Row>
           {stripeInfo === "not-configured" ? (
             <p className="mt-2 text-sm text-gray-400">Add STRIPE_ADMIN_KEY to see live billing.</p>
@@ -159,7 +165,7 @@ export default async function UserPage({ params }: { params: Promise<{ id: strin
         </Card>
 
         {/* AI usage */}
-        <Card title="AI usage" sub="Tracked per user since 2026-09-28">
+        <Card accent="amber" icon={Cpu} title="AI usage" sub="Tracked per user since 2026-09-28">
           {ai.length === 0 ? (
             <p className="text-sm text-gray-500">No tracked AI calls yet.</p>
           ) : (
@@ -179,7 +185,7 @@ export default async function UserPage({ params }: { params: Promise<{ id: strin
         </Card>
 
         {/* Account & actions */}
-        <Card title="Account" sub="Safe actions are confirmed and audit-logged">
+        <Card accent="violet" icon={ShieldCheck} title="Account" sub="Safe actions are confirmed and audit-logged">
           <Row label="Last sign-in">{dateTime(user.last_login_at)}</Row>
           <Row label="Failed sign-ins (30d)">{num(security.summary?.failed_30d)}</Row>
           <Row label="Failed attempts, last 15 min">
@@ -243,7 +249,7 @@ export default async function UserPage({ params }: { params: Promise<{ id: strin
 
       <div className="grid gap-4 xl:grid-cols-3">
         {/* Timeline */}
-        <Card title="Activity timeline" sub="Newest first, last 80 entries" className="xl:col-span-2">
+        <Card accent="fuchsia" icon={Activity} title="Activity timeline" sub="Newest first, last 80 entries" className="xl:col-span-2">
           <ol className="space-y-1.5">
             {timeline.map((e, i) => {
               const d = describe(e)
@@ -259,7 +265,7 @@ export default async function UserPage({ params }: { params: Promise<{ id: strin
         </Card>
 
         <div className="space-y-4">
-          <Card title="Trading">
+          <Card accent="sky" icon={LineChart} title="Trading">
             <Row label="Trades logged">{num(trading?.trades)}</Row>
             <Row label="Win rate">{trading ? pct(trading.wins, trading.wins + trading.losses) : "—"}</Row>
             <Row label="Total P&L">
@@ -269,7 +275,7 @@ export default async function UserPage({ params }: { params: Promise<{ id: strin
             <Row label="Monthly goals set">{num(trading?.goals)}</Row>
           </Card>
 
-          <Card title="TradingView indicator">
+          <Card accent="violet" icon={Radar} title="TradingView indicator">
             <Row label="Username">{user.tradingview_username ? `@${user.tradingview_username}` : "—"}</Row>
             <Row label="Requested">{dateTime(user.indicator_requested_at)}</Row>
             <Row label="Invited">{user.indicator_invited_at ? dateTime(user.indicator_invited_at) : user.indicator_requested_at ? <Badge color="amber">Pending</Badge> : "—"}</Row>
@@ -280,7 +286,7 @@ export default async function UserPage({ params }: { params: Promise<{ id: strin
             )}
           </Card>
 
-          <Card title="Recent sign-ins">
+          <Card accent="sky" icon={LogIn} title="Recent sign-ins">
             {security.logins.length === 0 ? (
               <p className="text-sm text-gray-500">None recorded yet.</p>
             ) : (
@@ -300,7 +306,7 @@ export default async function UserPage({ params }: { params: Promise<{ id: strin
         </div>
       </div>
 
-      <Card title="AI Bot conversation" sub="Debug only">
+      <Card accent="fuchsia" icon={Bot} title="AI Bot conversation" sub="Debug only">
         <ChatViewer userId={user.id} total={security.summary?.chat_messages ?? 0} />
       </Card>
 

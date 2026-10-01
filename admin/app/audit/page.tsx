@@ -1,4 +1,5 @@
 import { sql } from "drizzle-orm"
+import { ScrollText } from "lucide-react"
 
 import { Badge, Card, Muted, PageHeader, Table, Td, UserLink } from "~/components/ui"
 import { rows } from "~/lib/db"
@@ -25,7 +26,7 @@ export default async function AuditPage() {
 
   return (
     <div className="space-y-5">
-      <PageHeader title="Audit log" sub="Every action and every chat view from this console. Never deleted automatically." />
+      <PageHeader icon={ScrollText} accent="violet" eyebrow="Operations" title="Audit log" sub="Every action and every chat view from this console. Never deleted automatically." />
       <Card>
         <Table head={["When", "Action", "User", "Details"]} empty={list.length === 0}>
           {list.map((a) => {
