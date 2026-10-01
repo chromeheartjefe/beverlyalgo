@@ -39,7 +39,7 @@ export const CHANGELOG: Release[] = [
   },
   {
     version: "2.5",
-    date: "2026-10-01",
+    date: "2026-10-02",
     title: "Entrix Academy is here",
     summary: "A free trading course inside your dashboard: short lessons, quick checks, XP and daily streaks.",
     items: [
