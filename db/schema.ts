@@ -273,3 +273,88 @@ export const adminAuditLog = pgTable("admin_audit_log", {
 ])
 
 export type AdminAuditLog = typeof adminAuditLog.$inferSelect
+
+// ─── Entrix Academy ──────────────────────────────────────────────────────────
+// One row per user per finished lesson. lesson_id is the stable id from
+// lib/academy/curriculum.ts. Days are the learner's local "YYYY-MM-DD";
+// last_completed_day caps replay XP at once per lesson per day.
+export const academyProgress = pgTable("academy_progress", {
+  id:               text("id").primaryKey().$defaultFn(() => crypto.randomUUID()),
+  userId:           text("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  lessonId:         varchar("lesson_id", { length: 96 }).notNull(),
+  bestCorrect:      integer("best_correct").notNull(),
+  total:            integer("total").notNull(),
+  attempts:         integer("attempts").notNull().default(1),
+  xp:               integer("xp").notNull().default(0),
+  lastCompletedDay: varchar("last_completed_day", { length: 10 }).notNull(),
+  firstCompletedAt: timestamp("first_completed_at", { withTimezone: true }).notNull().defaultNow(),
+  lastCompletedAt:  timestamp("last_completed_at", { withTimezone: true }).notNull().defaultNow(),
+}, (table) => [
+  uniqueIndex("academy_progress_user_lesson_idx").on(table.userId, table.lessonId),
+])
+
+export type AcademyProgress = typeof academyProgress.$inferSelect
+
+// One row per learner: total XP and the daily streak (lib/academy/xp.ts).
+export const academyStats = pgTable("academy_stats", {
+  userId:        text("user_id").primaryKey().references(() => users.id, { onDelete: "cascade" }),
+  xp:            integer("xp").notNull().default(0),
+  streak:        integer("streak").notNull().default(0),
+  bestStreak:    integer("best_streak").notNull().default(0),
+  lastActiveDay: varchar("last_active_day", { length: 10 }),
+  freezeUsedOn:  varchar("freeze_used_on", { length: 10 }),
+  // Practice XP is capped per day; these track today's total
+  practiceDay:   varchar("practice_day", { length: 10 }),
+  practiceXp:    integer("practice_xp").notNull().default(0),
+  updatedAt:     timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+})
+
+export type AcademyStats = typeof academyStats.$inferSelect
+
+// Spaced review for the Practice tab: one row per question a learner missed.
+// box 1..5 (Leitner); due_day is the learner's local day it comes back. A
+// question that is answered right in box 5 graduates and its row is deleted.
+export const academyReviews = pgTable("academy_reviews", {
+  id:         text("id").primaryKey().$defaultFn(() => crypto.randomUUID()),
+  userId:     text("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  lessonId:   varchar("lesson_id", { length: 96 }).notNull(),
+  questionId: varchar("question_id", { length: 96 }).notNull(),
+  box:        integer("box").notNull().default(1),
+  dueDay:     varchar("due_day", { length: 10 }).notNull(),
+  updatedAt:  timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+}, (table) => [
+  uniqueIndex("academy_reviews_user_question_idx").on(table.userId, table.lessonId, table.questionId),
+  index("academy_reviews_user_due_idx").on(table.userId, table.dueDay),
+])
+
+export type AcademyReview = typeof academyReviews.$inferSelect
+
+// Final exam attempts. questions holds the "lessonId::questionId" keys that
+// were issued (JSON array); answers are graded on the server against them.
+export const academyExamAttempts = pgTable("academy_exam_attempts", {
+  id:          text("id").primaryKey().$defaultFn(() => crypto.randomUUID()),
+  userId:      text("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  questions:   text("questions").notNull(),
+  correct:     integer("correct"),
+  total:       integer("total").notNull(),
+  passed:      boolean("passed"),
+  createdAt:   timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  submittedAt: timestamp("submitted_at", { withTimezone: true }),
+}, (table) => [
+  index("academy_exam_attempts_user_created_idx").on(table.userId, table.createdAt),
+])
+
+export type AcademyExamAttempt = typeof academyExamAttempts.$inferSelect
+
+// One certificate per learner, issued when they pass the final exam. id is the
+// short public code used in the shareable link; name is a snapshot at issue.
+export const academyCertificates = pgTable("academy_certificates", {
+  id:       varchar("id", { length: 16 }).primaryKey(),
+  userId:   text("user_id").notNull().unique().references(() => users.id, { onDelete: "cascade" }),
+  name:     varchar("name", { length: 255 }).notNull(),
+  correct:  integer("correct").notNull(),
+  total:    integer("total").notNull(),
+  issuedAt: timestamp("issued_at", { withTimezone: true }).notNull().defaultNow(),
+})
+
+export type AcademyCertificate = typeof academyCertificates.$inferSelect

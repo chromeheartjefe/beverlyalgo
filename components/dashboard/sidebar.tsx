@@ -2,7 +2,7 @@
 
 import * as Dialog from "@radix-ui/react-dialog"
 import { LayoutGroup, motion } from "framer-motion"
-import { Activity, BookOpen, Bot, Calculator, CalendarDays, Flame, LayoutDashboard, Lock, Settings, X, Zap } from "lucide-react"
+import { Activity, BookA, BookOpen, Bot, Calculator, CalendarDays, Flame, GraduationCap, LayoutDashboard, Lock, Settings, X, Zap } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
@@ -27,6 +27,12 @@ export const NAV_TRADING = [
   { label: "Trade Journal",   href: "/dashboard/trade-journal",   icon: BookOpen,        lockable: false },
   { label: "Trade Calendar",  href: "/dashboard/trade-calendar",  icon: CalendarDays,    lockable: false },
   { label: "Risk Calculator", href: "/dashboard/risk-calculator", icon: Calculator,      lockable: false },
+]
+
+// Free for every account
+export const NAV_LEARN = [
+  { label: "Academy",         href: "/dashboard/academy",         icon: GraduationCap,   lockable: false },
+  { label: "Glossary",        href: "/dashboard/glossary",        icon: BookA,           lockable: false },
 ]
 
 function Logo() {
@@ -123,6 +129,13 @@ function SidebarBody({ onNavigate }: { onNavigate?: () => void }) {
           Trading Desk
         </p>
         {NAV_TRADING.map(renderItem)}
+
+        <div className="mx-3 my-4 border-t border-white/15" />
+
+        <p className="mb-2 px-3 text-[10px] font-semibold uppercase tracking-widest text-gray-600">
+          Learn
+        </p>
+        {NAV_LEARN.map(renderItem)}
 
         <div className="mx-3 my-4 border-t border-white/15" />
 

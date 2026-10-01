@@ -13,8 +13,14 @@ const loadPanel = () => import("./support-chat-panel")
 const SupportChatPanel = dynamic(() => loadPanel().then((m) => m.SupportChatPanel), { ssr: false })
 
 // Pages whose own UI owns this corner: the AI Trading Bot page is a chat with
-// its message box right there. Help stays reachable from the sidebar.
+// its message box right there, and the Academy (lessons keep their Check
+// button bottom right) and the Glossary (its term sheet) are learning spaces
+// without it. Help stays reachable from the sidebar.
 const HIDDEN_ON = new Set(["/dashboard/trading-bot"])
+const HIDDEN_UNDER = ["/dashboard/academy", "/dashboard/glossary"]
+
+const isHidden = (pathname: string) =>
+  HIDDEN_ON.has(pathname) || HIDDEN_UNDER.some((p) => pathname === p || pathname.startsWith(`${p}/`))
 
 export const SUPPORT_PANEL_ID = "support-chat-panel"
 
@@ -27,7 +33,7 @@ export function SupportChat() {
   // keeps the conversation and its scroll position.
   const [loaded, setLoaded] = useState(false)
   const launcherRef = useRef<HTMLButtonElement>(null)
-  const hidden = HIDDEN_ON.has(pathname)
+  const hidden = isHidden(pathname)
 
   useEffect(() => {
     if (hidden) setOpen(false)
