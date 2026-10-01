@@ -63,12 +63,12 @@ function StatTile({
 }) {
   return (
     <div className="flex flex-col justify-center rounded-lg border border-white/15 bg-white/[0.02] px-3.5 py-3">
-      <p className="whitespace-nowrap text-[10px] font-medium uppercase tracking-wider text-gray-500">{label}</p>
+      <p className="whitespace-nowrap text-xs font-medium uppercase tracking-wider text-gray-500">{label}</p>
       <p className={`mt-1.5 whitespace-nowrap text-lg font-semibold leading-none ${accent === "emerald" ? "text-emerald-400" : "text-white"}`}>
         {value}
         {unit && <span className="ml-1 text-xs font-normal text-gray-500">{unit}</span>}
       </p>
-      {caption && <p className="mt-1.5 whitespace-nowrap text-[11px] text-gray-500">{caption}</p>}
+      {caption && <p className="mt-1.5 whitespace-nowrap text-xs text-gray-500">{caption}</p>}
     </div>
   );
 }
@@ -109,7 +109,7 @@ export default function Logos({
   title = "Results speak for themselves",
   description = "Four independent TradingView Strategy Tester backtests across BTC, ETH, SOL, and XRP, all on the same signal engine every subscriber runs. Unedited results over the same 19-day window.",
   badge = (
-    <Badge variant="outline" className="border-brand/30 text-brand">
+    <Badge variant="outline" className="border-brand/30 text-brand max-sm:hidden">
       Backtested · Aug 3 – 22, 2026
     </Badge>
   ),
@@ -139,12 +139,12 @@ export default function Logos({
         <Reveal className="flex flex-col items-center gap-6 max-w-3xl text-center">
           {badge !== false && badge}
 
-          <h2 className="text-3xl font-bold leading-tight sm:text-5xl">
+          <h2 className="from-foreground to-foreground dark:to-brand bg-linear-to-r bg-clip-text text-3xl font-bold leading-tight text-transparent drop-shadow-[0_0_24px_var(--brand-foreground)] sm:text-5xl pb-2">
             {title}
           </h2>
 
           {description && (
-            <p className="text-muted-foreground text-base sm:text-xl leading-relaxed">
+            <p className="text-muted-foreground text-sm sm:text-lg leading-relaxed">
               {description}
             </p>
           )}

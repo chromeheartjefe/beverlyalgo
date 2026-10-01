@@ -21,6 +21,8 @@ interface FAQProps {
   title?: string;
   items?: FAQItemProps[] | false;
   className?: string;
+  /** No background of its own: the landing paints one shared background behind FAQ and footer */
+  bare?: boolean;
 }
 
 export default function FAQ({
@@ -110,23 +112,28 @@ export default function FAQ({
     },
   ],
   className,
+  bare = false,
 }: FAQProps) {
   return (
-    <Section className={`relative overflow-hidden bg-black ${className ?? ""}`}>
-      {/* Animated gradient background */}
-      <BackgroundGradientAnimation variant="corners" size="55%" containerClassName="absolute inset-0 z-0" />
+    <Section className={`relative ${bare ? "[--line-width:0px]" : "overflow-hidden bg-black"} ${className ?? ""}`}>
+      {!bare && (
+        <>
+          {/* Animated gradient background */}
+          <BackgroundGradientAnimation variant="corners" size="55%" containerClassName="absolute inset-0 z-0" />
 
-      {/* Top vignette */}
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute inset-x-0 top-0 z-[2] h-32 bg-gradient-to-b from-black via-black/60 to-transparent"
-      />
+          {/* Top vignette */}
+          <div
+            aria-hidden="true"
+            className="pointer-events-none absolute inset-x-0 top-0 z-[2] h-32 bg-gradient-to-b from-black via-black/60 to-transparent"
+          />
 
-      {/* Bottom vignette */}
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute inset-x-0 bottom-0 z-[2] h-32 bg-gradient-to-t from-black via-black/60 to-transparent"
-      />
+          {/* Bottom vignette */}
+          <div
+            aria-hidden="true"
+            className="pointer-events-none absolute inset-x-0 bottom-0 z-[2] h-32 bg-gradient-to-t from-black via-black/60 to-transparent"
+          />
+        </>
+      )}
 
       {/* Content */}
       <div className="relative z-[3] max-w-container mx-auto flex flex-col items-center gap-8">

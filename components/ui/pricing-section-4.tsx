@@ -99,7 +99,7 @@ export default function PricingSection4() {
     !plan.buttonHref && status === "authenticated" ? "Go to dashboard" : plan.buttonText;
 
   return (
-    <div className="min-h-screen mx-auto relative overflow-x-hidden">
+    <div className="min-h-screen sm:min-h-0 mx-auto relative overflow-x-hidden">
       {/* Sparkles background — grid comes from body via globals.css */}
       <div className="absolute top-0 h-96 w-full overflow-hidden [mask-image:radial-gradient(50%_50%,white,transparent)]">
         <SparklesComp
@@ -124,13 +124,13 @@ export default function PricingSection4() {
       </div>
 
       {/* Heading */}
-      <Reveal className="text-center mb-6 pt-12 sm:pt-24 md:pt-32 max-w-3xl mx-auto space-y-4 relative z-30 px-6">
+      <Reveal className="text-center mb-6 pt-12 sm:pt-16 max-w-3xl mx-auto space-y-4 relative z-30 px-6">
         <article>
-          <h2 className="from-foreground to-foreground dark:to-brand bg-linear-to-r bg-clip-text text-4xl font-extrabold text-transparent drop-shadow-[0_0_24px_var(--brand-foreground)] sm:font-bold sm:text-5xl md:text-6xl pb-2">
+          <h2 className="from-foreground to-foreground dark:to-brand bg-linear-to-r bg-clip-text text-3xl font-extrabold text-transparent drop-shadow-[0_0_24px_var(--brand-foreground)] sm:font-bold sm:text-5xl pb-2">
             Accelerate your trading potential, today.
           </h2>
 
-          <p className="text-gray-400 text-base mt-4">
+          <p className="text-gray-400 text-sm sm:text-lg mt-4">
             Trusted by traders worldwide. Start free with one AI chart analysis, then unlock everything
             with Pro, billed monthly or once for life.
           </p>

@@ -12,11 +12,12 @@ const AiIndicatorPreview     = dynamic(() => import("../components/ui/ai-indicat
 const AiScreenerPreview      = dynamic(() => import("../components/ui/ai-screener-preview").then((m) => m.AiScreenerPreview));
 const FeaturesGrid           = dynamic(() => import("../components/ui/features-grid").then((m) => m.FeaturesGrid));
 const Logos                  = dynamic(() => import("../components/sections/logos/default"));
+const Testimonials           = dynamic(() => import("../components/sections/testimonials/default"));
 const QuickStartGuide        = dynamic(() => import("../components/sections/quick-start/default"));
 const Pricing                = dynamic(() => import("../components/sections/pricing/default"));
 const FAQ                    = dynamic(() => import("../components/sections/faq/default"));
-const SocialConnect          = dynamic(() => import("../components/ui/connect-with-us").then((m) => m.SocialConnect));
 const Footer                 = dynamic(() => import("../components/ui/footer-section").then((m) => m.Footer));
+const BackgroundGradientAnimation = dynamic(() => import("../components/ui/background-gradient-animation").then((m) => m.BackgroundGradientAnimation));
 const BackToTop              = dynamic(() => import("../components/ui/back-to-top").then((m) => m.BackToTop));
 
 export default function Home() {
@@ -49,19 +50,28 @@ export default function Home() {
         <QuickStartGuide />
       </div>
 
+      <div id="testimonials">
+        <Testimonials />
+      </div>
+
       <div id="pricing" className="line-b">
         <Pricing />
       </div>
 
-      <div id="faq">
-        <FAQ />
+      {/* FAQ and footer share one background, so there is no seam between them */}
+      <div className="relative overflow-hidden bg-black">
+        <BackgroundGradientAnimation variant="corners" size="50%" containerClassName="absolute inset-0 z-0" />
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-x-0 top-0 z-[2] h-32 bg-gradient-to-b from-black via-black/60 to-transparent"
+        />
+        <div className="relative z-[3]">
+          <div id="faq">
+            <FAQ bare />
+          </div>
+          <Footer />
+        </div>
       </div>
-
-      <div id="contact">
-        <SocialConnect />
-      </div>
-
-      <Footer />
 
       <BackToTop />
     </main>

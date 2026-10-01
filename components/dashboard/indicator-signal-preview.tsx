@@ -48,6 +48,7 @@ export function IndicatorSignalPreview({
   height = 170,
   volumeHeight = 24,
   className,
+  captionClassName,
   // Anchors for the two badges' dots, glued to the exact candle wick they
   // call out (seed=51's local peak/trough within the default 6M/80-candle
   // view). Percentages are of the chart's OWN SVG box — CandleChart is
@@ -64,6 +65,8 @@ export function IndicatorSignalPreview({
   height?: number
   volumeHeight?: number
   className?: string
+  /** Extra classes for the caption under the chart (the landing hides it on phones) */
+  captionClassName?: string
   sellLeft?: string
   sellTop?: string
   buyLeft?: string
@@ -103,7 +106,7 @@ export function IndicatorSignalPreview({
         <SignalMarker label="BUY 91%" variant="buy" left={buyLeft} top={buyTop} />
       </div>
 
-      <p className="relative z-10 mt-4 text-center text-[11px] text-gray-600">
+      <p className={`relative z-10 mt-4 text-center text-[11px] text-gray-600 ${captionClassName ?? ""}`}>
         Live example of signals rendered directly on your TradingView chart
       </p>
     </div>

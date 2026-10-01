@@ -346,7 +346,7 @@ function ResultsPhase({ market }: { market: "crypto" | "stocks" }) {
         </motion.div>
       </AnimatePresence>
 
-      <p className="pt-1 text-center text-[10px] text-gray-600">
+      <p className="hidden pt-1 text-center text-[10px] text-gray-600 sm:block">
         Top 5 crypto & top 5 stocks each scan · prices verified live
       </p>
     </motion.div>
@@ -371,7 +371,7 @@ export function AiScreenerPreview() {
   }, [live, phase])
 
   return (
-    <section ref={sectionRef} className="relative bg-black pb-20 pt-3 md:pb-28 md:pt-4">
+    <section ref={sectionRef} className="relative bg-black pb-20 pt-3 md:pb-16 md:pt-4">
       <div className="mx-auto max-w-7xl px-6">
         {/* Outer card */}
         <Reveal className="relative overflow-hidden rounded-3xl border border-white/25 bg-[#070712] shadow-2xl shadow-black/60">
@@ -379,8 +379,8 @@ export function AiScreenerPreview() {
           <div className="relative z-10 grid grid-cols-1 lg:grid-cols-2">
 
             {/* ── Left: animated preview ── */}
-            <div className="order-2 flex items-center justify-center border-t border-white/15 bg-gradient-to-br from-[#0b0b1e] to-[#050510] p-8 lg:order-1 lg:border-l-0 lg:border-r lg:border-t-0 lg:p-12">
-              <div className="flex h-[400px] w-full max-w-sm flex-col justify-center overflow-hidden lg:h-auto lg:overflow-visible">
+            <div className="order-2 flex items-center justify-center border-t border-white/15 bg-gradient-to-br from-[#0b0b1e] to-[#050510] p-4 lg:order-1 lg:border-l-0 lg:border-r lg:border-t-0 lg:p-10">
+              <div className="flex h-[340px] w-full max-w-sm max-lg:[zoom:0.85] flex-col justify-center overflow-hidden lg:h-auto lg:overflow-visible">
                 <DemoLiveContext.Provider value={live}>
                   <AnimatePresence mode="wait">
                     {phase === "scanning"
@@ -392,32 +392,35 @@ export function AiScreenerPreview() {
             </div>
 
             {/* ── Right: copy ── */}
-            <div className="order-1 flex flex-col justify-center p-8 lg:order-2 lg:p-12 xl:p-16">
+            <div className="order-1 flex flex-col justify-center px-6 py-6 lg:order-2 lg:px-12 lg:py-10">
               {/* Badge */}
-              <div className="inline-flex w-fit items-center gap-2 rounded-full border border-purple-500/30 bg-purple-500/10 px-3.5 py-1.5 text-[11px] font-medium text-purple-400">
+              <div className="inline-flex w-fit items-center gap-2 rounded-full border border-purple-500/30 bg-purple-500/10 px-3.5 py-1.5 text-xs font-medium text-purple-400">
                 <Flame className="size-3" />
                 AI Screener
               </div>
 
               {/* Headline */}
-              <h2 className="mt-6 text-3xl font-black tracking-tight text-white lg:text-4xl xl:text-[2.6rem] xl:leading-[1.18]">
+              <h2 className="mt-4 lg:mt-5 text-3xl font-black tracking-tight text-white lg:text-4xl xl:text-[2.6rem] xl:leading-[1.18]">
                 Find what&apos;s moving{" "}
                 <span className="text-purple-400">before you open a chart</span>
               </h2>
 
               {/* Body copy */}
-              <p className="mt-5 text-base leading-relaxed text-gray-400">
-                One click scans live crypto and stock movers, weighs volume and
-                momentum, and ranks the hottest setups. Each one gets a
-                clear bullish, bearish, or watch call.
+              <p className="mt-3 lg:mt-4 text-sm leading-relaxed text-gray-400 sm:text-lg">
+                <span className="sm:hidden">One click scans live crypto and stock movers and ranks the hottest setups as bullish, bearish, or watch.</span>
+                <span className="hidden sm:inline">
+                  One click scans live crypto and stock movers, weighs volume and
+                  momentum, and ranks the hottest setups. Each one gets a
+                  clear bullish, bearish, or watch call.
+                </span>
               </p>
 
               {/* Feature bullets */}
-              <ul className="mt-8 space-y-3">
+              <ul className="mt-4 hidden space-y-2 sm:block lg:mt-6 lg:space-y-2.5">
                 {[
-                  "Top 5 crypto & top 5 stocks every scan",
-                  "Live prices verified before every pick",
-                  "Signal gauge from Strong Sell to Strong Buy",
+                  "Top 5 crypto & stock picks",
+                  "Live verified prices",
+                  "Clear buy & sell gauge",
                 ].map((item) => (
                   <li key={item} className="flex items-center gap-3 text-sm text-gray-300">
                     <span className="flex size-5 shrink-0 items-center justify-center rounded-full bg-purple-500/15">
@@ -429,17 +432,14 @@ export function AiScreenerPreview() {
               </ul>
 
               {/* CTA */}
-              <div className="mt-10">
+              <div className="mt-5 lg:mt-7">
                 <a
                   href="#pricing"
-                  className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-purple-600 to-purple-500 px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-purple-950/40 transition-all duration-200 hover:from-purple-500 hover:to-purple-400 hover:shadow-purple-900/50"
+                  className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-purple-600 to-purple-500 px-6 py-3 text-sm font-semibold text-white sm:text-base shadow-lg shadow-purple-950/40 transition-all duration-200 hover:from-purple-500 hover:to-purple-400 hover:shadow-purple-900/50"
                 >
                   Get Started
                   <Flame className="size-4" />
                 </a>
-                <p className="mt-3 text-xs text-gray-600">
-                  Free on every plan · Live now in your dashboard
-                </p>
               </div>
             </div>
 

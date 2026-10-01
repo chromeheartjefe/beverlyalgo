@@ -302,7 +302,7 @@ function StepCard({ step }: { step: Step }) {
           </div>
           <span className={cn('text-xs font-semibold uppercase tracking-[0.18em]', a.text)}>Step {step.number}</span>
         </div>
-        <span className={cn('rounded-full border px-2.5 py-0.5 text-[11px] font-semibold uppercase tracking-wide', a.tag)}>
+        <span className={cn('rounded-full border px-2.5 py-0.5 text-xs font-semibold uppercase tracking-wide', a.tag)}>
           {step.tag}
         </span>
       </div>
@@ -376,7 +376,7 @@ export default function QuickStartGuide() {
 
         {/* Section header */}
         <motion.div
-          className="mb-14 space-y-4 text-center"
+          className="mb-14 space-y-4 text-center sm:mb-10"
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true, margin: '-80px' }}
@@ -387,13 +387,13 @@ export default function QuickStartGuide() {
         >
           <motion.h2
             variants={headingVariants}
-            className="from-foreground to-foreground dark:to-brand bg-linear-to-r bg-clip-text text-4xl font-bold text-transparent drop-shadow-[0_0_24px_var(--brand-foreground)] sm:text-5xl md:text-6xl pb-2"
+            className="from-foreground to-foreground dark:to-brand bg-linear-to-r bg-clip-text text-3xl font-bold text-transparent drop-shadow-[0_0_24px_var(--brand-foreground)] sm:text-5xl pb-2"
           >
             Quick Start Guide
           </motion.h2>
           <motion.p
             variants={headingVariants}
-            className="text-muted-foreground mx-auto max-w-md text-base sm:text-lg"
+            className="text-muted-foreground mx-auto max-w-md text-sm sm:text-lg"
           >
             Sign up and your free tools are ready instantly. Go Pro whenever you want the AI.
           </motion.p>

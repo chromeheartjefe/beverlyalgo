@@ -4,6 +4,8 @@ import Image from 'next/image';
 import type { ComponentProps, ReactNode } from 'react';
 import React from 'react';
 
+import { SupportEmail } from '@/components/ui/support-email';
+
 
 interface FooterLink {
     title: string;
@@ -22,7 +24,7 @@ const footerLinks: FooterSection[] = [
         links: [
             { title: 'Features', href: '#features' },
             { title: 'Pricing', href: '#pricing' },
-            { title: 'Testimonials', href: '#results' },
+            { title: 'Testimonials', href: '#testimonials' },
         ],
     },
     {
@@ -45,10 +47,20 @@ const footerLinks: FooterSection[] = [
     },
 ];
 
+const SIDE_FADE = "linear-gradient(to bottom, black 15%, transparent 85%)";
+
 export function Footer() {
     return (
-        <footer className="md:rounded-t-[3rem] relative w-full max-w-6xl mx-auto flex flex-col items-center justify-center rounded-t-[2rem] border-t bg-[radial-gradient(35%_128px_at_50%_0%,rgba(255,255,255,0.08),transparent)] px-6 py-12 lg:py-16">
+        <footer id="contact" className="relative mx-auto mb-4 flex w-[calc(100%-2rem)] max-w-6xl flex-col items-center justify-center rounded-[2rem] bg-black bg-[radial-gradient(35%_128px_at_50%_0%,rgba(255,255,255,0.08),transparent)] px-6 py-12 md:mb-6 md:rounded-[3rem] lg:py-16">
             <div className="bg-foreground/20 absolute top-0 right-1/2 left-1/2 h-px w-1/3 -translate-x-1/2 -translate-y-1/2 rounded-full blur" />
+            {/* Outline in the header's border colour: full along the top, the
+                sides fade out downwards and there is no bottom edge. Drawn on
+                its own layer so the fade doesn't touch the footer content. */}
+            <div
+                aria-hidden="true"
+                className="pointer-events-none absolute inset-0 rounded-[inherit] border border-b-0 border-white/35"
+                style={{ maskImage: SIDE_FADE, WebkitMaskImage: SIDE_FADE }}
+            />
 
             <div className="grid w-full gap-8 xl:grid-cols-3 xl:gap-8">
                 <AnimatedContainer className="space-y-4">
@@ -61,6 +73,10 @@ export function Footer() {
                     />
                     <p className="text-muted-foreground mt-8 text-sm md:mt-0">
                         © {new Date().getFullYear()} EntrixAlgo. All rights reserved.
+                    </p>
+                    {/* The landing's only support contact since the Connect block was removed */}
+                    <p className="text-muted-foreground text-sm">
+                        Need help with your account or billing? Email us at <SupportEmail />
                     </p>
                 </AnimatedContainer>
 

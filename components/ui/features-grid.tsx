@@ -350,7 +350,7 @@ function SignalVisual() {
 
 export function FeaturesGrid() {
   return (
-    <section className="line-x px-4 py-12 sm:py-24 md:py-32 dark:bg-transparent">
+    <section className="line-x px-4 py-12 sm:py-16 dark:bg-transparent">
       <div className="mx-auto max-w-3xl px-2 lg:max-w-6xl lg:px-6">
         <RevealGroup className="relative z-10 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 lg:gap-5" stagger={0.12}>
 

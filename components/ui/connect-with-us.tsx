@@ -91,16 +91,13 @@ const socialIcons = [
 
 export function SocialConnect() {
   return (
-    <section className="px-4 py-12 sm:py-24 md:py-32">
+    <section className="px-4 py-12 sm:py-16">
       <div className="max-w-container mx-auto flex flex-col items-center gap-8">
         <div className="text-center">
-          <h2 className="text-3xl font-extrabold sm:text-5xl">
-            Connect{' '}
-            <span className="bg-gradient-to-r from-purple-400 via-purple-400 to-red-400 bg-clip-text text-transparent">
-              With Us
-            </span>
+          <h2 className="from-foreground to-foreground dark:to-brand bg-linear-to-r bg-clip-text text-3xl font-extrabold text-transparent drop-shadow-[0_0_24px_var(--brand-foreground)] sm:text-5xl pb-2">
+            Connect With Us
           </h2>
-          <p className="text-muted-foreground mx-auto mt-4 max-w-[480px] text-balance text-sm sm:text-base">
+          <p className="text-muted-foreground mx-auto mt-4 max-w-[480px] text-balance text-sm sm:text-lg">
             Join our community and stay updated with the latest news, releases, and exclusive content
           </p>
         </div>
