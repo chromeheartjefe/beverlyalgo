@@ -28,8 +28,16 @@ export function Banner({
   const [open, setOpen] = useState(true);
   const globalKey = id ? `nd-banner-${id}` : null;
 
+  // Some browsers block site storage entirely (all cookies/site data blocked,
+  // some in-app browsers): even reading localStorage throws there. Then the
+  // banner just shows, and closing it only lasts for this visit.
   useEffect(() => {
-    if (globalKey) setOpen(localStorage.getItem(globalKey) !== "true");
+    if (!globalKey) return;
+    try {
+      setOpen(localStorage.getItem(globalKey) !== "true");
+    } catch {
+      setOpen(true);
+    }
   }, [globalKey]);
 
   if (!open) return null;
@@ -52,7 +60,7 @@ export function Banner({
       {globalKey ? (
         <script
           dangerouslySetInnerHTML={{
-            __html: `if (localStorage.getItem('${globalKey}') === 'true') document.documentElement.classList.add('${globalKey}');`,
+            __html: `try { if (localStorage.getItem('${globalKey}') === 'true') document.documentElement.classList.add('${globalKey}'); } catch (e) {}`,
           }}
         />
       ) : null}
@@ -68,7 +76,11 @@ export function Banner({
           onClick={() => {
             setOpen(false);
             if (globalKey) {
-              localStorage.setItem(globalKey, "true");
+              try {
+                localStorage.setItem(globalKey, "true");
+              } catch {
+                // Storage blocked: hidden for this visit only
+              }
               window.dispatchEvent(new Event("banner-status-changed"));
             }
           }}

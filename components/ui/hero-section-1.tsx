@@ -10,6 +10,7 @@ import React, { useEffect, useState } from "react"
 import { AnimatedGroup } from "@/components/ui/animated-group"
 import { BackgroundGradientAnimation } from "@/components/ui/background-gradient-animation"
 import { Banner } from "@/components/ui/banner"
+import { DecorBoundary } from "@/components/ui/decor-boundary"
 import { LiquidMetalButton } from "@/components/ui/liquid-metal-button"
 import { StardustButton } from "@/components/ui/stardust-button"
 import { cn } from "@/lib/utils"
@@ -20,6 +21,29 @@ const menuItems = [
   { name: "FAQ", href: "#faq" },
   { name: "Contact", href: "#contact" },
 ]
+
+// Plain stand-in for the shader button if it ever fails to render
+function MetalButton(props: React.ComponentProps<typeof LiquidMetalButton> & { href: string; label: string }) {
+  return (
+    <DecorBoundary
+      name="liquid-metal-button"
+      fallback={
+        <Link
+          href={props.href}
+          onClick={props.onClick}
+          className={cn(
+            "inline-flex h-[38px] items-center justify-center rounded-full border border-purple-400/40 bg-[#0d0d1c] px-6 text-[13px] font-medium text-[#ece7fb] transition-colors hover:border-purple-400/70",
+            props.className,
+          )}
+        >
+          {props.label}
+        </Link>
+      }
+    >
+      <LiquidMetalButton {...props} />
+    </DecorBoundary>
+  )
+}
 
 const Logo = () => (
   <Link href="/" className="flex items-center gap-2">
@@ -50,6 +74,7 @@ export function HeroHeader() {
 
   return (
     <header className="fixed inset-x-0 top-0 z-50 flex flex-col">
+      <DecorBoundary name="launch-banner">
       <Banner
         id="entrix-launch-banner"
         variant="rainbow"
@@ -71,6 +96,7 @@ export function HeroHeader() {
           Get early access →
         </a>
       </Banner>
+      </DecorBoundary>
       <div className="relative flex justify-center px-4 pt-3">
       <nav
         className={cn(
@@ -98,9 +124,9 @@ export function HeroHeader() {
         {/* Desktop CTAs */}
         <div className="hidden items-center gap-4 md:flex">
           {isAuthed ? (
-            <LiquidMetalButton href="/dashboard" label="Dashboard" size="sm" />
+            <MetalButton href="/dashboard" label="Dashboard" size="sm" />
           ) : (
-            <LiquidMetalButton href="/sign-in" label="Sign In" size="sm" />
+            <MetalButton href="/sign-in" label="Sign In" size="sm" />
           )}
         </div>
 
@@ -138,7 +164,7 @@ export function HeroHeader() {
                 </Link>
               ))}
               <div className="flex flex-col gap-3 border-t border-white/15 pt-3">
-                <LiquidMetalButton
+                <MetalButton
                   href={isAuthed ? "/dashboard" : "/sign-in"}
                   label={isAuthed ? "Dashboard" : "Sign In"}
                   size="sm"

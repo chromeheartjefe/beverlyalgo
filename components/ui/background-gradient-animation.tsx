@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useMemo, useRef, useState } from "react";
 
+import { DecorBoundary } from "@/components/ui/decor-boundary";
 import { cn } from "@/lib/utils";
 
 interface BackgroundGradientAnimationProps {
@@ -68,7 +69,7 @@ function blurredConeProfile(R: number): { reach: number; stops: Array<[number, n
   return { reach, stops };
 }
 
-export const BackgroundGradientAnimation = ({
+const BackgroundGradientAnimationInner = ({
   firstColor = "131, 80, 232",
   secondColor = "185, 55, 255",
   thirdColor = "65, 20, 215",
@@ -200,3 +201,11 @@ export const BackgroundGradientAnimation = ({
     </div>
   );
 };
+
+// Purely decorative: if it ever fails, the section renders without it
+// instead of the whole page falling over.
+export const BackgroundGradientAnimation = (props: React.ComponentProps<typeof BackgroundGradientAnimationInner>) => (
+  <DecorBoundary name="background-gradient">
+    <BackgroundGradientAnimationInner {...props} />
+  </DecorBoundary>
+);

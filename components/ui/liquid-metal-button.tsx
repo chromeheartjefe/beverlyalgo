@@ -17,6 +17,24 @@ interface LiquidMetalButtonProps {
 const COLOR_TINT = getShaderColorFromString("#9333ea") // purple-600, color-burn tint on the shader rim
 const COLOR_BACK = getShaderColorFromString("#0d0d1c") // matches the dropdown/email dark-surface color used elsewhere
 
+// Shown instead of the animated rim when the browser has no WebGL (hardware
+// acceleration off, blocked GPU drivers, remote desktops, some privacy and
+// in-app browsers). The shader library throws in that case, which used to
+// take the whole landing page down.
+const STATIC_RIM = "linear-gradient(135deg, #3b2a55 0%, #c4b5fd 22%, #6d28d9 48%, #e9d5ff 72%, #3b2a55 100%)"
+
+function webglAvailable(): boolean {
+  try {
+    const canvas = document.createElement("canvas")
+    const gl = (canvas.getContext("webgl2") ?? canvas.getContext("webgl")) as WebGLRenderingContext | null
+    if (!gl) return false
+    gl.getExtension("WEBGL_lose_context")?.loseContext()
+    return true
+  } catch {
+    return false
+  }
+}
+
 const SIZE_TOKENS = {
   default: { width: 142, height: 46, fontSize: "14px" },
   sm:      { width: 116, height: 38, fontSize: "13px" },
@@ -34,6 +52,7 @@ export function LiquidMetalButton({
   const [ripples, setRipples] = useState<Array<{ x: number; y: number; id: number }>>([])
   const shaderRef = useRef<HTMLDivElement>(null)
   const shaderMount = useRef<ShaderMount | null>(null)
+  const [noShader, setNoShader] = useState(false)
   const buttonRef = useRef<HTMLButtonElement>(null)
   const rippleId = useRef(0)
   const router = useRouter()
@@ -67,28 +86,36 @@ export function LiquidMetalButton({
       document.head.appendChild(style)
     }
 
-    if (shaderRef.current) {
-      shaderMount.current = new ShaderMount(
-        shaderRef.current,
-        liquidMetalFragmentShader,
-        {
-          u_colorBack:  COLOR_BACK,
-          u_colorTint:  COLOR_TINT,
-          u_repetition: 4,
-          u_softness:   0.5,
-          u_shiftRed:   0.15,
-          u_shiftBlue:  0.45,
-          u_distortion: 0,
-          u_contour:    0,
-          u_angle:      45,
-          u_scale:      8,
-          u_shape:      1,
-          u_offsetX:    0.1,
-          u_offsetY:    -0.1,
-        },
-        undefined,
-        0.6
-      )
+    if (shaderRef.current && !webglAvailable()) {
+      setNoShader(true)
+    } else if (shaderRef.current) {
+      try {
+        shaderMount.current = new ShaderMount(
+          shaderRef.current,
+          liquidMetalFragmentShader,
+          {
+            u_colorBack:  COLOR_BACK,
+            u_colorTint:  COLOR_TINT,
+            u_repetition: 4,
+            u_softness:   0.5,
+            u_shiftRed:   0.15,
+            u_shiftBlue:  0.45,
+            u_distortion: 0,
+            u_contour:    0,
+            u_angle:      45,
+            u_scale:      8,
+            u_shape:      1,
+            u_offsetX:    0.1,
+            u_offsetY:    -0.1,
+          },
+          undefined,
+          0.6
+        )
+      } catch {
+        // WebGL present but unusable (context lost, blocked): static rim instead
+        shaderMount.current = null
+        setNoShader(true)
+      }
     }
 
     return () => {
@@ -218,6 +245,7 @@ export function LiquidMetalButton({
               ref={shaderRef}
               className="liquid-metal-shader-container"
               style={{
+                background: noShader ? STATIC_RIM : undefined,
                 borderRadius: "100px",
                 overflow: "hidden",
                 position: "relative",
