@@ -21,6 +21,26 @@ export type Release = {
 
 export const CHANGELOG: Release[] = [
   {
+    version: "2.7",
+    date: "2026-10-03",
+    title: "Better on phones, easier to read",
+    summary: "The dashboard is more comfortable on phones and easier on the eyes, and getting started is quicker.",
+    items: [
+      { kind: "new", text: "Trade Journal on phones: every trade is a card with its pair, direction, P&L and prices, with sorting and select all on top. No more scrolling sideways.", href: "/dashboard/trade-journal" },
+      { kind: "improved", text: "The all-time view in Trade Calendar shows each year as a simple month grid on phones.", href: "/dashboard/trade-calendar" },
+      { kind: "improved", text: "Tapping a text field on an iPhone no longer zooms the page." },
+      { kind: "improved", text: "Easier to read: small labels are larger and grey text is brighter across the dashboard." },
+      { kind: "improved", text: "Small buttons, like close and the show password eye, are easier to tap on phones." },
+      { kind: "improved", text: "Already on Pro? The pricing section shows your current plan instead of a buy button.", href: "/#pricing" },
+      { kind: "improved", text: "Choosing a plan before you have an account brings you back to it right after sign-up." },
+      { kind: "improved", text: "The home page shows its headline and buttons instantly, and its Chart Analysis demo runs quicker.", href: "/" },
+      { kind: "improved", text: "The support chat can answer questions about the free analysis, the Academy and the Glossary." },
+      { kind: "fixed", text: "If one page of the dashboard runs into a problem, the menu and the rest of the dashboard keep working." },
+      { kind: "fixed", text: "The Chart Analysis demo on the home page is no longer cut off on small phones." },
+      { kind: "fixed", text: "Bug fixes and small visual polish." },
+    ],
+  },
+  {
     version: "2.6",
     date: "2026-10-02",
     title: "Trading Glossary and a fresher EntrixAlgo",
