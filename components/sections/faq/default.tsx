@@ -34,10 +34,42 @@ export default function FAQ({
         <>
           <p className="text-muted-foreground mb-4 max-w-[640px] text-balance">
             EntrixAlgo is a web dashboard for traders that you can sign in to from any browser, desktop or mobile.
-            It bundles AI chart analysis, a trade journal, and a risk calculator, plus an AI trading assistant to chat with.
+            It bundles AI chart analysis, an AI screener, a trade journal, and a risk calculator, plus an AI trading assistant to chat with and a free trading course.
           </p>
           <p className="text-muted-foreground mb-4 max-w-[640px] text-balance">
             Pro also includes invite-only access to our TradingView indicator, if you want signals painted directly on your own charts too.
+          </p>
+        </>
+      ),
+    },
+    {
+      question: "Can I try it for free?",
+      answer: (
+        <>
+          <p className="text-muted-foreground mb-4 max-w-[600px]">
+            Yes. Every free account includes one AI chart analysis, no card required.
+            Sign up, verify your email, and upload a chart to get the full result with entry, target, and stop-loss levels.
+          </p>
+          <p className="text-muted-foreground mb-4 max-w-[600px]">
+            The AI screener, trade journal, trade calendar, risk calculator, and Entrix Academy stay free for everyone, no subscription needed.
+          </p>
+        </>
+      ),
+    },
+    {
+      question: "How is this different from asking ChatGPT about my chart?",
+      answer: (
+        <>
+          <p className="text-muted-foreground mb-4 max-w-[600px]">
+            ChatGPT is a general chatbot. It was not built for trading, and it can give you a different answer every time you ask.
+          </p>
+          <p className="text-muted-foreground mb-4 max-w-[600px]">
+            EntrixAlgo runs on our own private trading algorithm, designed specifically for reading charts.
+            You will not find it in ChatGPT or anywhere else, only inside your EntrixAlgo dashboard.
+          </p>
+          <p className="text-muted-foreground mb-4 max-w-[600px]">
+            Every chart goes through the same checks on trend, market structure, and liquidity, so you get a clear signal
+            with entry, target, and stop-loss levels instead of a generic opinion.
           </p>
         </>
       ),
@@ -61,7 +93,20 @@ export default function FAQ({
         <>
           <p className="text-muted-foreground mb-4 max-w-[580px]">
             Pro includes unlimited AI chart analysis, the AI trading assistant, and invite-only access to our TradingView indicator.
-            Trade journal and risk calculator are free for everyone, no subscription needed.
+            The AI screener, trade journal, trade calendar, risk calculator, and Entrix Academy are free for everyone, no subscription needed.
+          </p>
+        </>
+      ),
+    },
+    {
+      question: "Can I cancel anytime?",
+      answer: (
+        <>
+          <p className="text-muted-foreground mb-4 max-w-[580px]">
+            Yes. You can cancel anytime from the Settings page in your dashboard, and you keep Pro until the end of the period you already paid for.
+          </p>
+          <p className="text-muted-foreground mb-4 max-w-[580px]">
+            Lifetime is a one-time payment, so there is nothing to renew or cancel.
           </p>
         </>
       ),
@@ -84,10 +129,15 @@ export default function FAQ({
     {
       question: "Do I need trading experience to use EntrixAlgo?",
       answer: (
-        <p className="text-muted-foreground mb-4 max-w-[580px]">
-          While the interface is user-friendly, trading experience is recommended. EntrixAlgo is an analysis tool, not a trading course or autopilot system.
-          Understanding market structure, risk management, and trading psychology will help you get the most value from it.
-        </p>
+        <>
+          <p className="text-muted-foreground mb-4 max-w-[580px]">
+            No. The interface is user-friendly, and every free account includes Entrix Academy, a full trading course with 129 lessons that takes you from the basics to market structure and risk management.
+          </p>
+          <p className="text-muted-foreground mb-4 max-w-[580px]">
+            EntrixAlgo is still an analysis tool, not an autopilot system.
+            Understanding market structure, risk management, and trading psychology will help you get the most value from it.
+          </p>
+        </>
       ),
     },
     {

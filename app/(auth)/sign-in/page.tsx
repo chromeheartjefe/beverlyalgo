@@ -12,6 +12,7 @@ import { Suspense, useEffect, useState } from "react"
 import { GoogleSignInButton } from "@/components/auth/google-button"
 import { Collapse } from "@/components/ui/motion"
 import { SupportEmail } from "@/components/ui/support-email"
+import { isPlanCallback, safeCallbackUrl, withCallback } from "@/lib/callback-url"
 import { cn } from "@/lib/utils"
 
 // Errors that come back in ?error= from Google sign-in (our own codes from
@@ -22,14 +23,6 @@ function errorFromUrl(code: string | null): string {
   if (code === "GoogleFailed") return "Google sign-in didn't work this time. Please try again."
   if (code === "AccessDenied") return "Google sign-in was cancelled."
   return "Sign-in didn't work. Please try again."
-}
-
-// Only same-site paths. A full URL (https://evil.site) or protocol-relative
-// one (//evil.site, /\evil.site) would turn the sign-in page into a phishing
-// redirect after a successful login.
-function safeCallbackUrl(raw: string | null): string {
-  if (!raw || !raw.startsWith("/") || raw.startsWith("//") || raw.startsWith("/\\")) return "/dashboard"
-  return raw
 }
 
 function SignInForm() {
@@ -98,7 +91,7 @@ function SignInForm() {
             Entrix<span className="text-purple-400">Algo</span>
           </span>
         </Link>
-        <p className="text-sm text-gray-500">Sign in to your account</p>
+        <p className="text-sm text-gray-500">{isPlanCallback(callbackUrl) ? "Sign in to choose your plan" : "Sign in to your account"}</p>
       </div>
 
       {/* Card */}
@@ -120,7 +113,7 @@ function SignInForm() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="you@example.com"
-                className="w-full rounded-xl border border-white/[0.08] bg-white/[0.04] py-2.5 pl-10 pr-4 text-sm text-white placeholder:text-gray-600 focus:border-purple-500/50 focus:outline-none focus:ring-1 focus:ring-purple-500/50"
+                className="w-full rounded-xl border border-white/[0.08] bg-white/[0.04] py-2.5 pl-10 pr-4 text-base sm:text-sm text-white placeholder:text-gray-600 focus:border-purple-500/50 focus:outline-none focus:ring-1 focus:ring-purple-500/50"
               />
             </div>
           </div>
@@ -145,14 +138,14 @@ function SignInForm() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••••"
-                className="w-full rounded-xl border border-white/[0.08] bg-white/[0.04] py-2.5 pl-10 pr-11 text-sm text-white placeholder:text-gray-600 focus:border-purple-500/50 focus:outline-none focus:ring-1 focus:ring-purple-500/50"
+                className="w-full rounded-xl border border-white/[0.08] bg-white/[0.04] py-2.5 pl-10 pr-11 text-base sm:text-sm text-white placeholder:text-gray-600 focus:border-purple-500/50 focus:outline-none focus:ring-1 focus:ring-purple-500/50"
               />
               <button
                 type="button"
                 onClick={() => setShowPw(!showPw)}
                 aria-label={showPw ? "Hide password" : "Show password"}
                 aria-pressed={showPw}
-                className="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-600 hover:text-gray-300"
+                className="absolute inset-y-0 right-0 flex w-11 items-center justify-center text-gray-600 hover:text-gray-300"
               >
                 {showPw ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
               </button>
@@ -192,7 +185,7 @@ function SignInForm() {
         <Link href="/" className="hover:text-gray-300">← Back to landing page</Link>
         <p>
           Don&apos;t have an account?{" "}
-          <Link href="/sign-up" className="font-medium text-purple-400 hover:text-purple-300">
+          <Link href={withCallback("/sign-up", callbackUrl)} className="font-medium text-purple-400 hover:text-purple-300">
             Sign up
           </Link>
         </p>

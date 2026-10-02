@@ -1,13 +1,15 @@
 "use client";
 
-import NumberFlow from "@number-flow/react";
 import { motion } from "framer-motion";
 import { Star, Users } from "lucide-react";
 import { useSession } from "next-auth/react";
+import useSWR from "swr";
 
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Reveal, RevealGroup,revealItem } from "@/components/ui/reveal";
 import { Sparkles as SparklesComp } from "@/components/ui/sparkles";
+import type { PlanStatus } from "@/lib/plan-status";
+import { fetcher } from "@/lib/swr";
 import { cn } from "@/lib/utils";
 
 const PRO_FEATURES = [
@@ -82,8 +84,10 @@ export default function PricingSection4() {
   const { data: session, status } = useSession();
 
   const getCheckoutHref = (baseHref: string) => {
+    // Signed out: most are new visitors, so they start at sign-up (which links
+    // to sign-in) and come back here with an account to pick their plan
     if (status !== "authenticated" || !session?.user?.email) {
-      return "/sign-in?callbackUrl=%2F%23pricing";
+      return "/sign-up?callbackUrl=%2F%23pricing";
     }
     const params = new URLSearchParams({
       client_reference_id: session.user.id,
@@ -92,11 +96,32 @@ export default function PricingSection4() {
     return `${baseHref}?${params.toString()}`;
   };
 
+  // A Pro account must not be sent to checkout for something it already has
+  // (a second subscription would bill twice). The one purchase left open is
+  // Monthly -> Lifetime, which the webhook handles by ending the subscription.
+  // Same key as the dashboard's plan card, so the answer is shared.
+  const isPro = status === "authenticated" && (session?.user as { plan?: string } | undefined)?.plan === "pro";
+  const { data: planStatus } = useSWR<PlanStatus>(isPro ? "/api/user/plan" : null, fetcher, { revalidateOnFocus: false });
+
+  /** What a paid card says to an account that already has it, or null when it can be bought */
+  const owned = (plan: Plan): { label: string; href: string } | null => {
+    if (!isPro || !plan.buttonHref) return null;
+    // Until the kind of Pro is known, no paid card links to checkout
+    if (!planStatus) return { label: "You're on Pro", href: "/dashboard" };
+    if (planStatus.billing === "monthly") {
+      return plan.period === "lifetime" ? null : { label: "Your current plan", href: "/dashboard/settings" };
+    }
+    if (planStatus.billing === "lifetime") {
+      return { label: plan.period === "lifetime" ? "Your current plan" : "Included with Lifetime", href: "/dashboard" };
+    }
+    return { label: "You're on Pro", href: "/dashboard" };
+  };
+
   // Free: make an account, or go straight in when already signed in
   const hrefFor = (plan: Plan) =>
-    plan.buttonHref ? getCheckoutHref(plan.buttonHref) : status === "authenticated" ? "/dashboard" : "/sign-up";
+    owned(plan)?.href ?? (plan.buttonHref ? getCheckoutHref(plan.buttonHref) : status === "authenticated" ? "/dashboard" : "/sign-up");
   const labelFor = (plan: Plan) =>
-    !plan.buttonHref && status === "authenticated" ? "Go to dashboard" : plan.buttonText;
+    owned(plan)?.label ?? (!plan.buttonHref && status === "authenticated" ? (isPro ? "You're on Pro" : "Go to dashboard") : plan.buttonText);
 
   return (
     <div className="min-h-screen sm:min-h-0 mx-auto relative overflow-x-hidden">
@@ -193,10 +218,9 @@ export default function PricingSection4() {
               <CardHeader className="text-left pt-8">
                 <h3 className="text-2xl font-semibold mb-2">{plan.name}</h3>
                 <div className="flex items-baseline gap-1">
-                  <span className="text-4xl font-bold">
-                    $
-                    <NumberFlow value={plan.price} className="text-4xl font-bold" />
-                  </span>
+                  {/* Fixed prices: plain text (the number-animation library used
+                      here only ever showed the same value) */}
+                  <span className="text-4xl font-bold tabular-nums">${plan.price}</span>
                   <span className="text-gray-400 text-sm">
                     {plan.period === "lifetime" ? "one-time" : plan.period === "free" ? "forever" : `/${plan.period}`}
                   </span>
@@ -211,9 +235,13 @@ export default function PricingSection4() {
                   href={hrefFor(plan)}
                   className={cn(
                     "w-full mb-6 p-3.5 text-base font-semibold rounded-xl text-center block transition-transform hover:scale-[1.02] active:scale-[0.98] cursor-pointer",
-                    plan.popular
-                      ? "bg-gradient-to-b from-purple-500 to-purple-700 shadow-lg shadow-purple-900/50 border border-purple-400/50 text-white"
-                      : "bg-gradient-to-b from-neutral-700 to-neutral-900 shadow-lg shadow-neutral-950 border border-white/20 text-white"
+                    // Already owned, or Free's "Go to dashboard" for a
+                    // signed-in account: a quiet outline, not a buy button
+                    owned(plan) || (!plan.buttonHref && status === "authenticated")
+                      ? "border border-white/15 bg-white/[0.04] text-gray-300"
+                      : plan.popular
+                        ? "bg-gradient-to-b from-purple-500 to-purple-700 shadow-lg shadow-purple-900/50 border border-purple-400/50 text-white"
+                        : "bg-gradient-to-b from-neutral-700 to-neutral-900 shadow-lg shadow-neutral-950 border border-white/20 text-white"
                   )}
                 >
                   {labelFor(plan)}

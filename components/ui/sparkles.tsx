@@ -6,7 +6,18 @@ import Particles, {
 } from "@tsparticles/react"
 import { loadSlim } from "@tsparticles/slim"
 import { useReducedMotion } from "framer-motion"
-import { useId } from "react"
+import { useId, useSyncExternalStore } from "react"
+
+// tsparticles 4 draws on an OffscreenCanvas and throws ("OffscreenCanvas is
+// required but not supported by this browser") where a canvas can't be handed
+// over to one: Safari and iOS before 16.4, older in-app browsers. Its React
+// wrapper doesn't catch that, so it reached Sentry as an unhandled rejection.
+// The sparkles are decoration, so those browsers simply go without them (and
+// never load the particle engine). False on the server and for the first
+// client render, which is also what the server sends: nothing.
+const noopSubscribe = () => () => {}
+const canDrawParticles = () =>
+  typeof HTMLCanvasElement !== "undefined" && typeof HTMLCanvasElement.prototype.transferControlToOffscreen === "function"
 
 interface SparklesProps {
   className?: string
@@ -66,6 +77,7 @@ export function Sparkles({
 }: SparklesProps) {
   const id = useId()
   const shouldReduceMotion = useReducedMotion()
+  const supported = useSyncExternalStore(noopSubscribe, canDrawParticles, () => false)
 
   const defaultOptions = {
     background: {
@@ -117,6 +129,8 @@ export function Sparkles({
   }
 
   const merged = { ...defaultOptions, ...options }
+
+  if (!supported) return null
 
   return (
     <ParticlesProvider init={loadSlim}>

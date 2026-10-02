@@ -4,12 +4,13 @@ import { motion } from "framer-motion"
 import { Eye, EyeOff, Loader2, Lock, Mail, User } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
-import { useRouter } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
 import { signIn } from "next-auth/react"
-import { useEffect, useMemo, useState } from "react"
+import { Suspense, useEffect, useMemo, useState } from "react"
 
 import { GoogleSignInButton } from "@/components/auth/google-button"
 import { Collapse } from "@/components/ui/motion"
+import { isPlanCallback, safeCallbackUrl, withCallback } from "@/lib/callback-url"
 import { suggestEmail } from "@/lib/email-typo"
 import { checkPassword, type PasswordCheck } from "@/lib/password-strength"
 import { cn } from "@/lib/utils"
@@ -42,8 +43,11 @@ function StrengthMeter({ check, flagged }: { check: PasswordCheck; flagged: bool
   )
 }
 
-export default function SignUpPage() {
+function SignUpForm() {
   const router = useRouter()
+  // Where a new account goes next: back to the plan they picked on the pricing
+  // section, or the dashboard page they were sent here from
+  const callbackUrl = safeCallbackUrl(useSearchParams().get("callbackUrl"))
 
   const [name,            setName]            = useState("")
   const [email,           setEmail]           = useState("")
@@ -111,9 +115,9 @@ export default function SignUpPage() {
 
       const result = await signIn("credentials", { email, password, redirect: false })
       if (result?.error) {
-        router.push("/sign-in")
+        router.push(withCallback("/sign-in", callbackUrl))
       } else {
-        router.push("/dashboard")
+        router.push(callbackUrl)
         router.refresh()
       }
     } catch {
@@ -144,12 +148,12 @@ export default function SignUpPage() {
             Entrix<span className="text-purple-400">Algo</span>
           </span>
         </Link>
-        <p className="text-sm text-gray-500">Create your account</p>
+        <p className="text-sm text-gray-500">{isPlanCallback(callbackUrl) ? "Create your account to choose your plan" : "Create your account"}</p>
       </div>
 
       {/* Card */}
       <div className="rounded-2xl border border-white/[0.08] bg-white/[0.03] p-8 backdrop-blur-sm">
-        <GoogleSignInButton />
+        <GoogleSignInButton callbackUrl={callbackUrl} />
         <form onSubmit={handleSubmit} className="space-y-5">
           {/* Name */}
           <div>
@@ -166,7 +170,7 @@ export default function SignUpPage() {
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 placeholder="Jane Trader"
-                className="w-full rounded-xl border border-white/[0.08] bg-white/[0.04] py-2.5 pl-10 pr-4 text-sm text-white placeholder:text-gray-600 focus:border-purple-500/50 focus:outline-none focus:ring-1 focus:ring-purple-500/50"
+                className="w-full rounded-xl border border-white/[0.08] bg-white/[0.04] py-2.5 pl-10 pr-4 text-base sm:text-sm text-white placeholder:text-gray-600 focus:border-purple-500/50 focus:outline-none focus:ring-1 focus:ring-purple-500/50"
               />
             </div>
           </div>
@@ -188,7 +192,7 @@ export default function SignUpPage() {
                 onBlur={() => setEmailTouched(true)}
                 aria-describedby={emailSuggestion && emailTouched ? "email-suggestion-text" : undefined}
                 placeholder="you@example.com"
-                className="w-full rounded-xl border border-white/[0.08] bg-white/[0.04] py-2.5 pl-10 pr-4 text-sm text-white placeholder:text-gray-600 focus:border-purple-500/50 focus:outline-none focus:ring-1 focus:ring-purple-500/50"
+                className="w-full rounded-xl border border-white/[0.08] bg-white/[0.04] py-2.5 pl-10 pr-4 text-base sm:text-sm text-white placeholder:text-gray-600 focus:border-purple-500/50 focus:outline-none focus:ring-1 focus:ring-purple-500/50"
               />
             </div>
             {emailSuggestion && emailTouched && (
@@ -230,14 +234,14 @@ export default function SignUpPage() {
                   setPwFlagged(false)
                 }}
                 placeholder="••••••••"
-                className="w-full rounded-xl border border-white/[0.08] bg-white/[0.04] py-2.5 pl-10 pr-11 text-sm text-white placeholder:text-gray-600 focus:border-purple-500/50 focus:outline-none focus:ring-1 focus:ring-purple-500/50"
+                className="w-full rounded-xl border border-white/[0.08] bg-white/[0.04] py-2.5 pl-10 pr-11 text-base sm:text-sm text-white placeholder:text-gray-600 focus:border-purple-500/50 focus:outline-none focus:ring-1 focus:ring-purple-500/50"
               />
               <button
                 type="button"
                 onClick={() => setShowPw(!showPw)}
                 aria-label={showPw ? "Hide password" : "Show password"}
                 aria-pressed={showPw}
-                className="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-600 hover:text-gray-300"
+                className="absolute inset-y-0 right-0 flex w-11 items-center justify-center text-gray-600 hover:text-gray-300"
               >
                 {showPw ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
               </button>
@@ -262,7 +266,7 @@ export default function SignUpPage() {
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 placeholder="••••••••"
-                className="w-full rounded-xl border border-white/[0.08] bg-white/[0.04] py-2.5 pl-10 pr-4 text-sm text-white placeholder:text-gray-600 focus:border-purple-500/50 focus:outline-none focus:ring-1 focus:ring-purple-500/50"
+                className="w-full rounded-xl border border-white/[0.08] bg-white/[0.04] py-2.5 pl-10 pr-4 text-base sm:text-sm text-white placeholder:text-gray-600 focus:border-purple-500/50 focus:outline-none focus:ring-1 focus:ring-purple-500/50"
               />
             </div>
             {mismatch && (
@@ -305,11 +309,19 @@ export default function SignUpPage() {
         <Link href="/" className="hover:text-gray-300">← Back to landing page</Link>
         <p>
           Already have an account?{" "}
-          <Link href="/sign-in" className="font-medium text-purple-400 hover:text-purple-300">
+          <Link href={withCallback("/sign-in", callbackUrl)} className="font-medium text-purple-400 hover:text-purple-300">
             Sign in
           </Link>
         </p>
       </div>
     </motion.div>
+  )
+}
+
+export default function SignUpPage() {
+  return (
+    <Suspense>
+      <SignUpForm />
+    </Suspense>
   )
 }

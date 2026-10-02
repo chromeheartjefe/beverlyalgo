@@ -19,10 +19,11 @@ type Phase = "upload" | "analyzing" | "results"
 
 const PHASE_ORDER: Phase[] = ["upload", "analyzing", "results"]
 
+// Upload ends right after the file lands; results stay long enough to read
 const PHASE_DURATION: Record<Phase, number> = {
-  upload: 3400,
-  analyzing: 3600,
-  results: 5600,
+  upload: 2200,
+  analyzing: 2600,
+  results: 5000,
 }
 
 const FILE_NAME = "btc_4h.png"
@@ -33,7 +34,7 @@ const STEPS = [
   "Calculating entry and exits",
   "Checking risk to reward",
 ]
-const STEP_MS = 760
+const STEP_MS = 520
 
 // Risk 2,240 per coin. TP1 is 2R and TP2 3R, and R:R uses TP1 like the real
 // analyser (lib/chart-analysis/v2.ts): (72,900 - 68,420) / (68,420 - 66,180) = 2
@@ -127,7 +128,7 @@ function ChartSVG({ showLevels }: { showLevels: boolean }) {
   const reveal = (i: number) => ({
     initial: { opacity: 0 },
     animate: { opacity: showLevels ? 1 : 0 },
-    transition: { duration: 0.35, delay: showLevels ? i * 0.12 : 0 },
+    transition: { duration: 0.3, delay: showLevels ? i * 0.08 : 0 },
   })
   const obLeft = cx(OB_INDEX) - BODY_W / 2
   const obTop = py(OHLC[OB_INDEX][1])
@@ -196,7 +197,8 @@ function ChartSVG({ showLevels }: { showLevels: boolean }) {
 // Same drop zone as the real tab. A chart file is dragged in by a cursor, the
 // zone lights up ("Drop to analyze") and the file drops into it.
 
-const DRAG_AT = 1500
+// The zone lights up as the dragged file arrives over it
+const DRAG_AT = 1100
 
 function UploadPhase() {
   const live = useContext(DemoLiveContext)
@@ -216,7 +218,7 @@ function UploadPhase() {
       initial={{ opacity: 0, scale: 0.97 }}
       animate={{ opacity: 1, scale: 1 }}
       exit={{ opacity: 0, scale: 0.97 }}
-      transition={{ duration: 0.35 }}
+      transition={{ duration: 0.25 }}
       className={cn(
         "relative flex h-72 w-full flex-col items-center justify-center rounded-2xl border-2 border-dashed p-4 text-center transition-colors duration-300",
         dragging ? "border-purple-500/60 bg-purple-500/[0.06]" : "border-white/15 bg-white/[0.02]",
@@ -262,7 +264,8 @@ function UploadPhase() {
           className="pointer-events-none absolute left-1/2 top-1/2 -ml-[68px] -mt-[52px] w-[136px] rounded-lg border border-white/25 bg-[#0d0d1c] p-1.5 shadow-2xl shadow-black/70"
           initial={{ opacity: 0, x: 120, y: -120, rotate: 10 }}
           animate={{ opacity: [0, 1, 1, 0], x: [120, 4, 0, 0], y: [-120, -8, 0, 22], rotate: [10, -4, -2, 0], scale: [1, 1, 1, 0.55] }}
-          transition={{ duration: 2.3, times: [0, 0.48, 0.72, 1], delay: 0.45, ease: "easeInOut" }}
+          // Flies in (0.3-1.2s), a short beat over the zone, drops by 1.9s
+          transition={{ duration: 1.6, times: [0, 0.55, 0.7, 1], delay: 0.3, ease: "easeInOut" }}
         >
           <div className="h-14 overflow-hidden rounded-md bg-[#08080f]">
             <svg viewBox={`0 0 ${PLOT_W} ${VB.h}`} className="h-full w-full" preserveAspectRatio="none">
@@ -297,7 +300,7 @@ function AnalyzingPhase() {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      transition={{ duration: 0.3 }}
+      transition={{ duration: 0.25 }}
       className="w-full space-y-3"
     >
       {/* File row */}
@@ -318,7 +321,7 @@ function AnalyzingPhase() {
             className="h-full origin-left bg-gradient-to-r from-purple-600 to-fuchsia-400"
             initial={{ scaleX: 0 }}
             animate={{ scaleX: done / STEPS.length }}
-            transition={{ duration: 0.5, ease: "easeOut" }}
+            transition={{ duration: 0.4, ease: "easeOut" }}
           />
         </div>
       </div>
@@ -333,7 +336,7 @@ function AnalyzingPhase() {
             boxShadow: "0 0 18px 6px rgba(168,85,247,0.22)",
           }}
           initial={{ top: 0 }}
-          {...demoLoop(live, { top: "100%" }, { top: 0 }, { duration: 1.8, repeat: Infinity, ease: "linear" })}
+          {...demoLoop(live, { top: "100%" }, { top: 0 }, { duration: 1.3, repeat: Infinity, ease: "linear" })}
         />
       </div>
 
@@ -396,7 +399,7 @@ function ConfidenceRing() {
           strokeDasharray={c}
           initial={{ strokeDashoffset: c }}
           animate={{ strokeDashoffset: c - (CONFIDENCE / 100) * c }}
-          transition={{ duration: 1.1, ease: "easeOut", delay: 0.35 }}
+          transition={{ duration: 0.9, ease: "easeOut", delay: 0.25 }}
         />
       </svg>
       <div className="absolute inset-0 flex flex-col items-center justify-center">
@@ -414,7 +417,7 @@ function ResultsPhase() {
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0 }}
-      transition={{ duration: 0.4 }}
+      transition={{ duration: 0.3 }}
       className="w-full space-y-2.5"
     >
       {/* Signal hero */}
@@ -436,7 +439,7 @@ function ResultsPhase() {
               <motion.div
                 initial={{ scale: 0.6, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
-                transition={{ delay: 0.15, type: "spring", stiffness: 240, damping: 15 }}
+                transition={{ delay: 0.1, type: "spring", stiffness: 240, damping: 15 }}
                 className="flex size-12 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-400 to-emerald-600 shadow-[0_10px_34px_-10px_rgba(52,211,153,0.6)]"
               >
                 <TrendingUp className="size-6 text-white" strokeWidth={2.5} />
@@ -444,7 +447,7 @@ function ResultsPhase() {
               <motion.p
                 initial={{ opacity: 0, x: -6 }}
                 animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.25, duration: 0.35 }}
+                transition={{ delay: 0.18, duration: 0.3 }}
                 className="text-4xl font-black leading-none tracking-tight text-emerald-400"
               >
                 BUY
@@ -460,7 +463,7 @@ function ResultsPhase() {
                 key={l}
                 initial={{ opacity: 0, y: 8 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.45 + i * 0.07, duration: 0.3 }}
+                transition={{ delay: 0.3 + i * 0.06, duration: 0.3 }}
                 className={cn(
                   "@container flex min-w-0 flex-col justify-between gap-1.5 rounded-lg border border-white/15 bg-white/[0.04] p-2.5",
                   i < 3 ? "col-span-2" : "col-span-3",
@@ -486,7 +489,7 @@ function ResultsPhase() {
       <motion.div
         initial={{ opacity: 0, y: 8 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.9, duration: 0.35 }}
+        transition={{ delay: 0.65, duration: 0.3 }}
         className="flex items-center gap-2.5 rounded-xl border border-fuchsia-400/25 bg-fuchsia-500/[0.07] px-3 py-2"
       >
         <Layers className="size-3.5 shrink-0 text-fuchsia-300" />
@@ -575,25 +578,11 @@ export function AiChartAnalyserPreview() {
 
             {/* ── Right: animated preview ── */}
             <div className="flex items-center justify-center border-t border-white/15 bg-gradient-to-br from-[#0b0b1e] to-[#050510] p-4 lg:border-l lg:border-t-0 lg:p-10">
-              {/*
-               * ─────────────────────────────────────────────────────────────
-               * TODO: Replace the animated demo below with your looped video
-               * or GIF once it's ready. Swap out the entire <div> wrapper
-               * and <AnimatePresence> block with:
-               *
-               *   <video autoPlay loop muted playsInline className="w-full rounded-2xl">
-               *     <source src="/ai-chart-analyser-demo.mp4" type="video/mp4" />
-               *   </video>
-               *
-               * Or for a GIF:
-               *   <img
-               *     src="/ai-chart-analyser-demo.gif"
-               *     alt="AI Chart Analyser demo"
-               *     className="w-full rounded-2xl"
-               *   />
-               * ─────────────────────────────────────────────────────────────
-               */}
-              <div className="flex h-[340px] w-full max-w-sm max-lg:[zoom:0.85] flex-col justify-center overflow-hidden lg:h-[400px] lg:overflow-visible">
+              {/* Phones: the demo is drawn on a taller canvas and scaled down
+                  further, so the tallest phase (results) has room to spare and
+                  nothing is clipped; narrower phones scale down more. The three
+                  zoom ranges don't overlap. Tablets and PC are as before. */}
+              <div className="flex h-[372px] w-full max-w-sm flex-col justify-center overflow-hidden max-[359px]:[zoom:0.66] min-[360px]:max-sm:[zoom:0.75] sm:h-[340px] sm:max-lg:[zoom:0.85] lg:h-[400px] lg:overflow-visible">
                 <DemoLiveContext.Provider value={live}>
                   <MotionConfig reducedMotion="user">
                     <AnimatePresence mode="wait">

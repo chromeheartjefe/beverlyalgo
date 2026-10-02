@@ -27,6 +27,8 @@ export const SUPPORT_LINKS = new Set([
   "/dashboard/trade-journal",
   "/dashboard/trade-calendar",
   "/dashboard/risk-calculator",
+  "/dashboard/academy",
+  "/dashboard/glossary",
   "/dashboard/settings",
   "/privacy",
   "/terms",
@@ -41,12 +43,12 @@ export const QUICK_REPLIES: QuickReply[] = [
   {
     label: "What does Pro include?",
     answer:
-      "Pro unlocks AI Chart Analysis, the AI Trading Bot and our invite-only TradingView indicator, plus priority support and early access to new features. It's $49/month (cancel anytime) or $299 once for lifetime access. See /#pricing",
+      "Pro unlocks unlimited AI Chart Analysis, the AI Trading Bot and our invite-only TradingView indicator, plus priority support and early access to new features. It's $49/month (cancel anytime) or $299 once for lifetime access. See /#pricing",
   },
   {
     label: "Is there a free plan?",
     answer:
-      "Yes. A free account includes the AI Screener, Trade Journal, Trade Calendar and Risk Calculator, no card needed. Create one at /sign-up",
+      "Yes. A free account includes one AI Chart Analysis, plus the AI Screener, Trade Journal, Trade Calendar, Risk Calculator and the Entrix Academy course, no card needed. Create one at /sign-up",
   },
   {
     label: "How do I get the TradingView indicator?",

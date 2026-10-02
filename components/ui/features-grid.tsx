@@ -203,11 +203,13 @@ function PlatformVisual() {
 
   return (
     <div ref={ref} className="space-y-3">
-      <ul className="space-y-2">
+      {/* Phones: slim rows so the card isn't so tall (they are a demo, not
+          tap targets). From sm up the rows keep their full height. */}
+      <ul className="space-y-1 sm:space-y-2">
         {PLATFORMS.map((name, i) => {
           const isActive = i === active
           return (
-            <li key={name} className="relative flex items-center justify-between rounded-lg px-3 py-3">
+            <li key={name} className="relative flex items-center justify-between rounded-lg px-3 py-1 sm:py-3">
               {isActive && (
                 <motion.span
                   layoutId="fg-platform-active"
@@ -232,7 +234,7 @@ function PlatformVisual() {
         })}
       </ul>
 
-      <div className="flex flex-wrap gap-1.5 border-t border-white/15 pt-4">
+      <div className="flex flex-wrap gap-1.5 border-t border-white/15 pt-3 sm:pt-4">
         {ASSET_TAGS.map((tag) => (
           <span key={tag.label} className={cn("rounded-full border px-2.5 py-1 text-xs font-medium", tag.className)}>
             {tag.label}

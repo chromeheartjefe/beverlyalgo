@@ -1,7 +1,7 @@
 "use client"
 
 import { AnimatePresence, motion, type Variants } from "framer-motion"
-import { ArrowRight, Menu, Users, X } from "lucide-react"
+import { ArrowRight, Gift, Menu, Users, X } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
 import { useSession } from "next-auth/react"
@@ -60,7 +60,7 @@ const Logo = () => (
   </Link>
 )
 
-export function HeroHeader() {
+function HeroHeader() {
   const [menuOpen, setMenuOpen] = useState(false)
   const [isScrolled, setIsScrolled] = useState(false)
   const { status } = useSession()
@@ -74,9 +74,11 @@ export function HeroHeader() {
 
   return (
     <header className="fixed inset-x-0 top-0 z-50 flex flex-col">
+      {/* The free analysis offer. A new id, so it also shows for visitors who
+          closed the earlier launch banner. */}
       <DecorBoundary name="launch-banner">
       <Banner
-        id="entrix-launch-banner"
+        id="entrix-free-analysis-banner"
         variant="rainbow"
         height="2.75rem"
         rainbowColors={[
@@ -90,11 +92,17 @@ export function HeroHeader() {
         ]}
         className="border-b border-white/15 whitespace-nowrap pl-4 pr-11 text-xs sm:whitespace-normal sm:px-4 sm:text-sm"
       >
-        <span className="sm:hidden">🚀 EntrixAlgo is evolving.</span>
-        <span className="hidden sm:inline">🚀 EntrixAlgo is evolving. New features coming soon.</span>{" "}
-        <a href="#pricing" className="ml-1 underline underline-offset-2 opacity-80 hover:opacity-100">
-          Get early access →
-        </a>
+        <Gift className="mr-1.5 size-3.5 shrink-0 text-emerald-300 sm:mr-2 sm:size-4" aria-hidden="true" />
+        <span className="sm:hidden">First AI chart analysis free</span>
+        <span className="hidden sm:inline">Your first AI chart analysis is free. No card required.</span>
+        <Link
+          href={isAuthed ? "/dashboard/chart-analysis" : "/sign-up"}
+          className="ml-2 inline-flex min-h-11 items-center gap-1 font-semibold underline underline-offset-2 opacity-90 hover:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/60 sm:ml-3"
+        >
+          <span className="sm:hidden">Try it</span>
+          <span className="hidden sm:inline">Try it free</span>
+          <ArrowRight className="size-3.5" aria-hidden="true" />
+        </Link>
       </Banner>
       </DecorBoundary>
       <div className="relative flex justify-center px-4 pt-3">
@@ -184,7 +192,7 @@ export function HeroHeader() {
 // Shared by the headline and its glow layer, so both lay out identically
 const HEADLINE_CLASS = "text-balance text-5xl font-black tracking-tight sm:text-6xl md:text-7xl xl:text-[5.25rem]"
 
-// Fade and rise, no blur: an animated blur over the headline block would be
+// Fade and rise for the dashboard mockup. No blur: an animated blur would be
 // recomputed every frame for 1.5s, right while the page is still loading.
 const transitionVariants: { item: Variants } = {
   item: {
@@ -231,7 +239,10 @@ export function HeroSection() {
         <div className="relative z-[3] pt-40 md:pt-52">
           <div className="mx-auto max-w-7xl px-6">
             <div className="text-center sm:mx-auto lg:mr-auto lg:mt-0">
-              <AnimatedGroup variants={transitionVariants}>
+              {/* Badge, headline, sub-line and buttons are plain markup: they are
+                  in the first paint, before any script has loaded. Only the
+                  dashboard mockup below still animates in. */}
+              <div>
                 {/* Social-proof badge: 1px animated gradient outline around a dark pill */}
                 <Link
                   href="#pricing"
@@ -325,43 +336,56 @@ export function HeroSection() {
                 {/* Subtext */}
                 <p className="mx-auto mt-8 max-w-2xl text-balance text-sm text-muted-foreground sm:text-lg">
                   <span className="sm:hidden">
-                    Professionally designed AI-based TradingView algorithm that elevates your trading. Join thousands of traders using EntrixAlgo.
+                    Professionally designed private AI trading algorithm that elevates your trading. Join thousands of traders using EntrixAlgo.
                   </span>
                   <span className="hidden sm:inline">
-                    Professionally designed AI-based TradingView algorithm that elevates your trading with precise, easy-to-read signals. Join thousands of traders using EntrixAlgo.
+                    Professionally designed private AI trading algorithm that elevates your trading with precise, easy-to-read signals. Join thousands of traders using EntrixAlgo.
                   </span>
                 </p>
-              </AnimatedGroup>
+              </div>
 
               {/* CTA buttons */}
-              <AnimatedGroup
-                variants={{
-                  container: {
-                    visible: {
-                      transition: { staggerChildren: 0.05, delayChildren: 0.75 },
-                    },
-                  },
-                  ...transitionVariants,
-                }}
-                className="mt-12 flex flex-wrap items-center justify-center gap-3"
-              >
-                {/* An array, not a fragment: AnimatedGroup wraps each child separately */}
-                {isAuthed
-                  ? <StardustButton href="/dashboard" mobileSize="md">Dashboard</StardustButton>
-                  : [
-                      <StardustButton key="access" href="#pricing" mobileSize="md">Get Access</StardustButton>,
-                      <StardustButton key="login" href="/sign-in" mobileSize="md">Login</StardustButton>,
-                    ]}
-              </AnimatedGroup>
+              <div className="mt-12 flex flex-wrap items-center justify-center gap-3">
+                {isAuthed ? (
+                  <StardustButton href="/dashboard" mobileSize="md">Dashboard</StardustButton>
+                ) : (
+                  <>
+                    <StardustButton href="#pricing" mobileSize="md">Get Access</StardustButton>
+                    <StardustButton href="/sign-in" mobileSize="md">Login</StardustButton>
+                  </>
+                )}
+              </div>
+
+              {/* The free analysis, right under the buttons. Same green as the
+                  offer inside the dashboard. A quiet text link, so the buttons
+                  stay the main action; the padding makes it a full tap target.
+                  The slot keeps its height when the line is hidden (signed in),
+                  so the mockup below doesn't jump once the session loads. */}
+              <div className="mt-2 min-h-10 sm:min-h-11">
+                {!isAuthed && (
+                  <Link
+                    href="/sign-up"
+                    className="group mx-auto block w-fit rounded-full px-3 py-3 text-balance text-xs text-gray-400 transition-colors hover:text-gray-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-300/60 sm:text-sm"
+                  >
+                    <Gift className="mr-1.5 inline size-3.5 align-[-2px] text-emerald-400 sm:size-4 sm:align-[-3px]" aria-hidden="true" />
+                    <span className="font-medium text-emerald-300 underline-offset-4 group-hover:underline">
+                      <span className="sm:hidden">First AI chart analysis free</span>
+                      <span className="hidden sm:inline">Your first AI chart analysis is free.</span>
+                    </span>
+                    <span className="sm:hidden"> · No card required</span>
+                    <span className="hidden sm:inline"> No card required.</span>
+                  </Link>
+                )}
+              </div>
             </div>
           </div>
 
-          {/* Dashboard mockup */}
+          {/* Dashboard mockup: the one hero element that still animates in */}
           <AnimatedGroup
             variants={{
               container: {
                 visible: {
-                  transition: { staggerChildren: 0.05, delayChildren: 0.75 },
+                  transition: { staggerChildren: 0.05, delayChildren: 0.1 },
                 },
               },
               ...transitionVariants,
@@ -379,6 +403,10 @@ export function HeroSection() {
                   alt="EntrixAlgo trading dashboard"
                   width={1876}
                   height={1175}
+                  // The frame is at most 1120px wide (max-w-6xl minus its padding)
+                  // and nearly full width below that. Without this hint a phone
+                  // was sent the full 1876px file for a 330px slot.
+                  sizes="(min-width: 1200px) 1120px, calc(100vw - 48px)"
                   priority
                 />
               </div>

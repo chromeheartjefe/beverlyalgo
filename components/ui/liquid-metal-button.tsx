@@ -1,6 +1,6 @@
 "use client"
 
-import { getShaderColorFromString, liquidMetalFragmentShader, ShaderMount } from "@paper-design/shaders"
+import type { ShaderMount } from "@paper-design/shaders"
 import { useRouter } from "next/navigation"
 import { useEffect, useMemo, useRef, useState } from "react"
 
@@ -14,8 +14,8 @@ interface LiquidMetalButtonProps {
 
 // Brand purple tint applied to the shader's animated rim + a purple-black plate,
 // so the metal reads as "ours" instead of the library's default neutral silver.
-const COLOR_TINT = getShaderColorFromString("#9333ea") // purple-600, color-burn tint on the shader rim
-const COLOR_BACK = getShaderColorFromString("#0d0d1c") // matches the dropdown/email dark-surface color used elsewhere
+const COLOR_TINT = "#9333ea" // purple-600, color-burn tint on the shader rim
+const COLOR_BACK = "#0d0d1c" // matches the dropdown/email dark-surface color used elsewhere
 
 // Shown instead of the animated rim when the browser has no WebGL (hardware
 // acceleration off, blocked GPU drivers, remote desktops, some privacy and
@@ -86,39 +86,54 @@ export function LiquidMetalButton({
       document.head.appendChild(style)
     }
 
-    if (shaderRef.current && !webglAvailable()) {
+    // The shader library is fetched here, after the page is on screen, so the
+    // header button (which sits in the first screen of the landing page) no
+    // longer puts it in the JavaScript the page needs to start. The button
+    // itself is drawn straight away; only the animated rim joins a moment later.
+    let cancelled = false
+    const container = shaderRef.current
+    if (container && !webglAvailable()) {
       setNoShader(true)
-    } else if (shaderRef.current) {
-      try {
-        shaderMount.current = new ShaderMount(
-          shaderRef.current,
-          liquidMetalFragmentShader,
-          {
-            u_colorBack:  COLOR_BACK,
-            u_colorTint:  COLOR_TINT,
-            u_repetition: 4,
-            u_softness:   0.5,
-            u_shiftRed:   0.15,
-            u_shiftBlue:  0.45,
-            u_distortion: 0,
-            u_contour:    0,
-            u_angle:      45,
-            u_scale:      8,
-            u_shape:      1,
-            u_offsetX:    0.1,
-            u_offsetY:    -0.1,
-          },
-          undefined,
-          0.6
-        )
-      } catch {
-        // WebGL present but unusable (context lost, blocked): static rim instead
-        shaderMount.current = null
-        setNoShader(true)
-      }
+    } else if (container) {
+      import("@paper-design/shaders")
+        .then(({ getShaderColorFromString, liquidMetalFragmentShader, ShaderMount }) => {
+          if (cancelled) return
+          try {
+            shaderMount.current = new ShaderMount(
+              container,
+              liquidMetalFragmentShader,
+              {
+                u_colorBack:  getShaderColorFromString(COLOR_BACK),
+                u_colorTint:  getShaderColorFromString(COLOR_TINT),
+                u_repetition: 4,
+                u_softness:   0.5,
+                u_shiftRed:   0.15,
+                u_shiftBlue:  0.45,
+                u_distortion: 0,
+                u_contour:    0,
+                u_angle:      45,
+                u_scale:      8,
+                u_shape:      1,
+                u_offsetX:    0.1,
+                u_offsetY:    -0.1,
+              },
+              undefined,
+              0.6
+            )
+          } catch {
+            // WebGL present but unusable (context lost, blocked): static rim instead
+            shaderMount.current = null
+            setNoShader(true)
+          }
+        })
+        // The library didn't load (offline, blocked): static rim instead
+        .catch(() => {
+          if (!cancelled) setNoShader(true)
+        })
     }
 
     return () => {
+      cancelled = true
       shaderMount.current?.dispose()
       shaderMount.current = null
     }
