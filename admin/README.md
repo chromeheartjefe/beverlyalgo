@@ -22,6 +22,16 @@ no public URL, and only answers requests addressed to `127.0.0.1:3100` /
 4. **Env**: copy `admin/.env.local.example` to `admin/.env.local` and fill it in.
    Build the two database URLs from the site's `DATABASE_URL` by swapping the
    `user:password` part.
+5. **Sentry token** (optional, for the Errors page and the Overview errors
+   tile): in Sentry open your avatar → *User settings* → *Personal tokens* →
+   *Create new token* and tick only **Issue & Event: Read** (`event:read`).
+   Put it in `admin/.env.local` as `SENTRY_API_TOKEN`, with `SENTRY_ORG` and
+   `SENTRY_PROJECT` set to the two slugs from the Sentry address
+   (`https://<org>.sentry.io/projects/<project>/`). If the organisation is
+   hosted in the EU, also set `SENTRY_URL=https://de.sentry.io`. The token
+   used for source-map uploads (`sntrys_...`) cannot read issues and will not
+   work here. The console only reads from Sentry; it never resolves or
+   changes an issue.
 
 ## Run
 
@@ -53,8 +63,8 @@ code changes are picked up. If the build fails it falls back to dev mode.
 **Dev mode** (tray toggle, remembered): `npm run admin` with live reload, for
 when the admin code is being edited. Starting it twice just opens the console.
 
-Stripe data is cached for 2 minutes; the Refresh button on Overview and
-Revenue fetches it fresh.
+Stripe and Sentry data are cached for 2 minutes; the Refresh button on
+Overview, Revenue and Errors fetches it fresh.
 
 ## Pages
 
@@ -62,7 +72,7 @@ Grouped in the sidebar: Command, Growth, Money, Operations.
 
 | Page | What |
 |---|---|
-| Overview | Command center: MRR / paying / signups / active hero KPIs with trends and week-over-week change, health strip (free to Pro, week-one activation, stickiness, email verified, AI budget), automatic Signals (rule-based, no AI), lifecycle funnel, active + signups chart, feature adoption, net revenue per month, newest accounts |
+| Overview | Command center: MRR / paying / signups / active hero KPIs with trends and week-over-week change, health strip (site errors in the last 24 hours from Sentry, free to Pro, email verified, AI budget), automatic Signals (rule-based, no AI), lifecycle funnel, active + signups chart, feature adoption, net revenue per month, newest accounts |
 | AI analyst | AI briefing on the live aggregates (headline, five health scores, ranked actions with "Save as idea", risks), Ask-your-data questions, briefing history. Needs `OPENAI_API_KEY` |
 | Ideas | Kanban board (Inbox, Exploring, Planned, Building, Shipped, Parked), impact/effort priority, AI review per idea (score, verdict, pros/cons, first steps, success metric), "Suggest 3 ideas". Stored in `admin/data/ideas.json` |
 | Users | Search and filter (plan, verified, at risk, indicator pending), sort by spend/activity |
@@ -72,6 +82,7 @@ Grouped in the sidebar: Command, Growth, Money, Operations.
 | Revenue | MRR, ARR run-rate, net revenue 30d vs previous, 12-month revenue and revenue per customer, subscriptions, renewals, refunds and disputes, payments |
 | AI & unit costs | Unit economics (AI cost per paying and per free account vs revenue per paying account), spend per day/model, cost per analysis/message/scan, top spenders, rejection reasons |
 | Indicator queue | Pending TradingView requests with "Mark invited", update email |
+| Errors | Sentry issues with events in the last 24 hours and 14 days, a 14-day chart, and per error: the stack trace of the latest occurrence, the page / browser / release it happened on, the trail of what happened before it, tags, and recent occurrences. Read-only. Needs `SENTRY_API_TOKEN`, `SENTRY_ORG`, `SENTRY_PROJECT` |
 | System health | Twelve Data credits and backoff, caches, Stripe webhook feed, failed sign-in throttles, table sizes, links |
 | Audit log | Every action and chat view from this console |
 

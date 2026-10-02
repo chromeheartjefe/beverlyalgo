@@ -4,6 +4,7 @@ import {
   Activity,
   BadgeDollarSign,
   BrainCircuit,
+  Bug,
   Cpu,
   Filter,
   LayoutDashboard,
@@ -49,6 +50,7 @@ const GROUPS: { label: string; items: Item[] }[] = [
     label: "Operations",
     items: [
       { href: "/indicator", label: "Indicator queue", icon: Radar,      accent: "text-violet-300" },
+      { href: "/errors",    label: "Errors",          icon: Bug,        accent: "text-rose-300" },
       { href: "/system",    label: "System health",   icon: ServerCog,  accent: "text-sky-300" },
       { href: "/audit",     label: "Audit log",       icon: ScrollText, accent: "text-gray-300" },
     ],

@@ -18,6 +18,11 @@ export function cached<T>(key: string, ttlMs: number, load: () => Promise<T>): P
   return value
 }
 
+/** Drops one entry, so its next read loads it again */
+export function forget(key: string) {
+  store.delete(key)
+}
+
 export function clearCache() {
   store.clear()
 }

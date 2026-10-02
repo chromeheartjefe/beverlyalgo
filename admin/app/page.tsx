@@ -9,7 +9,6 @@ import {
   LayoutDashboard,
   Lightbulb,
   MailCheck,
-  Repeat,
   Sparkles,
   Target,
   UserPlus,
@@ -21,19 +20,25 @@ import { FunnelBars, ShareBars } from "~/components/bars"
 import { MonthBars, Sparkline, TrendLine } from "~/components/charts"
 import { InsightList } from "~/components/insight-list"
 import { RefreshButton } from "~/components/refresh-button"
+import { SentryMini } from "~/components/sentry"
 import { Badge, Card, Delta, Meter, Muted, Notice, PageHeader, PlanBadge, SectionLabel, Stat, Table, Td, UserLink } from "~/components/ui"
 import { listBriefings } from "~/lib/briefing"
 import { loadBusiness } from "~/lib/business"
 import { ago, num, pct, usd } from "~/lib/format"
 import { buildInsights } from "~/lib/insights"
 import { change, getRecentSignups } from "~/lib/queries/metrics"
+import { getSentryOverview } from "~/lib/sentry"
 
 export const dynamic = "force-dynamic"
 
-const rate = (a: number, b: number) => (b > 0 ? `${Math.round((a / b) * 100)}%` : "—")
-
 export default async function OverviewPage() {
-  const [b, recent, briefings] = await Promise.all([loadBusiness(), getRecentSignups(6), listBriefings().catch(() => [])])
+  // getSentryOverview never throws: without a token or with Sentry down, its tile says so
+  const [b, recent, briefings, errors] = await Promise.all([
+    loadBusiness(),
+    getRecentSignups(6),
+    listBriefings().catch(() => []),
+    getSentryOverview(),
+  ])
   if (!b) return null
 
   const g = b.growth
@@ -49,7 +54,7 @@ export default async function OverviewPage() {
         icon={LayoutDashboard}
         eyebrow="Command center"
         title="Overview"
-        sub={`Live from Neon and Stripe · data from ${updated} UTC · Stripe cached up to 2 min`}
+        sub={`Live from Neon, Stripe and Sentry · data from ${updated} UTC · Stripe and Sentry cached up to 2 min`}
         right={
           <div className="flex gap-2">
             <RefreshButton />
@@ -114,15 +119,9 @@ export default async function OverviewPage() {
 
       {/* Health strip */}
       <div className="grid grid-cols-2 gap-3 md:grid-cols-3 xl:grid-cols-5">
+        {/* Two columns wide; first, so it never leaves a hole when the grid wraps */}
+        <SentryMini result={errors} className="col-span-2" />
         <Stat accent="violet" icon={Target} label="Free → Pro" value={pct(paying, b.kpis.total)} hint="of all accounts pay" />
-        <Stat
-          accent="sky"
-          icon={Sparkles}
-          label="Activation · week one"
-          value={b.activation ? rate(b.activation.activated, b.activation.cohort) : "—"}
-          hint={b.activation ? `${b.activation.activated} of ${b.activation.cohort} signups used a feature` : undefined}
-        />
-        <Stat accent="fuchsia" icon={Repeat} label="Stickiness" value={rate(g.avg_daily_7d, g.active_30d)} hint="avg daily active / monthly active" />
         <Stat accent="emerald" icon={MailCheck} label="Email verified" value={pct(b.kpis.verified, b.kpis.total)} hint={`${num(b.kpis.total - b.kpis.verified)} unverified`} />
         <Stat
           accent="amber"
