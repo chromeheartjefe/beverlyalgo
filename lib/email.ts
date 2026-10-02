@@ -291,3 +291,49 @@ Reply to this email to answer them directly. The email they typed is not verifie
     ),
   })
 }
+
+// Internal alert to support about a payment that needs a person: a duplicate
+// purchase to refund, a dispute, a fraud warning. Sent from the Stripe webhook.
+// Best effort and never throws: a mail problem must not fail the webhook and
+// make Stripe replay an event that has already been handled.
+export async function sendBillingAlert(alert: {
+  subject: string
+  title:   string
+  /** What happened and what was done about it */
+  summary: string
+  rows:    [label: string, value: string][]
+  /** What the person reading this should do */
+  action:  string
+  /** Where to do it in the Stripe dashboard */
+  url:     string
+}) {
+  try {
+    const resendClient = client()
+    if (!resendClient) {
+      console.warn("[email] RESEND_API_KEY not set — skipping billing alert:", alert.subject)
+      return
+    }
+    const row = (label: string, value: string) =>
+      `<tr><td style="padding:4px 12px 4px 0;color:#6b7280;vertical-align:top;">${escapeHtml(label)}</td><td style="padding:4px 0;color:#e5e7eb;font-weight:600;">${escapeHtml(value)}</td></tr>`
+    await deliver(resendClient, {
+      from:    fromAddress(),
+      to:      siteConfig.supportEmail,
+      subject: alert.subject.replace(/[\r\n]+/g, " "),
+      html: wrapper(
+        escapeHtml(alert.title),
+        `${escapeHtml(alert.summary)}<br /><br />
+<table style="border-collapse:collapse;font-size:14px;">
+  ${alert.rows.map(([label, value]) => row(label, value)).join("\n  ")}
+  ${row("When", new Date().toUTCString())}
+</table><br />
+<span style="color:#e5e7eb;">${escapeHtml(alert.action)}</span>`,
+        "Open in Stripe",
+        alert.url,
+        { helpFooter: false },
+      ),
+      text: [alert.title, "", alert.summary, "", ...alert.rows.map(([label, value]) => `${label}: ${value}`), "", alert.action, "", alert.url].join("\n"),
+    })
+  } catch (err) {
+    console.error("[email] billing alert failed:", alert.subject, err)
+  }
+}

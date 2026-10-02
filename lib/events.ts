@@ -18,6 +18,7 @@ export type UserEventType =
   | "email_changed"         // meta.from / meta.to
   | "email_verified"
   | "indicator_requested"   // meta.username
+  | "checkout_abandoned"    // opened a Stripe payment page and never paid; meta.plan, meta.openedAt
 
 /**
  * Best-effort: never throws, so a logging problem can't break the action
