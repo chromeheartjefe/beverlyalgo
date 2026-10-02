@@ -28,7 +28,7 @@ export interface Series {
 }
 
 /** An indicator drawn in its own pane under the price (RSI, MACD, ATR...) */
-export interface IndicatorPane {
+interface IndicatorPane {
   label: string
   lines?: Series[]
   /** Bars around zero, e.g. the MACD histogram */
@@ -102,7 +102,7 @@ export type CalloutTone = "tip" | "warn" | "note"
  * Text is a list of paragraphs. Inside a paragraph, **double asterisks**
  * mark bold key terms. Nothing else is parsed.
  */
-export type Paragraphs = string[]
+type Paragraphs = string[]
 
 export interface LearnStep {
   kind: "learn"

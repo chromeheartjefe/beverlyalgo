@@ -79,7 +79,7 @@ function Caption({ frame, from, to, text }: { frame: number; from: number; to: n
   )
 }
 
-export function MarketSweepScene() {
+function MarketSweepScene() {
   const frame = useCurrentFrame()
   const intro = iv(frame, [0, 25], [0, 1])
 

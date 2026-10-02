@@ -307,7 +307,7 @@ export function TradeCalendar() {
                 onClick={() => step(-1)}
                 disabled={mode === "all"}
                 aria-label={`Previous ${mode}`}
-                className="flex size-10 items-center justify-center rounded-xl border border-white/15 bg-white/[0.03] text-gray-400 transition-colors hover:bg-white/[0.07] hover:text-white disabled:pointer-events-none disabled:opacity-30"
+                className="relative tap-44 flex size-10 items-center justify-center rounded-xl border border-white/15 bg-white/[0.03] text-gray-400 transition-colors hover:bg-white/[0.07] hover:text-white disabled:pointer-events-none disabled:opacity-30"
               >
                 <ChevronLeft className="size-4" />
               </button>
@@ -327,7 +327,7 @@ export function TradeCalendar() {
                 onClick={() => step(1)}
                 disabled={mode === "all"}
                 aria-label={`Next ${mode}`}
-                className="flex size-10 items-center justify-center rounded-xl border border-white/15 bg-white/[0.03] text-gray-400 transition-colors hover:bg-white/[0.07] hover:text-white disabled:pointer-events-none disabled:opacity-30"
+                className="relative tap-44 flex size-10 items-center justify-center rounded-xl border border-white/15 bg-white/[0.03] text-gray-400 transition-colors hover:bg-white/[0.07] hover:text-white disabled:pointer-events-none disabled:opacity-30"
               >
                 <ChevronRight className="size-4" />
               </button>

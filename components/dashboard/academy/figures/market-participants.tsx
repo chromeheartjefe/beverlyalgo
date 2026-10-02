@@ -38,7 +38,7 @@ export default function MarketParticipantsFigure() {
             <Icon className="mt-0.5 size-4 shrink-0 text-purple-300" aria-hidden />
             <div className="min-w-0">
               <p className="text-[13px] font-semibold text-white">{name}</p>
-              <p className="mt-0.5 text-[11px] leading-snug text-gray-500">{role}</p>
+              <p className="mt-0.5 text-xs leading-snug text-gray-500">{role}</p>
             </div>
           </motion.div>
         ))}

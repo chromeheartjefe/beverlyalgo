@@ -7,7 +7,7 @@ import { readStore, updateStore } from "~/lib/store"
 // The ideas board. Stored in admin/data/ideas.json so it survives restarts
 // and can be read by Claude when you want to turn an idea into work.
 
-export const STATUSES = ["inbox", "exploring", "planned", "building", "shipped", "parked"] as const
+const STATUSES = ["inbox", "exploring", "planned", "building", "shipped", "parked"] as const
 export type IdeaStatus = (typeof STATUSES)[number]
 export const CATEGORIES = ["Growth", "Product", "Marketing", "Revenue", "Ops"] as const
 export type IdeaCategory = (typeof CATEGORIES)[number]

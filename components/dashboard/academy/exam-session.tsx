@@ -95,7 +95,7 @@ function Runner({
           <Link
             href="/dashboard/academy"
             aria-label="Leave exam"
-            className="flex size-9 shrink-0 items-center justify-center rounded-xl text-gray-500 transition-colors hover:bg-white/[0.06] hover:text-gray-200"
+            className="relative tap-44 flex size-9 shrink-0 items-center justify-center rounded-xl text-gray-500 transition-colors hover:bg-white/[0.06] hover:text-gray-200"
           >
             <X className="size-5" />
           </Link>
@@ -238,7 +238,7 @@ function Results({ result, onRetry }: { result: ExamResult; onRetry: () => void 
               <ul className="space-y-2.5 border-x border-b border-white/10 p-4">
                 {missed.map((m) => (
                   <li key={m.key} className="border-b border-white/5 pb-3 last:border-0 last:pb-0">
-                    <p className="text-[11px] font-semibold uppercase tracking-wider text-gray-500">{m.lessonTitle}</p>
+                    <p className="text-xs font-semibold uppercase tracking-wider text-gray-500">{m.lessonTitle}</p>
                     <p className="mt-1 flex gap-2 text-sm text-gray-200">
                       <XCircle className="mt-0.5 size-4 shrink-0 text-red-400" aria-hidden />
                       {m.prompt}

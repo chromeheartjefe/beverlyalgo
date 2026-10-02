@@ -5,7 +5,7 @@ import { type ReactNode, useRef } from "react"
 
 // Small, shared UI motion for the app (dashboard, auth, support). Short and
 // opacity/transform-led so nothing reads as lag; the app-wide MotionConfig
-// reducedMotion="user" (theme-provider.tsx) turns the movement off for people
+// reducedMotion="user" (components/providers/motion-provider.tsx) turns the movement off for people
 // who ask for less motion, leaving plain fades.
 
 export const EASE_OUT = [0.22, 1, 0.36, 1] as const

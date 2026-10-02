@@ -76,7 +76,7 @@ function ProCard({ data }: { data: PlanStatus | undefined }) {
           <p className="text-sm font-semibold leading-tight text-white">Pro plan</p>
           <span
             role="status"
-            className={cn("flex shrink-0 items-center gap-1.5 rounded-full border px-2 py-px text-[11px] font-medium", s.pill)}
+            className={cn("flex shrink-0 items-center gap-1.5 rounded-full border px-2 py-px text-xs font-medium", s.pill)}
           >
             <span className={cn("size-1.5 rounded-full", s.dot)} aria-hidden="true" />
             {s.label}

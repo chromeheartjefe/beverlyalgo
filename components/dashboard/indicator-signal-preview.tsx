@@ -106,7 +106,7 @@ export function IndicatorSignalPreview({
         <SignalMarker label="BUY 91%" variant="buy" left={buyLeft} top={buyTop} />
       </div>
 
-      <p className={`relative z-10 mt-4 text-center text-[11px] text-gray-600 ${captionClassName ?? ""}`}>
+      <p className={`relative z-10 mt-4 text-center text-xs text-gray-600 ${captionClassName ?? ""}`}>
         Live example of signals rendered directly on your TradingView chart
       </p>
     </div>

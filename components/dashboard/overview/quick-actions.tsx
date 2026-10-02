@@ -72,11 +72,11 @@ export function QuickActions({ isFree, freeTry = false }: { isFree: boolean; fre
             <p className={cn("flex items-center gap-1.5 text-[13px] font-semibold text-white transition-colors md:text-sm", text)}>
               {title}
               {pro && isFree && freeTry && href === "/dashboard/chart-analysis" ? (
-                <span className="rounded-full border border-emerald-400/30 bg-emerald-500/10 px-1.5 py-px text-[10px] font-semibold uppercase tracking-wide text-emerald-300">
+                <span className="rounded-full border border-emerald-400/30 bg-emerald-500/10 px-1.5 py-px text-[11px] font-semibold uppercase tracking-wide text-emerald-300">
                   1 free
                 </span>
               ) : pro && isFree && (
-                <span className="inline-flex items-center gap-0.5 rounded-full bg-white/[0.08] px-1.5 py-px text-[10px] font-semibold uppercase tracking-wide text-gray-300">
+                <span className="inline-flex items-center gap-0.5 rounded-full bg-white/[0.08] px-1.5 py-px text-[11px] font-semibold uppercase tracking-wide text-gray-300">
                   <Lock className="size-2.5" aria-hidden />
                   Pro
                 </span>

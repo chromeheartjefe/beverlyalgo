@@ -86,7 +86,7 @@ export function Banner({
           }}
           className={cn(
             buttonVariants({ variant: "ghost", size: "icon" }),
-            "absolute end-2 md:end-20 top-1/2 -translate-y-1/2 cursor-pointer text-white/50 hover:text-white hover:bg-white/10",
+            "tap-44 absolute end-2 md:end-20 top-1/2 -translate-y-1/2 cursor-pointer text-white/50 hover:text-white hover:bg-white/10",
           )}
         >
           <X size={14} color={xColor} />

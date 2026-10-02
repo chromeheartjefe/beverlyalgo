@@ -4,7 +4,7 @@ import { GoogleAnalytics } from "@next/third-parties/google";
 import type { Metadata } from "next";
 import { Toaster } from "sonner";
 
-import { ThemeProvider } from "@/components/contexts/theme-provider";
+import { MotionProvider } from "@/components/providers/motion-provider";
 import { SessionProvider } from "@/components/providers/session-provider";
 import { SupportChat } from "@/components/support/support-chat";
 import { inter } from "@/lib/fonts";
@@ -74,7 +74,7 @@ export default function RootLayout({
           Skip to content
         </a>
         <SessionProvider>
-          <ThemeProvider>{children}</ThemeProvider>
+          <MotionProvider>{children}</MotionProvider>
           <SupportChat />
         </SessionProvider>
         <Toaster

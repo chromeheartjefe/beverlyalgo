@@ -11,7 +11,9 @@ import useSWR from "swr"
 import { FeatureLock } from "@/components/dashboard/feature-lock"
 import { Collapse, Loaded } from "@/components/ui/motion"
 import { ApiError, requestJson, userMessage } from "@/lib/api-client"
+import { fmtPrice, timeAgo } from "@/lib/format"
 import type { FreeAnalysisState } from "@/lib/free-analysis"
+import { resizeForUpload } from "@/lib/resize-image"
 import { fetcher } from "@/lib/swr"
 import { useFreeAnalysis } from "@/lib/use-free-analysis"
 import { cn } from "@/lib/utils"
@@ -86,49 +88,16 @@ type RawAnalysisRow = {
   createdAt:  string
 }
 
-function timeAgo(ts: number): string {
-  const mins = Math.floor((Date.now() - ts) / 60000)
-  if (mins < 1)  return "just now"
-  if (mins < 60) return `${mins}m ago`
-  const hrs = Math.floor(mins / 60)
-  if (hrs < 24)  return `${hrs}h ago`
-  return `${Math.floor(hrs / 24)}d ago`
-}
-
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
-// Scales decimal precision with price magnitude so sub-$1 assets (e.g. ADA at
-// 0.2055) don't collapse into indistinguishable 2-decimal values in history.
-const fmtPrice = (n: number | null) => {
-  if (n === null) return "—"
-  const abs = Math.abs(n)
-  const decimals = abs >= 1 ? 2 : abs >= 0.01 ? 4 : abs >= 0.0001 ? 6 : 8
-  return `$${n.toLocaleString(undefined, { minimumFractionDigits: decimals, maximumFractionDigits: decimals })}`
-}
-
-// Downscale to ≤1536 px on the longest edge and re-encode as JPEG 0.92.
-// 768 px used to be the cap here, but it crushed the Y-axis on sub-$1 pairs:
-// tightly packed 4-decimal labels (e.g. 0.2088/0.2086/0.2084 a few px apart)
-// blurred into illegibility, so the model guessed a "plausible" price from
-// training priors instead of reading the chart. Wrong entry/SL/TP costs real
-// money here, so legibility wins over shaving a bit of image-token cost.
-function resizeForUpload(file: File, maxPx = 1536): Promise<Blob> {
-  return new Promise((resolve, reject) => {
-    const img = new Image()
-    const src = URL.createObjectURL(file)
-    img.onload = () => {
-      URL.revokeObjectURL(src)
-      const scale  = Math.min(1, maxPx / Math.max(img.width, img.height))
-      const canvas = document.createElement("canvas")
-      canvas.width  = Math.round(img.width  * scale)
-      canvas.height = Math.round(img.height * scale)
-      canvas.getContext("2d")!.drawImage(img, 0, 0, canvas.width, canvas.height)
-      canvas.toBlob((blob) => blob ? resolve(blob) : reject(new Error("Resize failed")), "image/jpeg", 0.92)
-    }
-    img.onerror = () => { URL.revokeObjectURL(src); reject(new Error("Image load failed")) }
-    img.src = src
-  })
-}
+// Screenshots go up at ≤1536 px on the longest edge, JPEG 0.92. 768 px used to
+// be the cap here, but it crushed the Y-axis on sub-$1 pairs: tightly packed
+// 4-decimal labels (e.g. 0.2088/0.2086/0.2084 a few px apart) blurred into
+// illegibility, so the model guessed a "plausible" price from training priors
+// instead of reading the chart. Wrong entry/SL/TP costs real money here, so
+// legibility wins over shaving a bit of image-token cost.
+const UPLOAD_MAX_PX = 1536
+const UPLOAD_JPEG_QUALITY = 0.92
 
 // ─── Drop zone ────────────────────────────────────────────────────────────────
 
@@ -439,7 +408,7 @@ function TipCard({ step, accent, icon: Icon, graphic, title, desc }: {
           <Icon className={cn("size-4", a.icon)} strokeWidth={1.75} />
         </div>
         <div className="min-w-0">
-          <span className={cn("text-[10px] font-semibold uppercase tracking-[0.18em]", a.eyebrow)}>Tip {step}</span>
+          <span className={cn("text-[11px] font-semibold uppercase tracking-[0.18em]", a.eyebrow)}>Tip {step}</span>
           <p className="text-[13px] font-semibold leading-snug text-white">{title}</p>
         </div>
       </div>
@@ -448,7 +417,7 @@ function TipCard({ step, accent, icon: Icon, graphic, title, desc }: {
       <div className="relative mx-3.5 mb-3.5 mt-3 rounded-lg border border-white/15 bg-[#05050f] p-2">
         {graphic}
         {/* Columns line up with the SVG's two 80/168-wide panels */}
-        <div className="mt-1.5 grid grid-cols-2 gap-x-[4.8%] text-[10px] font-semibold uppercase tracking-wider">
+        <div className="mt-1.5 grid grid-cols-2 gap-x-[4.8%] text-[11px] font-semibold uppercase tracking-wider">
           <span className="text-red-400/80">Avoid</span>
           <span className="text-emerald-400/90">Do this</span>
         </div>
@@ -504,7 +473,7 @@ function RecentCard({ r }: { r: RecentEntry }) {
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-1.5">
             <span className="truncate text-[13px] font-semibold text-white">{r.pair}</span>
-            <span className="shrink-0 rounded-md border border-white/15 bg-white/[0.05] px-1.5 py-0.5 text-[10px] font-medium text-gray-400">
+            <span className="shrink-0 rounded-md border border-white/15 bg-white/[0.05] px-1.5 py-0.5 text-[11px] font-medium text-gray-400">
               {r.timeframe}
             </span>
           </div>
@@ -515,16 +484,16 @@ function RecentCard({ r }: { r: RecentEntry }) {
         </div>
 
         <div className="flex shrink-0 flex-col items-end gap-1">
-          <span className={cn("rounded-full border px-2 py-0.5 text-[10px] font-bold leading-none tracking-wide", a.badge)}>
+          <span className={cn("rounded-full border px-2 py-0.5 text-[11px] font-bold leading-none tracking-wide", a.badge)}>
             {r.signal}
           </span>
-          <span className="text-[11px] text-gray-500">{timeAgo(r.ts)}</span>
+          <span className="text-xs text-gray-500">{timeAgo(r.ts)}</span>
         </div>
       </div>
 
       {/* Confidence (NEUTRAL is "no trade" and has none) */}
       {r.signal === "NEUTRAL" ? (
-        <p className="relative mt-3 text-[11px] text-amber-200/70">No trade, waiting for a better setup</p>
+        <p className="relative mt-3 text-xs text-amber-200/70">No trade, waiting for a better setup</p>
       ) : (
       <div className="relative mt-3 flex items-center gap-2.5">
         <div
@@ -537,7 +506,7 @@ function RecentCard({ r }: { r: RecentEntry }) {
         >
           <div className={cn("h-full rounded-full bg-gradient-to-r", a.bar)} style={{ width: `${conf}%` }} />
         </div>
-        <span className="w-16 text-right text-[11px] text-gray-500">
+        <span className="w-16 text-right text-xs text-gray-500">
           <span className="font-semibold text-gray-300">{conf}%</span> conf.
         </span>
       </div>
@@ -796,7 +765,7 @@ function FreeOfferBanner() {
       aria-label="Free analysis"
       className="mx-auto flex w-fit max-w-full items-center gap-2.5 rounded-full border border-emerald-500/25 bg-gradient-to-r from-emerald-500/[0.12] via-teal-500/[0.05] to-emerald-500/[0.12] py-1 pl-1.5 pr-4 shadow-lg shadow-emerald-950/30 sm:gap-3 xl:mx-0"
     >
-      <span className="flex shrink-0 items-center gap-1 whitespace-nowrap rounded-full bg-emerald-500/20 px-2 py-1 text-[11px] font-semibold uppercase tracking-wide text-emerald-200">
+      <span className="flex shrink-0 items-center gap-1 whitespace-nowrap rounded-full bg-emerald-500/20 px-2 py-1 text-xs font-semibold uppercase tracking-wide text-emerald-200">
         <Gift className="size-3" aria-hidden="true" />
         Free
       </span>
@@ -983,7 +952,7 @@ export default function ChartAnalysisPage() {
     try {
       // Downscale client-side before sending, mainly to cap upload size —
       // see resizeForUpload for why the cap itself is 1536 px, not smaller.
-      const resized = await resizeForUpload(file).catch(() => {
+      const resized = await resizeForUpload(file, UPLOAD_MAX_PX, UPLOAD_JPEG_QUALITY).catch(() => {
         throw new ApiError("We couldn't read that image file. Please upload a PNG or JPG screenshot.")
       })
       const form = new FormData()

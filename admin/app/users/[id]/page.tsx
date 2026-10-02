@@ -62,6 +62,7 @@ function describe(e: TimelineRow): { label: string; detail: string; color: "gray
     case "email_changed":       return { label: "Email changed", detail: `${m.from} → ${m.to}`, color: "amber" }
     case "email_verified":      return { label: "Email verified", detail: "", color: "green" }
     case "indicator_requested": return { label: "Indicator requested", detail: `@${m.username}`, color: "purple" }
+    case "checkout_abandoned":  return { label: "Left checkout without paying", detail: m.plan === "lifetime" ? "Lifetime" : "Monthly", color: "amber" }
     default:                    return { label: e.kind, detail: e.meta ?? "", color: "gray" }
   }
 }
@@ -194,9 +195,6 @@ export default async function UserPage({ params }: { params: Promise<{ id: strin
           </Row>
           <Row label="Password changes/resets">{num(security.summary?.password_changes)}</Row>
           <Row label="Session version">{user.session_version}</Row>
-          <Row label="Notifications">
-            {[user.notif_signals && "signals", user.notif_journal && "journal", user.notif_updates && "updates"].filter(Boolean).join(", ") || "none"}
-          </Row>
           <div className="mt-4 flex flex-wrap gap-3">
             {!user.email_verified && (
               <ActionButton label="Resend verification" confirmLabel="Send email?" run={resendVerification.bind(null, user.id)} />

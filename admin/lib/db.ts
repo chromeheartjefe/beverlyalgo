@@ -13,7 +13,7 @@ import * as schema from "@/db/schema"
 //   touch (mark invited, force sign-out, resend verification, audit log).
 // Never the site's own DATABASE_URL (full owner rights).
 
-export class SetupError extends Error {}
+class SetupError extends Error {}
 
 function url(name: "ADMIN_DATABASE_URL" | "ADMIN_WRITE_DATABASE_URL"): string {
   const value = process.env[name]

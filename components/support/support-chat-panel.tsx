@@ -556,12 +556,12 @@ export function SupportChatPanel({ id, open, onClose }: { id: string; open: bool
             type="submit"
             disabled={!input.trim() || pending}
             aria-label="Send message"
-            className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-purple-500 text-white transition-[background-color,opacity] hover:bg-purple-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-purple-300 disabled:bg-white/[0.06] disabled:text-gray-600"
+            className="relative tap-44 flex size-9 shrink-0 items-center justify-center rounded-xl bg-purple-500 text-white transition-[background-color,opacity] hover:bg-purple-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-purple-300 disabled:bg-white/[0.06] disabled:text-gray-600"
           >
             <ArrowUp className="size-4" aria-hidden />
           </button>
         </div>
-        <div className="mt-2 flex items-center justify-between gap-3 px-1 text-[11px] text-gray-600">
+        <div className="mt-2 flex items-center justify-between gap-3 px-1 text-xs text-gray-600">
           <span>AI answers can be wrong.</span>
           {tooLong ? (
             <span className={cn(input.length >= SUPPORT_CHAT.maxInputChars && "text-amber-400")}>

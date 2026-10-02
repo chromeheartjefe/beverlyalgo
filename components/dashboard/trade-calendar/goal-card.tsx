@@ -112,7 +112,7 @@ function GoalEditor({ initial, canClear, onSave, onCancel }: {
             placeholder="750"
             aria-invalid={!!error}
             aria-describedby={error ? "monthlyGoalError" : "monthlyGoalHelp"}
-            className="w-full rounded-xl border border-white/15 bg-white/[0.04] py-2.5 pl-7 pr-3 text-sm text-white tabular-nums placeholder:text-gray-600 focus:border-purple-500/40 focus:outline-none focus:ring-1 focus:ring-purple-500/50"
+            className="w-full rounded-xl border border-white/15 bg-white/[0.04] py-2.5 pl-7 pr-3 text-base sm:text-sm text-white tabular-nums placeholder:text-gray-600 focus:border-purple-500/40 focus:outline-none focus:ring-1 focus:ring-purple-500/50"
           />
         </div>
         <button
@@ -484,7 +484,7 @@ export function GoalRecordCard({ title, sub, bars, onSelect, className }: {
         })}
       </div>
 
-      <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1 text-[11px] text-gray-500">
+      <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-gray-500">
         <span className="inline-flex items-center gap-1.5"><span className="size-2 rounded-sm bg-emerald-400" />Goal reached</span>
         <span className="inline-flex items-center gap-1.5"><span className="size-2 rounded-sm bg-purple-400" />Profit, under goal</span>
         <span className="inline-flex items-center gap-1.5"><span className="size-2 rounded-sm bg-rose-400" />Loss</span>

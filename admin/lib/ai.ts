@@ -19,7 +19,7 @@ export function aiConfigured(): boolean {
   return !!process.env.OPENAI_API_KEY
 }
 
-export type AiLogEntry = { at: string; feature: string; model: string; promptTokens: number; completionTokens: number; costUsd: number }
+type AiLogEntry = { at: string; feature: string; model: string; promptTokens: number; completionTokens: number; costUsd: number }
 
 export class AiError extends Error {}
 

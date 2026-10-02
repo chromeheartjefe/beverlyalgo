@@ -6,10 +6,11 @@ import useSWR from "swr"
 import type { ScreenerResult, ScreenerTicker } from "@/app/api/screener/route"
 import { formatPrice } from "@/components/dashboard/market-ticker"
 import { Loaded } from "@/components/ui/motion"
+import { timeAgo } from "@/lib/format"
 import { fetcher } from "@/lib/swr"
 import { cn } from "@/lib/utils"
 
-import { CardLink, EmptyState, OverviewCard, Skeleton, timeAgo } from "./card"
+import { CardLink, EmptyState, OverviewCard, Skeleton } from "./card"
 
 const DIRECTION: Record<ScreenerTicker["direction"], { icon: typeof Eye; pill: string; bar: string }> = {
   Bullish: { icon: TrendingUp,   pill: "border-emerald-500/30 bg-emerald-500/10 text-emerald-300", bar: "from-emerald-500 to-teal-400" },
@@ -57,7 +58,7 @@ export function ScreenerPicks() {
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center gap-2">
                     <span className="truncate font-mono text-sm font-bold text-white">{t.symbol}</span>
-                    <span className="rounded-md border border-white/10 bg-white/[0.05] px-1.5 py-px text-[10px] font-medium text-gray-400">
+                    <span className="rounded-md border border-white/10 bg-white/[0.05] px-1.5 py-px text-[11px] font-medium text-gray-400">
                       {t.assetType === "crypto" ? "Crypto" : "Stock"}
                     </span>
                   </div>
@@ -70,7 +71,7 @@ export function ScreenerPicks() {
                 </div>
                 <div className="w-24 shrink-0 sm:w-28">
                   <div className="flex items-center justify-between gap-2">
-                    <span className={cn("inline-flex items-center gap-1 rounded-full border px-1.5 py-px text-[10px] font-semibold", d.pill)}>
+                    <span className={cn("inline-flex items-center gap-1 rounded-full border px-1.5 py-px text-[11px] font-semibold", d.pill)}>
                       <d.icon className="size-3" aria-hidden />
                       {t.direction}
                     </span>

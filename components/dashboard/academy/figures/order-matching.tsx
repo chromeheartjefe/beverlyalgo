@@ -98,7 +98,7 @@ function matchTimeline(frame: number, start: number) {
   return { arrive, travel, fade, flash }
 }
 
-export function OrderMatchingScene() {
+function OrderMatchingScene() {
   const frame = useCurrentFrame()
 
   const m1 = matchTimeline(frame, 70)

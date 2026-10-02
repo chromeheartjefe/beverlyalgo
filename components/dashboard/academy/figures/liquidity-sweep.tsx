@@ -38,7 +38,7 @@ const appear = (i: number) => 12 + i * 14
 // Buy stops waiting above the equal highs
 const STOPS = [0, 1, 2, 3, 4, 5, 6].map((k) => ({ x: x(3) + 20 + k * 44, p: 104.25 + (k % 3) * 0.17 }))
 
-export function LiquiditySweepScene() {
+function LiquiditySweepScene() {
   const frame = useCurrentFrame()
   const sweepStart = appear(SWEEP)
   const sweepGrow = iv(frame, [sweepStart, sweepStart + 22], [0, 1])

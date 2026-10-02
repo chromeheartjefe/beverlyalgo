@@ -180,7 +180,7 @@ export function LessonPlayer({
           <Link
             href="/dashboard/academy"
             aria-label="Leave lesson"
-            className="flex size-9 shrink-0 items-center justify-center rounded-xl text-gray-500 transition-colors hover:bg-white/[0.06] hover:text-gray-200"
+            className="relative tap-44 flex size-9 shrink-0 items-center justify-center rounded-xl text-gray-500 transition-colors hover:bg-white/[0.06] hover:text-gray-200"
           >
             <X className="size-5" />
           </Link>

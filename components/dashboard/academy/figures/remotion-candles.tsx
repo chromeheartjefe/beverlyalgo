@@ -6,7 +6,7 @@
 export type RCandle = [number, number, number, number]
 
 export const R_GREEN = "#34c28a"
-export const R_RED = "#D0625F"
+const R_RED = "#D0625F"
 
 export function SvgCandle({
   x,

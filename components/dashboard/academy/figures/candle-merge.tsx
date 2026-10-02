@@ -90,7 +90,7 @@ function Caption({ frame, from, to, text }: { frame: number; from: number; to: n
   )
 }
 
-export function CandleMergeScene() {
+function CandleMergeScene() {
   const frame = useCurrentFrame()
   const bigGrow = iv(frame, [175, 215], [0, 1])
 

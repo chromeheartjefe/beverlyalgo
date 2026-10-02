@@ -115,7 +115,7 @@ export function GlossaryTerm({ text, hint }: { text: string; hint: GlossaryHint 
                 style={{ left: pos.left, top: pos.top, width: Math.min(CARD_W, window.innerWidth - 16), translate: pos.above ? "0 -100%" : undefined }}
                 className="fixed z-[60] rounded-2xl border border-white/15 bg-[#11111b] p-4 text-left shadow-2xl shadow-black/60"
               >
-                <p className="flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-wider text-purple-300/90">
+                <p className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wider text-purple-300/90">
                   <BookA className="size-3.5" aria-hidden /> Glossary · {hint.category}
                 </p>
                 <p className="mt-1.5 text-base font-bold text-white">{hint.term}</p>

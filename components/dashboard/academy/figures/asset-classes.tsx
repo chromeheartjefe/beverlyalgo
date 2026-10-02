@@ -30,8 +30,8 @@ export default function AssetClassesFigure() {
             <Icon className="size-4" aria-hidden />
           </div>
           <p className="text-sm font-semibold text-white">{name}</p>
-          <p className="mt-0.5 font-mono text-[11px] text-gray-400">{examples}</p>
-          <p className="mt-2 text-[11px] leading-snug text-gray-500">{hours}</p>
+          <p className="mt-0.5 font-mono text-xs text-gray-400">{examples}</p>
+          <p className="mt-2 text-xs leading-snug text-gray-500">{hours}</p>
         </motion.div>
       ))}
     </div>

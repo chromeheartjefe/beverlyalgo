@@ -30,7 +30,7 @@ const CORE_RAW = sql.raw(`(
 const CORE = sql`(SELECT * FROM ${CORE_RAW} core_all WHERE user_id NOT IN ${EX})`
 
 /** Tables that may not exist yet on the live database (unreleased features) */
-export async function safe<T>(p: Promise<T>, fallback: T): Promise<T> {
+async function safe<T>(p: Promise<T>, fallback: T): Promise<T> {
   try {
     return await p
   } catch {

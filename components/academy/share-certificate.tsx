@@ -17,8 +17,8 @@ export function ShareCertificate({ url, imageUrl }: { url: string; imageUrl: str
   }
   return (
     <div className="space-y-3">
-      <div className="flex overflow-hidden border border-white/15 bg-white/[0.03]">
-        <input readOnly value={url} aria-label="Certificate link" className="min-w-0 flex-1 bg-transparent px-3 py-2.5 font-mono text-xs text-gray-300 focus:outline-none" />
+      <div className="flex overflow-hidden border border-white/15 bg-white/[0.03] has-[input:focus-visible]:border-purple-400/60">
+        <input readOnly value={url} aria-label="Certificate link" className="min-w-0 flex-1 bg-transparent px-3 py-2.5 font-mono text-base sm:text-xs text-gray-300 focus:outline-none" />
         <button
           type="button"
           onClick={() => void copy()}

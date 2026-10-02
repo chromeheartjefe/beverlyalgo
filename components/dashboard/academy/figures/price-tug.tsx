@@ -41,7 +41,7 @@ export default function PriceTugFigure() {
     <div className="border border-white/10 bg-[#0b0b13] p-4 sm:p-5">
       <div className="mb-4 flex items-end justify-between gap-3">
         <div>
-          <p className="text-[11px] font-medium uppercase tracking-widest text-gray-500">Price</p>
+          <p className="text-xs font-medium uppercase tracking-widest text-gray-500">Price</p>
           <p className={`mt-0.5 flex items-center gap-1.5 font-mono text-2xl font-semibold tabular-nums ${color}`}>
             {price.toFixed(2)}
             <Arrow className="size-5" aria-hidden />

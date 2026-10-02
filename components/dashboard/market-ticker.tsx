@@ -43,7 +43,7 @@ function TickerRow({ items }: { items: TickerItem[] }) {
 // Shared by the header ticker and the Overview's market cards: one SWR key,
 // so both read the same request instead of polling the prices twice.
 // SWR pauses the refresh while the tab is hidden and refreshes on return.
-export const MARKET_SNAPSHOT_KEY = "/api/market-ticker"
+const MARKET_SNAPSHOT_KEY = "/api/market-ticker"
 
 async function snapshotFetcher(url: string): Promise<TickerItem[]> {
   const data = await fetcher(url)

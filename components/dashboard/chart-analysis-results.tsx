@@ -27,18 +27,9 @@ import {
 } from "lucide-react"
 
 import type { AnalysisResult } from "@/app/dashboard/chart-analysis/page"
+import { fmtPrice } from "@/lib/format"
 import { RR_TIERS, rrTier } from "@/lib/risk-reward"
 import { cn } from "@/lib/utils"
-
-// Fixed 2-decimal formatting collapses sub-$1 assets (e.g. an ADA chart at
-// 0.2055 trading in 0.001 steps) into indistinguishable values, so precision
-// scales with the price's own magnitude instead of a flat decimal count.
-const fmtPrice = (n: number | null) => {
-  if (n === null) return "—"
-  const abs = Math.abs(n)
-  const decimals = abs >= 1 ? 2 : abs >= 0.01 ? 4 : abs >= 0.0001 ? 6 : 8
-  return `$${n.toLocaleString(undefined, { minimumFractionDigits: decimals, maximumFractionDigits: decimals })}`
-}
 
 // ─── Signal hero ──────────────────────────────────────────────────────────────
 // This card is the entire reason someone opens Chart Analysis, so it gets its
@@ -180,7 +171,7 @@ function SignalHero({ result }: { result: AnalysisResult }) {
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div className="inline-flex items-center gap-2 rounded-full border border-purple-500/25 bg-purple-500/10 px-3 py-1">
             <Zap className="size-3 text-purple-400" />
-            <span className="text-[11px] font-semibold uppercase tracking-widest text-purple-300">AI Signal</span>
+            <span className="text-xs font-semibold uppercase tracking-widest text-purple-300">AI Signal</span>
           </div>
           <span className="rounded-full border border-white/15 bg-white/[0.04] px-3 py-1 text-xs font-medium text-gray-400">
             {result.pair} · {result.timeframe}
@@ -225,7 +216,7 @@ function SignalHero({ result }: { result: AnalysisResult }) {
             >
               <div className="flex items-start gap-1.5">
                 <Icon className={cn("mt-px size-3.5 shrink-0", tint)} />
-                <span className="text-[10px] font-semibold uppercase leading-tight tracking-wide text-gray-500">{l}</span>
+                <span className="text-[11px] font-semibold uppercase leading-tight tracking-wide text-gray-500">{l}</span>
               </div>
               {/* Sized from the tile's own width (container query units), so a
                   narrow tile (small window, browser zoom) shrinks the price
@@ -329,7 +320,7 @@ function UnderstandTab({ result }: { result: AnalysisResult }) {
   return (
     <div className="space-y-3">
       <div className="mb-1 flex items-center gap-2">
-        <p className="text-[11px] font-semibold uppercase tracking-widest text-gray-600">Why the AI reached this conclusion</p>
+        <p className="text-xs font-semibold uppercase tracking-widest text-gray-600">Why the AI reached this conclusion</p>
       </div>
       {sections.map(({ id, Icon, iconBg, iconText, hlText, border, card, label, highlight, body, note }, i) => (
         <motion.div
@@ -344,11 +335,11 @@ function UnderstandTab({ result }: { result: AnalysisResult }) {
               <Icon className={cn("size-4", iconText)} />
             </div>
             <div className="min-w-0 flex-1">
-              <p className="mb-1 text-[10px] font-semibold uppercase tracking-widest text-gray-600">{label}</p>
+              <p className="mb-1 text-[11px] font-semibold uppercase tracking-widest text-gray-600">{label}</p>
               <p className={cn("mb-2 text-[13px] font-semibold leading-tight", hlText)}>{highlight}</p>
               <p className="text-[12px] leading-relaxed text-gray-400">{body}</p>
               {note && (
-                <p className="mt-2 border-t border-white/15 pt-2 text-[11px] leading-snug text-gray-600">{note}</p>
+                <p className="mt-2 border-t border-white/15 pt-2 text-xs leading-snug text-gray-600">{note}</p>
               )}
             </div>
           </div>
@@ -435,7 +426,7 @@ function RisksTab({ result }: { result: AnalysisResult }) {
   return (
     <div className="space-y-3">
       <div className="mb-1 flex items-center gap-2">
-        <p className="text-[11px] font-semibold uppercase tracking-widest text-gray-600">Exit or skip the trade if these happen</p>
+        <p className="text-xs font-semibold uppercase tracking-widest text-gray-600">Exit or skip the trade if these happen</p>
       </div>
       {items.map(({ id, Icon, iconBg, iconText, border, card, tag, tagStyle, title, body }, i) => (
         <motion.div
@@ -453,7 +444,7 @@ function RisksTab({ result }: { result: AnalysisResult }) {
               <div className="mb-1.5 flex items-center gap-2">
                 <p className="text-[12px] font-semibold text-white">{title}</p>
                 {tag && (
-                  <span className={cn("rounded-full border px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide", tagStyle)}>
+                  <span className={cn("rounded-full border px-1.5 py-0.5 text-[11px] font-bold uppercase tracking-wide", tagStyle)}>
                     {tag}
                   </span>
                 )}
@@ -467,7 +458,7 @@ function RisksTab({ result }: { result: AnalysisResult }) {
       {result.signal !== "NEUTRAL" && (
         <div className="flex items-start gap-2.5 rounded-xl border border-red-500/30 bg-red-500/[0.07] px-4 py-3">
           <AlertTriangle className="mt-0.5 size-3.5 shrink-0 text-red-400" />
-          <p className="text-[11px] font-semibold leading-snug text-red-300/90">
+          <p className="text-xs font-semibold leading-snug text-red-300/90">
             IF ANY of these conditions are met, the trade idea is invalidated. Do not hold and hope.
           </p>
         </div>
@@ -595,7 +586,7 @@ function PatternsCard({ result }: { result: AnalysisResult }) {
       title="Detected patterns"
       sub="Most relevant first"
       badge={
-        <span className="shrink-0 rounded-full border border-fuchsia-400/25 bg-fuchsia-500/10 px-2 py-0.5 text-[11px] font-semibold text-fuchsia-200">
+        <span className="shrink-0 rounded-full border border-fuchsia-400/25 bg-fuchsia-500/10 px-2 py-0.5 text-xs font-semibold text-fuchsia-200">
           {result.patterns.length} found
         </span>
       }
@@ -617,14 +608,14 @@ function PatternsCard({ result }: { result: AnalysisResult }) {
             >
               <span
                 className={cn(
-                  "flex size-6 shrink-0 items-center justify-center rounded-md text-[11px] font-bold tabular-nums",
+                  "flex size-6 shrink-0 items-center justify-center rounded-md text-xs font-bold tabular-nums",
                   primary ? "bg-fuchsia-500/25 text-fuchsia-100" : "bg-white/[0.06] text-gray-400",
                 )}
               >
                 {i + 1}
               </span>
               <span className={cn("min-w-0 flex-1 truncate text-sm", primary ? "font-semibold text-white" : "text-gray-200")}>{p}</span>
-              <span className={cn("hidden shrink-0 items-center gap-1.5 rounded-full border px-2 py-0.5 text-[10px] font-semibold min-[380px]:inline-flex", kind.chip)}>
+              <span className={cn("hidden shrink-0 items-center gap-1.5 rounded-full border px-2 py-0.5 text-[11px] font-semibold min-[380px]:inline-flex", kind.chip)}>
                 <span className={cn("size-1.5 rounded-full", kind.dot)} aria-hidden="true" />
                 {kind.label}
               </span>
@@ -657,7 +648,7 @@ function RiskCard({ result }: { result: AnalysisResult }) {
       title="Risk assessment"
       sub="How much could go against you"
       badge={
-        <span className={cn("shrink-0 rounded-full border px-2 py-0.5 text-[11px] font-semibold", TONE[tone].chip)}>
+        <span className={cn("shrink-0 rounded-full border px-2 py-0.5 text-xs font-semibold", TONE[tone].chip)}>
           {result.risk} risk
         </span>
       }
@@ -762,7 +753,7 @@ export function ResultsView({
           </svg>
         )}
         <div className="pointer-events-none absolute inset-x-0 bottom-0 h-8 bg-gradient-to-t from-[#08080f] to-transparent" />
-        <span className="absolute right-3 top-3 flex items-center gap-1 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-2.5 py-1 text-[11px] text-emerald-400">
+        <span className="absolute right-3 top-3 flex items-center gap-1 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-2.5 py-1 text-xs text-emerald-400">
           <CheckCircle className="size-3" /> Analyzed
         </span>
       </motion.div>
@@ -774,7 +765,7 @@ export function ResultsView({
         transition={{ delay: 0.05, duration: 0.3 }}
         className="rounded-2xl border border-white/15 bg-white/[0.02] p-4 sm:p-5"
       >
-        <span className="mb-4 inline-flex items-center rounded-lg bg-purple-500/15 px-3 py-1.5 text-[11px] font-semibold text-purple-400">
+        <span className="mb-4 inline-flex items-center rounded-lg bg-purple-500/15 px-3 py-1.5 text-xs font-semibold text-purple-400">
           Analysis
         </span>
 
@@ -798,7 +789,7 @@ export function ResultsView({
         transition={{ delay: 0.15, duration: 0.3 }}
         className="rounded-2xl border border-white/15 bg-white/[0.02] p-4 sm:p-5"
       >
-        <span className="mb-4 inline-flex items-center rounded-lg bg-purple-500/15 px-3 py-1.5 text-[11px] font-semibold text-purple-400">
+        <span className="mb-4 inline-flex items-center rounded-lg bg-purple-500/15 px-3 py-1.5 text-xs font-semibold text-purple-400">
           Understanding
         </span>
         <UnderstandTab result={result} />
@@ -811,7 +802,7 @@ export function ResultsView({
         transition={{ delay: 0.25, duration: 0.3 }}
         className="rounded-2xl border border-white/15 bg-white/[0.02] p-4 sm:p-5"
       >
-        <span className="mb-4 inline-flex items-center rounded-lg bg-purple-500/15 px-3 py-1.5 text-[11px] font-semibold text-purple-400">
+        <span className="mb-4 inline-flex items-center rounded-lg bg-purple-500/15 px-3 py-1.5 text-xs font-semibold text-purple-400">
           Risks
         </span>
         <RisksTab result={result} />
@@ -819,7 +810,7 @@ export function ResultsView({
 
       {footer}
 
-      <p className="text-center text-[11px] text-gray-700">
+      <p className="text-center text-xs text-gray-700">
         AI-generated analysis for educational purposes only. Not financial advice.
         Always do your own research before trading.
       </p>

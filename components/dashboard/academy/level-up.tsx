@@ -13,7 +13,7 @@ import { rankFor,RANKS } from "@/lib/academy/xp"
 // glow made of static gradients, and nothing keeps running once it closes.
 // Reduced motion gets a calm fade with no particles.
 
-export const RANK_ICONS: Record<(typeof RANKS)[number]["name"], LucideIcon> = {
+const RANK_ICONS: Record<(typeof RANKS)[number]["name"], LucideIcon> = {
   Novice: Sprout,
   Apprentice: BookOpen,
   "Chart Reader": ChartCandlestick,
@@ -24,7 +24,7 @@ export const RANK_ICONS: Record<(typeof RANKS)[number]["name"], LucideIcon> = {
 }
 
 /** Did this XP change cross into a higher rank? */
-export function leveledUp(xpBefore: number, xpAfter: number): boolean {
+function leveledUp(xpBefore: number, xpAfter: number): boolean {
   return rankFor(xpAfter).index > rankFor(xpBefore).index
 }
 

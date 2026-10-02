@@ -122,7 +122,7 @@ export function MiniStat({ label, value, sub, onClick }: {
     >
       <p className="truncate text-xs text-gray-500">{label}</p>
       <p className="mt-0.5 truncate text-sm font-semibold text-white tabular-nums">{value}</p>
-      {sub && <p className="truncate text-[11px] text-gray-500">{sub}</p>}
+      {sub && <p className="truncate text-xs text-gray-500">{sub}</p>}
     </Tag>
   )
 }

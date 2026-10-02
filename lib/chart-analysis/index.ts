@@ -4,10 +4,11 @@ import type { ChartAnalysisVariant } from "./types"
 import { V1_AGGRESSIVE } from "./v1-aggressive"
 import { V2 } from "./v2"
 
-export type { ChartAnalysisVariant, ChartAnalysisVariantId } from "./types"
+export type { ChartAnalysisVariant }
+from "./types"
 
 /** What every user gets. */
-export const PRODUCTION_VARIANT = V2
+const PRODUCTION_VARIANT = V2
 
 // Variants the logic switch can pick, production first. Only reachable for
 // accounts allowed by canPickVariant; everyone else always runs production.

@@ -8,6 +8,35 @@
    sized to the screen, like the AI Trading Bot, tighten up here */
 @custom-variant short (@media (max-height: 740px));
 
+/* Secondary text tones, lightened so they pass WCAG AA (4.5:1) on the site's
+   dark surfaces. Tailwind's own gray-500 / 600 / 700 measured 4.1, 2.6 and
+   1.9 to 1 on the page background; these are about 6.4, 5.5 and 5.0 (and
+   still at least 4.5 on the translucent cards). Same hues, three lighter
+   steps under gray-400 (7.6), so the hierarchy of tones is kept. */
+@theme {
+  --color-gray-500: oklch(0.66 0.024 264.364);
+  --color-gray-600: oklch(0.625 0.026 256.802);
+  --color-gray-700: oklch(0.6 0.028 259.733);
+}
+
+/* A 44px tap area for a small control, without changing how it looks: an
+   invisible layer centred on the control and at least 44px each way. Touch
+   screens only, so a mouse still hovers the control's real outline. The
+   control has to be positioned (add `relative` if it isn't). */
+@utility tap-44 {
+  @media (pointer: coarse) {
+    &::after {
+      content: "";
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: max(100%, 2.75rem);
+      height: max(100%, 2.75rem);
+      transform: translate(-50%, -50%);
+    }
+  }
+}
+
 @theme inline {
   --color-brand: var(--brand);
   --color-brand-foreground: var(--brand-foreground);
@@ -67,11 +96,6 @@
 
   --animate-accordion-down: accordion-down 0.2s ease-out;
   --animate-accordion-up: accordion-up 0.2s ease-out;
-  --animate-appear: appear 0.6s forwards ease-out;
-  --animate-appear-zoom: appear-zoom 0.6s forwards ease-out;
-  --animate-fade-in: fadeIn 0.6s ease-out forwards;
-  --animate-slide-down: slideDown 0.3s ease-out forwards;
-  --animate-shake: shake 0.5s ease-in-out;
   --animate-marquee: marquee 160s linear infinite;
 
   @keyframes marquee {
@@ -97,58 +121,6 @@
     to {
       height: 0;
     }
-  }
-  @keyframes appear {
-    0% {
-      opacity: 0;
-      transform: translateY(1rem);
-      filter: blur(0.5rem);
-    }
-    50% {
-      filter: blur(0);
-    }
-    100% {
-      opacity: 1;
-      transform: translateY(0);
-      filter: blur(0);
-    }
-  }
-  @keyframes appear-zoom {
-    0% {
-      opacity: 0;
-      transform: scale(0.5);
-    }
-    100% {
-      opacity: 1;
-      transform: scale(1);
-    }
-  }
-  @keyframes fadeIn {
-    from {
-      opacity: 0;
-      transform: translateY(10px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
-  @keyframes slideDown {
-    from {
-      opacity: 0;
-      transform: translateY(-10px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
-  @keyframes shake {
-    0%, 100% { transform: translateX(0) rotate(0deg); }
-    20% { transform: translateX(-4px) rotate(-5deg); }
-    40% { transform: translateX(4px) rotate(5deg); }
-    60% { transform: translateX(-4px) rotate(-5deg); }
-    80% { transform: translateX(4px) rotate(5deg); }
   }
 
   /* Hero social-proof badge: gradient slowly travelling around its outline */
@@ -192,59 +164,6 @@
 }
 
 :root {
-  /* Sparkles / gradient custom colors */
-  --gradient-color: #8350e8;
-  --sparkles-color: #8350e8;
-
-  /* Accent colors */
-  --brand: oklch(53.277% 0.27411 303.58);
-  --brand-foreground: oklch(53.277% 0.27411 303.58);
-
-  /* Customized shadcn/ui colors */
-  --background: oklch(97.65% 0.001 17.18);
-  --foreground: oklch(0.141 0.005 285.823);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.141 0.005 285.823);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.141 0.005 285.823);
-  --primary: oklch(66.5% 0.1804 47.04);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.967 0.001 286.375);
-  --secondary-foreground: oklch(0.21 0.006 285.885);
-  --muted: oklch(0.967 0.001 286.375);
-  --muted-foreground: oklch(0.552 0.016 285.938);
-  --accent: oklch(0.927 0.001 286.375);
-  --accent-foreground: oklch(0.21 0.006 285.885);
-  --destructive: oklch(0.577 0.245 27.325);
-  --destructive-foreground: oklch(0.577 0.245 27.325);
-  --border: oklch(0.92 0.004 286.32);
-  --input: oklch(0.92 0.004 286.32);
-  --ring: oklch(0.705 0.015 286.067);
-  --chart-1: oklch(0.646 0.222 41.116);
-  --chart-2: oklch(0.6 0.118 184.704);
-  --chart-3: oklch(0.398 0.07 227.392);
-  --chart-4: oklch(0.828 0.189 84.429);
-  --chart-5: oklch(0.769 0.188 70.08);
-  --radius: 0.625rem;
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.141 0.005 285.823);
-  --sidebar-primary: oklch(0.21 0.006 285.885);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.967 0.001 286.375);
-  --sidebar-accent-foreground: oklch(0.21 0.006 285.885);
-  --sidebar-border: oklch(0.92 0.004 286.32);
-  --sidebar-ring: oklch(0.705 0.015 286.067);
-
-  /* Illustrations colors */
-  --light: var(--brand);
-  --light-foreground: var(--brand-foreground);
-
-  /* Shadows */
-  --shadow: #00000008;
-  --shadow-strong: #00000008;
-}
-
-.dark {
   /* Sparkles / gradient custom colors */
   --gradient-color: #8350e8;
   --sparkles-color: #ffffff;
@@ -294,6 +213,8 @@
   /* Shadows */
   --shadow: #00000020;
   --shadow-strong: #00000088;
+
+  --radius: 0.625rem;
 }
 
 @media (prefers-reduced-motion: reduce) {

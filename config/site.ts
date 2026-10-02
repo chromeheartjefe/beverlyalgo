@@ -12,5 +12,3 @@ export const siteConfig = {
     email: `mailto:${supportEmail}`,
   },
 };
-
-export type SiteConfig = typeof siteConfig;

@@ -24,7 +24,7 @@ const INDEX: Map<string, GlossaryHint> = (() => {
 })()
 
 /** Every **bold** phrase in a lesson's text */
-export function boldPhrases(lesson: LessonContent): string[] {
+function boldPhrases(lesson: LessonContent): string[] {
   const texts: string[] = []
   for (const step of lesson.steps) {
     if (step.kind === "learn") {
@@ -36,7 +36,7 @@ export function boldPhrases(lesson: LessonContent): string[] {
   return texts.flatMap((t) => [...t.matchAll(/\*\*(.+?)\*\*/g)].map((m) => m[1]))
 }
 
-export function hintForPhrase(phrase: string): GlossaryHint | null {
+function hintForPhrase(phrase: string): GlossaryHint | null {
   for (const k of hintCandidates(phrase)) {
     const h = INDEX.get(k)
     if (h) return h

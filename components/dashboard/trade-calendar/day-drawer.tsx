@@ -8,25 +8,14 @@ import { useEffect, useState } from "react"
 
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
 import type { TradeRow } from "@/lib/trades"
+import { PHONE_QUERY, useMediaQuery } from "@/lib/use-media-query"
 import { cn } from "@/lib/utils"
 
 import { AnimatedMoney } from "./parts"
 import { type DayStat,fmtMoney, formatLongDate, formatShortDate, pnlText } from "./utils"
 
-function useIsDesktop() {
-  const [desktop, setDesktop] = useState(true)
-  useEffect(() => {
-    const mq = window.matchMedia("(min-width: 640px)")
-    const update = () => setDesktop(mq.matches)
-    update()
-    mq.addEventListener("change", update)
-    return () => mq.removeEventListener("change", update)
-  }, [])
-  return desktop
-}
-
 const iconBtn =
-  "flex size-9 items-center justify-center rounded-lg text-gray-500 transition-colors hover:bg-white/[0.06] hover:text-gray-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-purple-400/60"
+  "relative tap-44 flex size-9 items-center justify-center rounded-lg text-gray-500 transition-colors hover:bg-white/[0.06] hover:text-gray-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-purple-400/60"
 
 export function DayDrawer({ dayKey, stat, onClose, onStep, onAdd, onEdit, onDelete }: {
   dayKey: string | null
@@ -37,7 +26,7 @@ export function DayDrawer({ dayKey, stat, onClose, onStep, onAdd, onEdit, onDele
   onEdit: (t: TradeRow) => void
   onDelete: (t: TradeRow) => void
 }) {
-  const desktop = useIsDesktop()
+  const desktop = !useMediaQuery(PHONE_QUERY)
   const reduce = useReducedMotion()
   const open = dayKey !== null
 
@@ -142,7 +131,7 @@ export function DayDrawer({ dayKey, stat, onClose, onStep, onAdd, onEdit, onDele
                       ].map((x) => (
                         <div key={x.label} className="rounded-lg bg-white/[0.03] px-2 py-2">
                           <p className="text-sm font-semibold text-white tabular-nums">{x.value}</p>
-                          <p className="text-[11px] text-gray-500">{x.label}</p>
+                          <p className="text-xs text-gray-500">{x.label}</p>
                         </div>
                       ))}
                     </div>
@@ -170,7 +159,7 @@ export function DayDrawer({ dayKey, stat, onClose, onStep, onAdd, onEdit, onDele
                             >
                               <span
                                 className={cn(
-                                  "inline-flex shrink-0 items-center gap-1 rounded-md px-1.5 py-0.5 text-[11px] font-semibold",
+                                  "inline-flex shrink-0 items-center gap-1 rounded-md px-1.5 py-0.5 text-xs font-semibold",
                                   t.direction === "Buy" ? "bg-emerald-500/10 text-emerald-300" : "bg-rose-500/10 text-rose-300",
                                 )}
                               >
@@ -179,7 +168,7 @@ export function DayDrawer({ dayKey, stat, onClose, onStep, onAdd, onEdit, onDele
                               </span>
                               <div className="min-w-0 flex-1">
                                 <p className="truncate font-mono text-sm font-semibold text-white">{t.pair}</p>
-                                <p className="truncate text-[11px] text-gray-500 tabular-nums">
+                                <p className="truncate text-xs text-gray-500 tabular-nums">
                                   {t.entry.toLocaleString(undefined, { maximumFractionDigits: 8 })} to {t.exit.toLocaleString(undefined, { maximumFractionDigits: 8 })}
                                 </p>
                               </div>

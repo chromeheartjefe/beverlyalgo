@@ -111,7 +111,7 @@ async function resolveGoogleAccount(sub: string, email: string, name: string | n
   return userId
 }
 
-export const { handlers, auth, signIn, signOut } = NextAuth({
+export const { handlers, auth } = NextAuth({
   providers: [
     Credentials({
       credentials: {

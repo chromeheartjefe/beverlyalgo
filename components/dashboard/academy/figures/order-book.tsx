@@ -58,11 +58,11 @@ export default function OrderBookFigure() {
         <span>Price</span>
         <span>Size waiting</span>
       </div>
-      <p className="px-3 pb-1 text-[11px] text-red-300/70">Sellers (asks)</p>
+      <p className="px-3 pb-1 text-xs text-red-300/70">Sellers (asks)</p>
       {ASKS.map((a, i) => (
         <Row key={a.price} {...a} side="ask" i={i} tag={i === ASKS.length - 1 ? "best ask" : undefined} />
       ))}
-      <div className="my-1 flex items-center gap-2 px-3 text-[11px] text-gray-400">
+      <div className="my-1 flex items-center gap-2 px-3 text-xs text-gray-400">
         <span className="h-px flex-1 bg-white/10" />
         Spread 0.05
         <span className="h-px flex-1 bg-white/10" />
@@ -70,7 +70,7 @@ export default function OrderBookFigure() {
       {BIDS.map((b, i) => (
         <Row key={b.price} {...b} side="bid" i={i + ASKS.length} tag={i === 0 ? "best bid" : undefined} />
       ))}
-      <p className="px-3 pt-1 text-[11px] text-emerald-300/70">Buyers (bids)</p>
+      <p className="px-3 pt-1 text-xs text-emerald-300/70">Buyers (bids)</p>
     </div>
   )
 }

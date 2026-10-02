@@ -105,7 +105,7 @@ function timeframeMinutes(tf: string): number | null {
   return null
 }
 
-export function scoreConfidence(checks: Checks, timeframe: string, quality: string): number {
+function scoreConfidence(checks: Checks, timeframe: string, quality: string): number {
   let score = CONF_FLOOR
   for (const k of Object.keys(CHECK_WEIGHTS) as CheckKey[]) if (checks[k]) score += CHECK_WEIGHTS[k]
 

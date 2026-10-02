@@ -1,4 +1,4 @@
-export type ChartAnalysisVariantId = "v1-aggressive" | "v2"
+type ChartAnalysisVariantId = "v1-aggressive" | "v2"
 
 export type ChartAnalysisVariant = {
   id:                  ChartAnalysisVariantId

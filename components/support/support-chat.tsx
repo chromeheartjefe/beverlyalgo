@@ -22,7 +22,7 @@ const HIDDEN_UNDER = ["/dashboard/academy", "/dashboard/glossary"]
 const isHidden = (pathname: string) =>
   HIDDEN_ON.has(pathname) || HIDDEN_UNDER.some((p) => pathname === p || pathname.startsWith(`${p}/`))
 
-export const SUPPORT_PANEL_ID = "support-chat-panel"
+const SUPPORT_PANEL_ID = "support-chat-panel"
 
 // Site-wide support chat: a quiet button in the bottom-right corner. It never
 // opens by itself, never plays sounds and shows no unread badges.

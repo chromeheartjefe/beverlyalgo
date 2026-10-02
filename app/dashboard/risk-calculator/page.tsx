@@ -36,7 +36,7 @@ function InputField({
           type="number"
           value={value}
           onChange={(e) => onChange(e.target.value)}
-          className="flex-1 bg-transparent px-3.5 py-2.5 text-sm text-white focus:outline-none"
+          className="flex-1 bg-transparent px-3.5 py-2.5 text-base sm:text-sm text-white focus:outline-none"
         />
         {suffix && (
           <span className="flex items-center border-l border-white/15 bg-white/[0.03] px-3 text-sm text-gray-500">
@@ -44,7 +44,7 @@ function InputField({
           </span>
         )}
       </div>
-      {hint && <p className="mt-1 text-[11px] text-gray-600">{hint}</p>}
+      {hint && <p className="mt-1 text-xs text-gray-600">{hint}</p>}
     </div>
   )
 }
@@ -109,7 +109,7 @@ function RRBadge({ ratio }: { ratio: number }) {
 function RRTag({ ratio }: { ratio: number }) {
   const style = RR_TIERS[rrTier(ratio)]
   return (
-    <span className={cn("rounded-full border px-2 py-0.5 text-[11px] font-semibold", style.bg, style.border, style.text)}>
+    <span className={cn("rounded-full border px-2 py-0.5 text-xs font-semibold", style.bg, style.border, style.text)}>
       {style.label}
     </span>
   )
@@ -184,7 +184,7 @@ export default function RiskCalculatorPage() {
               onChange={(e) => setRiskPct(e.target.value)}
               className="h-1.5 w-full cursor-pointer appearance-none rounded-full bg-white/10 accent-purple-500"
             />
-            <div className="mt-1 flex justify-between text-[10px] text-gray-600">
+            <div className="mt-1 flex justify-between text-[11px] text-gray-600">
               <span>0.5%</span><span>5%</span>
             </div>
           </div>

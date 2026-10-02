@@ -43,7 +43,7 @@ export function Eyebrow({ children, tone = "accent" }: { children: ReactNode; to
   return (
     <p
       className={cn(
-        "mb-2 text-[11px] font-semibold uppercase tracking-[0.16em]",
+        "mb-2 text-xs font-semibold uppercase tracking-[0.16em]",
         tone === "warn" ? "text-amber-300/90" : "text-purple-300/80",
       )}
     >
@@ -461,7 +461,7 @@ export function RecapView({ step, sources }: { step: RecapStep; sources: string[
       </ul>
       {sources.length > 0 && (
         <div className="border-t border-white/10 pt-4">
-          <p className="text-[11px] font-semibold uppercase tracking-wider text-gray-500">Sources</p>
+          <p className="text-xs font-semibold uppercase tracking-wider text-gray-500">Sources</p>
           <ul className="mt-1.5 space-y-1 text-xs text-gray-500">
             {sources.map((s) => (
               <li key={s}>{s}</li>

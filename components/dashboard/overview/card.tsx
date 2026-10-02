@@ -7,7 +7,7 @@ import { cn } from "@/lib/utils"
 // Each Overview card has its own accent so the page reads as distinct,
 // colour-coded areas instead of a wall of identical grey boxes. The accent
 // tints the icon chip and a soft glow in the card's top-left corner.
-export const ACCENTS = {
+const ACCENTS = {
   emerald: { chip: "border-emerald-500/25 bg-emerald-500/10", icon: "text-emerald-300", glow: "rgba(16,185,129,0.16)" },
   amber:   { chip: "border-amber-500/25 bg-amber-500/10",     icon: "text-amber-300",   glow: "rgba(245,158,11,0.14)" },
   sky:     { chip: "border-sky-500/25 bg-sky-500/10",         icon: "text-sky-300",     glow: "rgba(14,165,233,0.15)" },
@@ -91,13 +91,4 @@ export function EmptyState({ title, body, href, cta }: { title: string; body: st
 
 export function Skeleton({ className }: { className?: string }) {
   return <div aria-hidden className={cn("animate-pulse rounded-lg bg-white/[0.06] motion-reduce:animate-none", className)} />
-}
-
-export function timeAgo(iso: string): string {
-  const mins = Math.max(0, Math.floor((Date.now() - new Date(iso).getTime()) / 60000))
-  if (mins < 1)  return "just now"
-  if (mins < 60) return `${mins}m ago`
-  const hrs = Math.floor(mins / 60)
-  if (hrs < 24)  return `${hrs}h ago`
-  return `${Math.floor(hrs / 24)}d ago`
 }

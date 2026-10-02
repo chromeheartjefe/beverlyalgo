@@ -21,18 +21,12 @@ const patchSchema = z.object({
   email:           z.string().trim().toLowerCase().email().optional(),
   // Required only when `email` actually changes
   currentPassword: z.string().min(1).max(200).optional(),
-  notifSignals:    z.boolean().optional(),
-  notifJournal:    z.boolean().optional(),
-  notifUpdates:    z.boolean().optional(),
 })
 
 const PUBLIC_FIELDS = {
   name:         users.name,
   email:        users.email,
   plan:         users.plan,
-  notifSignals: users.notifSignals,
-  notifJournal: users.notifJournal,
-  notifUpdates: users.notifUpdates,
   stripeCurrentPeriodEnd: users.stripeCurrentPeriodEnd,
 }
 

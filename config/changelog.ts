@@ -5,7 +5,7 @@
 
 export type ChangeKind = "new" | "improved" | "fixed"
 
-export type ChangeItem = {
+type ChangeItem = {
   kind: ChangeKind
   text: string
   href?: string

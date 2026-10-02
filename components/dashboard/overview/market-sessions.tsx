@@ -116,7 +116,7 @@ export function MarketSessions() {
               <li key={s.name} className="grid grid-cols-[5.25rem_1fr_6.25rem] items-center gap-3">
                 <div className="min-w-0">
                   <p className="truncate text-sm font-medium text-white">{s.name}</p>
-                  <p className="text-[11px] tabular-nums text-gray-500">{clock(now ?? new Date(), s.tz)} local</p>
+                  <p className="text-xs tabular-nums text-gray-500">{clock(now ?? new Date(), s.tz)} local</p>
                 </div>
                 <div className="relative h-2.5 bg-white/[0.06]" aria-hidden>
                   {spans.map(([a, b]) => (
@@ -137,14 +137,14 @@ export function MarketSessions() {
                 <div className="text-right">
                   <span
                     className={cn(
-                      "inline-flex items-center gap-1.5 rounded-full border px-2 py-0.5 text-[11px] font-semibold",
+                      "inline-flex items-center gap-1.5 rounded-full border px-2 py-0.5 text-xs font-semibold",
                       open ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-300" : "border-white/10 bg-white/[0.04] text-gray-400"
                     )}
                   >
                     {open && <span className="size-1.5 animate-pulse rounded-full bg-emerald-400 motion-reduce:animate-none" aria-hidden />}
                     {open ? "Open" : "Closed"}
                   </span>
-                  <p className="mt-0.5 text-[11px] tabular-nums text-gray-500">
+                  <p className="mt-0.5 text-xs tabular-nums text-gray-500">
                     {open ? "closes" : "opens"} in {duration(minutes)}
                   </p>
                 </div>
@@ -153,17 +153,17 @@ export function MarketSessions() {
             <li className="grid grid-cols-[5.25rem_1fr_6.25rem] items-center gap-3">
               <div>
                 <p className="text-sm font-medium text-white">Crypto</p>
-                <p className="text-[11px] text-gray-500">Always on</p>
+                <p className="text-xs text-gray-500">Always on</p>
               </div>
               <div className="relative h-2.5 bg-gradient-to-r from-emerald-500/70 via-teal-400/70 to-emerald-500/70" aria-hidden>
                 <span className="absolute -inset-y-1 w-0.5 -translate-x-1/2 rounded-full bg-white" style={{ left: `${(viewerMinutes / DAY) * 100}%` }} />
               </div>
               <div className="text-right">
-                <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-2 py-0.5 text-[11px] font-semibold text-emerald-300">
+                <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-2 py-0.5 text-xs font-semibold text-emerald-300">
                   <span className="size-1.5 animate-pulse rounded-full bg-emerald-400 motion-reduce:animate-none" aria-hidden />
                   Open
                 </span>
-                <p className="mt-0.5 text-[11px] text-gray-500">24/7</p>
+                <p className="mt-0.5 text-xs text-gray-500">24/7</p>
               </div>
             </li>
           </ul>
@@ -175,7 +175,7 @@ export function MarketSessions() {
             </div>
             <span />
           </div>
-          <p className="mt-auto pt-3 text-[11px] text-gray-600">Bars show each session in your time. Holidays are not included.</p>
+          <p className="mt-auto pt-3 text-xs text-gray-600">Bars show each session in your time. Holidays are not included.</p>
       </Loaded>
     </OverviewCard>
   )

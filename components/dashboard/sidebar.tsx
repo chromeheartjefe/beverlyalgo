@@ -14,7 +14,7 @@ import { PlanCard } from "@/components/dashboard/plan-card"
 import { useFreeAnalysis } from "@/lib/use-free-analysis"
 import { cn } from "@/lib/utils"
 
-export const NAV_MAIN = [
+const NAV_MAIN = [
   { label: "Dashboard",       href: "/dashboard",                 icon: LayoutDashboard, lockable: false },
   { label: "Chart Analysis",  href: "/dashboard/chart-analysis",  icon: Zap,             lockable: true  },
   { label: "AI Trading Indicator", href: "/dashboard/indicator",  icon: Activity,        lockable: true  },
@@ -22,7 +22,7 @@ export const NAV_MAIN = [
 ]
 
 // Hands-on tools for finding, planning and logging your own trades
-export const NAV_TRADING = [
+const NAV_TRADING = [
   { label: "AI Screener",     href: "/dashboard/ai-screener",     icon: Flame,           lockable: false },
   { label: "Trade Journal",   href: "/dashboard/trade-journal",   icon: BookOpen,        lockable: false },
   { label: "Trade Calendar",  href: "/dashboard/trade-calendar",  icon: CalendarDays,    lockable: false },
@@ -30,7 +30,7 @@ export const NAV_TRADING = [
 ]
 
 // Free for every account
-export const NAV_LEARN = [
+const NAV_LEARN = [
   { label: "Academy",         href: "/dashboard/academy",         icon: GraduationCap,   lockable: false },
   { label: "Glossary",        href: "/dashboard/glossary",        icon: BookA,           lockable: false },
 ]
@@ -105,7 +105,7 @@ function SidebarBody({ onNavigate }: { onNavigate?: () => void }) {
         <span className="flex-1">{label}</span>
         {locked && <Lock className="size-3 shrink-0 text-gray-600" />}
         {freeTry && (
-          <span className="shrink-0 rounded-full border border-emerald-400/30 bg-emerald-500/10 px-1.5 py-px text-[10px] font-semibold text-emerald-300">
+          <span className="shrink-0 rounded-full border border-emerald-400/30 bg-emerald-500/10 px-1.5 py-px text-[11px] font-semibold text-emerald-300">
             1 free
           </span>
         )}
@@ -118,28 +118,28 @@ function SidebarBody({ onNavigate }: { onNavigate?: () => void }) {
       {/* Navigation */}
       <LayoutGroup id={onNavigate ? "sidebar-drawer" : "sidebar-rail"}>
       <nav className="flex-1 space-y-0.5 overflow-y-auto p-3">
-        <p className="mb-2 mt-3 px-3 text-[10px] font-semibold uppercase tracking-widest text-gray-600">
+        <p className="mb-2 mt-3 px-3 text-[11px] font-semibold uppercase tracking-widest text-gray-600">
           Main Menu
         </p>
         {NAV_MAIN.map(renderItem)}
 
         <div className="mx-3 my-4 border-t border-white/15" />
 
-        <p className="mb-2 px-3 text-[10px] font-semibold uppercase tracking-widest text-gray-600">
+        <p className="mb-2 px-3 text-[11px] font-semibold uppercase tracking-widest text-gray-600">
           Trading Desk
         </p>
         {NAV_TRADING.map(renderItem)}
 
         <div className="mx-3 my-4 border-t border-white/15" />
 
-        <p className="mb-2 px-3 text-[10px] font-semibold uppercase tracking-widest text-gray-600">
+        <p className="mb-2 px-3 text-[11px] font-semibold uppercase tracking-widest text-gray-600">
           Learn
         </p>
         {NAV_LEARN.map(renderItem)}
 
         <div className="mx-3 my-4 border-t border-white/15" />
 
-        <p className="mb-2 px-3 text-[10px] font-semibold uppercase tracking-widest text-gray-600">
+        <p className="mb-2 px-3 text-[11px] font-semibold uppercase tracking-widest text-gray-600">
           Preferences
         </p>
         {(() => {
@@ -203,7 +203,7 @@ export function DashboardSidebar() {
               <div className="flex-1">
                 <Logo />
               </div>
-              <Dialog.Close className="flex size-10 shrink-0 items-center justify-center rounded-xl text-gray-500 transition-colors hover:bg-white/[0.06] hover:text-gray-200">
+              <Dialog.Close className="relative tap-44 flex size-10 shrink-0 items-center justify-center rounded-xl text-gray-500 transition-colors hover:bg-white/[0.06] hover:text-gray-200">
                 <X className="size-5" />
                 <span className="sr-only">Close navigation menu</span>
               </Dialog.Close>

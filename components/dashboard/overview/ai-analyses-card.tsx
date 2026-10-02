@@ -4,9 +4,10 @@ import { Activity, ArrowUpRight, Bot, Brain, Sparkles, Zap } from "lucide-react"
 import Link from "next/link"
 
 import { Loaded } from "@/components/ui/motion"
+import { timeAgo } from "@/lib/format"
 import { cn } from "@/lib/utils"
 
-import { CardLink, EmptyState, OverviewCard, Skeleton, timeAgo } from "./card"
+import { CardLink, EmptyState, OverviewCard, Skeleton } from "./card"
 
 export type AnalysisRow = {
   id:         string
@@ -64,12 +65,12 @@ function UpgradeCard({ freeTry }: { freeTry: boolean }) {
           <div className="min-w-0 flex-1">
             <div className="flex items-center gap-2">
               <span className="font-mono text-sm font-bold text-white">ETH/USDT</span>
-              <span className="rounded-md border border-white/10 bg-white/[0.05] px-1.5 py-px text-[10px] text-gray-400">15m</span>
-              <span className="rounded-full border border-emerald-500/30 bg-emerald-500/10 px-2 py-px text-[10px] font-semibold text-emerald-300">Buy</span>
+              <span className="rounded-md border border-white/10 bg-white/[0.05] px-1.5 py-px text-[11px] text-gray-400">15m</span>
+              <span className="rounded-full border border-emerald-500/30 bg-emerald-500/10 px-2 py-px text-[11px] font-semibold text-emerald-300">Buy</span>
             </div>
-            <p className="mt-0.5 text-[11px] text-gray-500">Bullish structure break with volume</p>
+            <p className="mt-0.5 text-xs text-gray-500">Bullish structure break with volume</p>
           </div>
-          <span className="shrink-0 self-start rounded-full bg-white/[0.08] px-2 py-px text-[10px] font-medium uppercase tracking-wide text-gray-300">Example</span>
+          <span className="shrink-0 self-start rounded-full bg-white/[0.08] px-2 py-px text-[11px] font-medium uppercase tracking-wide text-gray-300">Example</span>
         </div>
         <dl className="mt-2.5 grid grid-cols-3 gap-2 text-center">
           {[
@@ -78,7 +79,7 @@ function UpgradeCard({ freeTry }: { freeTry: boolean }) {
             { k: "Target", v: "2,743.10", c: "text-emerald-300" },
           ].map(({ k, v, c }) => (
             <div key={k} className="rounded-lg bg-white/[0.04] px-1.5 py-1">
-              <dt className="text-[10px] uppercase tracking-wider text-gray-500">{k}</dt>
+              <dt className="text-[11px] uppercase tracking-wider text-gray-500">{k}</dt>
               <dd className={`mt-0.5 font-mono text-xs font-semibold tabular-nums ${c}`}>{v}</dd>
             </div>
           ))}
@@ -171,11 +172,11 @@ export function AiAnalysesCard({ analyses, loading, isFree, freeTry = false }: {
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center gap-2">
                       <span className="truncate font-mono text-sm font-bold text-white">{a.pair}</span>
-                      <span className="rounded-md border border-white/10 bg-white/[0.05] px-1.5 py-px text-[10px] text-gray-400">{a.timeframe}</span>
+                      <span className="rounded-md border border-white/10 bg-white/[0.05] px-1.5 py-px text-[11px] text-gray-400">{a.timeframe}</span>
                     </div>
-                    <p className="mt-0.5 text-[11px] text-gray-500">{timeAgo(a.createdAt)}</p>
+                    <p className="mt-0.5 text-xs text-gray-500">{timeAgo(a.createdAt)}</p>
                   </div>
-                  <span className={cn("shrink-0 rounded-full border px-2 py-0.5 text-[11px] font-semibold", s.pill)}>{s.label}</span>
+                  <span className={cn("shrink-0 rounded-full border px-2 py-0.5 text-xs font-semibold", s.pill)}>{s.label}</span>
                   {a.signal !== "NEUTRAL" && <span className="sr-only">{a.confidence}% confidence</span>}
                 </Link>
               </li>

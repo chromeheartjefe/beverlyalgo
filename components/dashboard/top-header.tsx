@@ -97,7 +97,7 @@ export function DashboardHeader() {
         <TooltipTrigger asChild>
           <button
             onClick={() => setMobileNavOpen(true)}
-            className="flex size-10 shrink-0 items-center justify-center rounded-xl border border-white/15 bg-white/[0.03] text-gray-400 transition-colors hover:text-gray-200 lg:hidden"
+            className="relative tap-44 flex size-10 shrink-0 items-center justify-center rounded-xl border border-white/15 bg-white/[0.03] text-gray-400 transition-colors hover:text-gray-200 lg:hidden"
             aria-label="Open navigation menu"
           >
             <Menu className="size-5" />
@@ -138,7 +138,7 @@ export function DashboardHeader() {
         {/* Account */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <button className="flex items-center gap-2.5" aria-busy={sessionLoading}>
+            <button className="relative tap-44 flex items-center gap-2.5" aria-busy={sessionLoading}>
               {sessionLoading ? (
                 <span className="size-8 shrink-0 animate-pulse rounded-lg bg-white/[0.08] motion-reduce:animate-none" aria-hidden="true" />
               ) : (
@@ -160,7 +160,7 @@ export function DashboardHeader() {
                   }
                 >
                   <p className="text-sm font-semibold leading-none text-white">{name}</p>
-                  <p className="mt-0.5 text-[11px] capitalize leading-none text-gray-500">{plan} Trader</p>
+                  <p className="mt-0.5 text-xs capitalize leading-none text-gray-500">{plan} Trader</p>
                 </Loaded>
               </div>
               <ChevronDown className="hidden size-3.5 text-gray-600 md:block" />

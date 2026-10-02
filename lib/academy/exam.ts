@@ -14,9 +14,9 @@ import { isAdmin } from "@/lib/admin"
 // answers; the browser sends back what the learner picked and the server
 // grades it, so a certificate can't be earned by reading the page source.
 
-export const EXAM_PER_UNIT = 2
-export const EXAM_PASS_RATIO = 0.8
-export const EXAM_XP = 50
+const EXAM_PER_UNIT = 2
+const EXAM_PASS_RATIO = 0.8
+const EXAM_XP = 50
 /** An attempt must be submitted within this time of starting */
 const ATTEMPT_TTL_MS = 3 * 60 * 60 * 1000
 
@@ -100,7 +100,7 @@ export async function startExam(userId: string): Promise<{ attemptId: string; it
   }
 }
 
-export interface ExamReviewItem {
+interface ExamReviewItem {
   key: string
   lessonTitle: string
   prompt: string

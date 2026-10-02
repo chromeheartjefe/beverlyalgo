@@ -222,7 +222,7 @@ export default function IndicatorPage() {
                       placeholder="your_tradingview_handle"
                       maxLength={50}
                       disabled={submitting}
-                      className="mt-1.5 w-full rounded-xl border border-white/15 bg-white/[0.04] px-3.5 py-2.5 text-sm text-white placeholder:text-gray-600 focus:border-purple-500/40 focus:outline-none focus:ring-1 focus:ring-purple-500/50 disabled:opacity-60"
+                      className="mt-1.5 w-full rounded-xl border border-white/15 bg-white/[0.04] px-3.5 py-2.5 text-base sm:text-sm text-white placeholder:text-gray-600 focus:border-purple-500/40 focus:outline-none focus:ring-1 focus:ring-purple-500/50 disabled:opacity-60"
                     />
                   </label>
                   <Collapse show={!!error} className="pb-3">
@@ -286,7 +286,7 @@ export default function IndicatorPage() {
                 <div className="flex flex-wrap items-center gap-2.5">
                   <span
                     className={cn(
-                      "rounded-full border px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide",
+                      "rounded-full border px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wide",
                       TAG_STYLES[entry.tag]
                     )}
                   >

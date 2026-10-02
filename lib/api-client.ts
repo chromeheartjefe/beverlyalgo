@@ -4,9 +4,9 @@
 // ("Failed to fetch"), a host error page returned as HTML on a timeout or
 // crash ("Unexpected token '<' ... is not valid JSON"), or an empty body.
 
-export const MSG_BUSY    = "Our servers are busy right now. Please try again in a moment."
-export const MSG_OFFLINE = "We couldn't reach our servers. Check your internet connection and try again."
-export const MSG_SESSION = "Your session has expired. Please sign in again."
+const MSG_BUSY    = "Our servers are busy right now. Please try again in a moment."
+const MSG_OFFLINE = "We couldn't reach our servers. Check your internet connection and try again."
+const MSG_SESSION = "Your session has expired. Please sign in again."
 
 export class ApiError extends Error {
   // Machine-readable reason some routes add next to the message, e.g.

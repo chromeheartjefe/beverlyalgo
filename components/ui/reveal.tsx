@@ -4,11 +4,11 @@ import { motion, useReducedMotion, type Variants } from "framer-motion"
 import type { ReactNode } from "react"
 
 // Shared with components/sections/quick-start/default.tsx
-export const REVEAL_EASE = [0.16, 1, 0.3, 1] as const
+const REVEAL_EASE = [0.16, 1, 0.3, 1] as const
 
 // Used directly as `variants` on individual grid/list items (e.g. pricing
 // cards, backtest cards). Framer's app-wide `MotionConfig reducedMotion="user"`
-// (set in components/contexts/theme-provider.tsx) already strips the y-shift
+// (set in components/providers/motion-provider.tsx) already strips the y-shift
 // for users who prefer reduced motion, leaving a plain fade.
 //
 // Fade and slide only, no blur: an animated blur has to be recomputed over the

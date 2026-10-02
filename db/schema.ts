@@ -8,6 +8,8 @@ export const users = pgTable("users", {
   passwordHash: text("password_hash"),
   plan:         varchar("plan", { length: 32 }).notNull().default("free"),
   emailVerified: timestamp("email_verified", { withTimezone: true }),
+  // Notification preferences: nothing reads or writes these since the Settings
+  // toggles were removed. The columns are kept for when emails use them.
   notifSignals: boolean("notif_signals").notNull().default(true),
   notifJournal: boolean("notif_journal").notNull().default(false),
   notifUpdates: boolean("notif_updates").notNull().default(true),

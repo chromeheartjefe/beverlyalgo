@@ -15,7 +15,7 @@ import { cached } from "~/lib/ttl-cache"
 // link opened outside the site, and are left out. Signed-out visitors are
 // sent to sign in first, so they only show up once they click again.
 
-export type CheckoutPlan = "Monthly" | "Lifetime"
+type CheckoutPlan = "Monthly" | "Lifetime"
 export type CheckoutStatus = "paid" | "processing" | "abandoned" | "open"
 
 export type CheckoutRow = {
@@ -28,7 +28,7 @@ export type CheckoutRow = {
   created: Date
 }
 
-export type FunnelUser = { id: string; email: string; created_at: string; kind: PlanKind }
+type FunnelUser = { id: string; email: string; created_at: string; kind: PlanKind }
 
 export type FunnelData =
   | { state: "ok"; sessions: CheckoutRow[]; users: Map<string, FunnelUser> }

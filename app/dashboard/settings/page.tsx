@@ -12,34 +12,18 @@ import { Button } from "@/components/ui/button"
 import { Collapse } from "@/components/ui/motion"
 import { SupportEmail } from "@/components/ui/support-email"
 import { markVisited } from "@/lib/onboarding"
+import { resizeForUpload } from "@/lib/resize-image"
 import { signOutToLanding } from "@/lib/sign-out"
 import { cn } from "@/lib/utils"
 import { FOCUS_EMAIL_EVENT } from "@/lib/verify-sent"
 
 const MAX_AVATAR_SOURCE_BYTES = 20 * 1024 * 1024 // client-side sanity cap before we even try to decode it
 
-// Downscale to ≤512 px on the longest edge and re-encode as JPEG before
-// upload — mirrors the same technique used for chart-analysis uploads
-// (app/dashboard/chart-analysis/page.tsx). The server (sharp) does the
-// authoritative square crop/compress; this step just keeps a huge phone
-// photo from being uploaded at full resolution for no benefit.
-function resizeForUpload(file: File, maxPx = 512): Promise<Blob> {
-  return new Promise((resolve, reject) => {
-    const img = new Image()
-    const src = URL.createObjectURL(file)
-    img.onload = () => {
-      URL.revokeObjectURL(src)
-      const scale  = Math.min(1, maxPx / Math.max(img.width, img.height))
-      const canvas = document.createElement("canvas")
-      canvas.width  = Math.round(img.width  * scale)
-      canvas.height = Math.round(img.height * scale)
-      canvas.getContext("2d")!.drawImage(img, 0, 0, canvas.width, canvas.height)
-      canvas.toBlob((blob) => (blob ? resolve(blob) : reject(new Error("Resize failed"))), "image/jpeg", 0.9)
-    }
-    img.onerror = () => { URL.revokeObjectURL(src); reject(new Error("Image load failed")) }
-    img.src = src
-  })
-}
+// Profile photos go up at ≤512 px on the longest edge, JPEG 0.9. The server
+// (sharp) does the authoritative square crop/compress; this just keeps a huge
+// phone photo from being uploaded at full resolution for no benefit.
+const AVATAR_MAX_PX = 512
+const AVATAR_JPEG_QUALITY = 0.9
 
 type UserSettings = {
   name:         string
@@ -249,7 +233,7 @@ export default function SettingsPage() {
 
     setAvatarBusy(true)
     try {
-      const resized = await resizeForUpload(file)
+      const resized = await resizeForUpload(file, AVATAR_MAX_PX, AVATAR_JPEG_QUALITY)
       const form = new FormData()
       form.append("file", resized, "avatar.jpg")
 
@@ -406,7 +390,7 @@ export default function SettingsPage() {
                 {status === "authenticated" ? (
                   <>
                     <p className="font-semibold text-white">{displayName}</p>
-                    <span className="inline-flex items-center gap-1.5 rounded-full border border-purple-500/20 bg-purple-500/10 px-2.5 py-0.5 text-[11px] font-medium text-purple-400 capitalize">
+                    <span className="inline-flex items-center gap-1.5 rounded-full border border-purple-500/20 bg-purple-500/10 px-2.5 py-0.5 text-xs font-medium text-purple-400 capitalize">
                       {plan} Trader
                     </span>
                   </>
@@ -456,7 +440,7 @@ export default function SettingsPage() {
                 id="displayName"
                 value={nameInput}
                 onChange={(e) => setNameInput(e.target.value)}
-                className="w-full rounded-xl border border-white/15 bg-white/[0.04] px-3.5 py-2.5 text-sm text-white placeholder:text-gray-600 focus:border-purple-500/50 focus:outline-none focus:ring-1 focus:ring-purple-500/50"
+                className="w-full rounded-xl border border-white/15 bg-white/[0.04] px-3.5 py-2.5 text-base sm:text-sm text-white placeholder:text-gray-600 focus:border-purple-500/50 focus:outline-none focus:ring-1 focus:ring-purple-500/50"
               />
             </div>
             <div>
@@ -466,7 +450,7 @@ export default function SettingsPage() {
                 type="email"
                 value={emailInput}
                 onChange={(e) => setEmailInput(e.target.value)}
-                className="w-full rounded-xl border border-white/15 bg-white/[0.04] px-3.5 py-2.5 text-sm text-white placeholder:text-gray-600 focus:border-purple-500/50 focus:outline-none focus:ring-1 focus:ring-purple-500/50"
+                className="w-full rounded-xl border border-white/15 bg-white/[0.04] px-3.5 py-2.5 text-base sm:text-sm text-white placeholder:text-gray-600 focus:border-purple-500/50 focus:outline-none focus:ring-1 focus:ring-purple-500/50"
               />
             </div>
 
@@ -487,7 +471,7 @@ export default function SettingsPage() {
                   autoComplete="current-password"
                   value={emailPassword}
                   onChange={(e) => setEmailPassword(e.target.value)}
-                  className="w-full rounded-xl border border-white/15 bg-white/[0.04] px-3.5 py-2.5 text-sm text-white placeholder:text-gray-600 focus:border-purple-500/50 focus:outline-none focus:ring-1 focus:ring-purple-500/50"
+                  className="w-full rounded-xl border border-white/15 bg-white/[0.04] px-3.5 py-2.5 text-base sm:text-sm text-white placeholder:text-gray-600 focus:border-purple-500/50 focus:outline-none focus:ring-1 focus:ring-purple-500/50"
                 />
                 <p className="mt-1.5 text-xs text-gray-600">
                   Needed to change your email. You&apos;ll verify the new address, and we&apos;ll let your old address know.
@@ -562,7 +546,7 @@ export default function SettingsPage() {
                   value={currentPassword}
                   onChange={(e) => setCurrentPassword(e.target.value)}
                   placeholder="••••••••"
-                  className="w-full rounded-xl border border-white/15 bg-white/[0.04] py-2.5 pl-10 pr-4 text-sm text-white placeholder:text-gray-600 focus:border-purple-500/50 focus:outline-none focus:ring-1 focus:ring-purple-500/50"
+                  className="w-full rounded-xl border border-white/15 bg-white/[0.04] py-2.5 pl-10 pr-4 text-base sm:text-sm text-white placeholder:text-gray-600 focus:border-purple-500/50 focus:outline-none focus:ring-1 focus:ring-purple-500/50"
                 />
               </div>
             </div>
@@ -578,14 +562,14 @@ export default function SettingsPage() {
                   value={newPassword}
                   onChange={(e) => setNewPassword(e.target.value)}
                   placeholder="••••••••"
-                  className="w-full rounded-xl border border-white/15 bg-white/[0.04] py-2.5 pl-10 pr-11 text-sm text-white placeholder:text-gray-600 focus:border-purple-500/50 focus:outline-none focus:ring-1 focus:ring-purple-500/50"
+                  className="w-full rounded-xl border border-white/15 bg-white/[0.04] py-2.5 pl-10 pr-11 text-base sm:text-sm text-white placeholder:text-gray-600 focus:border-purple-500/50 focus:outline-none focus:ring-1 focus:ring-purple-500/50"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPw(!showPw)}
                   aria-label={showPw ? "Hide password" : "Show password"}
                   aria-pressed={showPw}
-                  className="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-600 hover:text-gray-300"
+                  className="absolute inset-y-0 right-0 flex w-11 items-center justify-center text-gray-600 hover:text-gray-300"
                 >
                   {showPw ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
                 </button>
@@ -603,7 +587,7 @@ export default function SettingsPage() {
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
                   placeholder="••••••••"
-                  className="w-full rounded-xl border border-white/15 bg-white/[0.04] py-2.5 pl-10 pr-4 text-sm text-white placeholder:text-gray-600 focus:border-purple-500/50 focus:outline-none focus:ring-1 focus:ring-purple-500/50"
+                  className="w-full rounded-xl border border-white/15 bg-white/[0.04] py-2.5 pl-10 pr-4 text-base sm:text-sm text-white placeholder:text-gray-600 focus:border-purple-500/50 focus:outline-none focus:ring-1 focus:ring-purple-500/50"
                 />
               </div>
             </div>

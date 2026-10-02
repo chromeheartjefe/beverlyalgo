@@ -79,14 +79,14 @@ function ReleaseEntry({ release, latest, unseen }: { release: Release; latest: b
       />
 
       <div className="flex flex-wrap items-center gap-2">
-        <span className="rounded-md border border-white/15 bg-white/[0.04] px-1.5 py-0.5 font-mono text-[11px] font-semibold text-gray-200">
+        <span className="rounded-md border border-white/15 bg-white/[0.04] px-1.5 py-0.5 font-mono text-xs font-semibold text-gray-200">
           v{release.version}
         </span>
         <time dateTime={release.date} className="text-xs text-gray-500">
           {dateFormat.format(new Date(release.date))}
         </time>
         {unseen && (
-          <span className="rounded-full bg-purple-500/20 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-purple-200">
+          <span className="rounded-full bg-purple-500/20 px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wide text-purple-200">
             New
           </span>
         )}
@@ -102,7 +102,7 @@ function ReleaseEntry({ release, latest, unseen }: { release: Release; latest: b
           const style = KIND[kind]
           return (
             <div key={kind}>
-              <p className={cn("flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wider", style.text)}>
+              <p className={cn("flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider", style.text)}>
                 <span aria-hidden className={cn("size-1.5 rounded-full", style.dot)} />
                 {style.label}
               </p>

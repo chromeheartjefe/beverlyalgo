@@ -28,7 +28,7 @@ function monthStartUTC(): Date {
   return new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1))
 }
 
-export async function getMonthlySpendUSD(): Promise<number> {
+async function getMonthlySpendUSD(): Promise<number> {
   const [row] = await db
     .select({
       spend: sql<number>`coalesce(sum(coalesce(${aiUsage.costUsd},
@@ -45,7 +45,7 @@ export async function isBudgetExceeded(): Promise<boolean> {
   return (await getMonthlySpendUSD()) >= MONTHLY_BUDGET_USD
 }
 
-export function aiCostUSD(promptTokens: number, completionTokens: number): number {
+function aiCostUSD(promptTokens: number, completionTokens: number): number {
   return promptTokens * INPUT_COST_PER_TOKEN + completionTokens * OUTPUT_COST_PER_TOKEN
 }
 

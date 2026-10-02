@@ -80,7 +80,7 @@ export function AnnouncementBanner() {
               aria-label="Product update"
               className="mx-auto flex max-w-3xl items-center gap-2.5 rounded-full border border-purple-500/25 bg-gradient-to-r from-purple-500/[0.12] via-fuchsia-500/[0.05] to-purple-500/[0.12] py-1 pl-1.5 pr-1 shadow-lg shadow-purple-950/30 sm:gap-3"
             >
-              <span className="flex shrink-0 items-center gap-1 rounded-full bg-purple-500/20 px-2 py-1 text-[11px] font-semibold uppercase tracking-wide text-purple-200">
+              <span className="flex shrink-0 items-center gap-1 rounded-full bg-purple-500/20 px-2 py-1 text-xs font-semibold uppercase tracking-wide text-purple-200">
                 <Sparkles className="size-3" aria-hidden="true" />
                 New
               </span>
@@ -95,7 +95,7 @@ export function AnnouncementBanner() {
                 type="button"
                 onClick={handleClose}
                 aria-label="Close announcement"
-                className="flex size-8 shrink-0 items-center justify-center rounded-full text-purple-300/70 transition-colors hover:bg-purple-500/15 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-purple-400/60"
+                className="relative tap-44 flex size-8 shrink-0 items-center justify-center rounded-full text-purple-300/70 transition-colors hover:bg-purple-500/15 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-purple-400/60"
               >
                 <X className="size-4" aria-hidden="true" />
               </button>

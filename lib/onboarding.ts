@@ -26,7 +26,7 @@ export function parseOnboardingState(raw: string): OnboardingState {
   }
 }
 
-export function getOnboardingState(userId: string): OnboardingState {
+function getOnboardingState(userId: string): OnboardingState {
   return parseOnboardingState(readOnboardingRaw(userId))
 }
 

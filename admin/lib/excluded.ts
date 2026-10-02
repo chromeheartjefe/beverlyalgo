@@ -13,7 +13,7 @@ const DEFAULT = [
   "prodbydesire777@gmail.com", // owner's second account (Pro lifetime), not a customer
 ]
 
-export const EXCLUDED_EMAILS = [
+const EXCLUDED_EMAILS = [
   ...new Set(
     [...DEFAULT, ...(process.env.ADMIN_EXCLUDE_EMAILS ?? "").split(",")]
       .map((e) => e.trim().toLowerCase())

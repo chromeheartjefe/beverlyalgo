@@ -84,7 +84,7 @@ export function MarketPulse() {
                 <span className="font-semibold text-rose-300">{down} down</span>
                 <span className="text-gray-500"> of {moved} markets</span>
               </p>
-              <span className={cn("rounded-full border px-2.5 py-0.5 text-[11px] font-semibold", m.chip, m.text)}>{m.label}</span>
+              <span className={cn("rounded-full border px-2.5 py-0.5 text-xs font-semibold", m.chip, m.text)}>{m.label}</span>
             </div>
             <div className="mt-2.5 flex h-2 overflow-hidden rounded-full" aria-hidden>
               <div className="bg-gradient-to-r from-emerald-500 to-emerald-400 transition-[width] duration-700" style={{ width: `${upShare * 100}%` }} />

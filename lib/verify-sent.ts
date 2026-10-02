@@ -7,7 +7,7 @@ const KEY = "verifyEmailSentAt"
 
 /** Fired by the "Wrong email?" link so an already open Settings page focuses the email field */
 export const FOCUS_EMAIL_EVENT = "entrix:focus-email"
-export const RESEND_COOLDOWN_S = 60
+const RESEND_COOLDOWN_S = 60
 
 export function markVerificationSent(): void {
   try {

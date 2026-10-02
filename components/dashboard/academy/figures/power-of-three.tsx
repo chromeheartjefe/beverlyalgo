@@ -44,7 +44,7 @@ function priceAt(t: number): number {
   return PATH[PATH.length - 1][1]
 }
 
-export function PowerOfThreeScene() {
+function PowerOfThreeScene() {
   const frame = useCurrentFrame()
   const t = iv(frame, [START, END], [0, 1])
 

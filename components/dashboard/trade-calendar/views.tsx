@@ -149,7 +149,7 @@ export function MonthView({ y, m, dayMap, today, weekends, selectedKey, onSelect
                   {weekStats.length ? fmtMoney(weekPnl, { signed: true }) : "No trades"}
                 </p>
                 {weekStats.length > 0 && (
-                  <p className="text-[11px] text-gray-500">
+                  <p className="text-xs text-gray-500">
                     {weekStats.length} day{weekStats.length === 1 ? "" : "s"}
                   </p>
                 )}
@@ -219,7 +219,7 @@ export function WeekView({ anchor, dayMap, today, weekends, selectedKey, onSelec
                 {s ? fmtMoney(s.pnl, { signed: true }) : "No trades"}
               </p>
               {s && (
-                <p className="text-[11px] text-white/60">
+                <p className="text-xs text-white/60">
                   {s.count} trade{s.count === 1 ? "" : "s"}, {s.wins}W {s.losses}L
                 </p>
               )}
@@ -239,7 +239,7 @@ export function WeekView({ anchor, dayMap, today, weekends, selectedKey, onSelec
               ))}
             </ul>
             {s && s.trades.length > shown.length && (
-              <button onClick={() => onSelectDay(key)} className={cn("mx-3 mb-1 rounded-md py-1 text-left text-[11px] font-medium text-purple-300 hover:text-purple-200", focusRing)}>
+              <button onClick={() => onSelectDay(key)} className={cn("mx-3 mb-1 rounded-md py-1 text-left text-xs font-medium text-purple-300 hover:text-purple-200", focusRing)}>
                 +{s.trades.length - shown.length} more
               </button>
             )}
@@ -309,7 +309,7 @@ export function YearView({ year, dayMap, months, today, weekends, goals, onOpenM
                 {agg ? fmtMoney(agg.pnl, { signed: true }) : "No trades"}
               </span>
             </div>
-            <div className="mt-0.5 flex items-center justify-between text-[11px] text-gray-500">
+            <div className="mt-0.5 flex items-center justify-between text-xs text-gray-500">
               <span>{agg ? `${agg.days} trading day${agg.days === 1 ? "" : "s"}` : future ? "Upcoming" : "Nothing logged"}</span>
               {pct !== null && (
                 <span className={cn("font-medium", pct >= 100 ? "text-emerald-300" : "text-purple-300")}>
@@ -357,7 +357,62 @@ export function AllTimeView({ years, months, today, onOpenMonth, onOpenYear }: {
 
   return (
     <div className="overflow-hidden rounded-2xl border border-white/25 bg-[#070712]">
-      <div className="overflow-x-auto">
+      {/* Phones: one block per year, months in a 4 x 3 grid, nothing to scroll
+          sideways. There are only a few years, so both layouts are rendered
+          and CSS picks one. */}
+      <div className="divide-y divide-white/[0.06] sm:hidden">
+        {years.map((y) => {
+          let total = 0
+          let any = false
+          for (let m = 0; m < 12; m++) {
+            const agg = months.get(monthKey(y, m))
+            if (agg) { total += agg.pnl; any = true }
+          }
+          return (
+            <section key={y} aria-label={`${y}`} className="p-3">
+              <div className="flex items-center justify-between gap-3">
+                <button
+                  onClick={() => onOpenYear(y)}
+                  className={cn("-ml-1 flex min-h-10 items-center rounded-md px-1 text-sm font-semibold text-white transition-colors hover:text-purple-300", focusRing)}
+                >
+                  {y}
+                </button>
+                <span className={cn("text-sm font-bold tabular-nums", any ? pnlText(total) : "text-gray-500")}>
+                  {any ? fmtMoney(total, { signed: true }) : "–"}
+                </span>
+              </div>
+              <div className="mt-1.5 grid grid-cols-4 gap-1.5">
+                {MONTHS_SHORT.map((mn, m) => {
+                  const agg = months.get(monthKey(y, m))
+                  const future = utc(y, m, 1) > today
+                  return (
+                    <button
+                      key={mn}
+                      onClick={(e) => onOpenMonth(y, m, e.currentTarget)}
+                      disabled={future}
+                      style={heat(agg?.pnl ?? 0, maxAbs)}
+                      aria-label={`${MONTHS_LONG[m]} ${y}: ${agg ? fmtMoney(agg.pnl, { signed: true }) : "no trades"}`}
+                      className={cn(
+                        "flex h-12 min-w-0 flex-col items-center justify-center rounded-lg border px-1 tabular-nums transition-[filter,border-color]",
+                        focusRing,
+                        agg ? pnlText(agg.pnl) : "border-white/15 bg-white/[0.015] text-gray-500",
+                        future && "cursor-default opacity-30",
+                      )}
+                    >
+                      <span className="text-xs font-medium text-gray-400">{mn}</span>
+                      <span className="max-w-full truncate text-xs font-semibold">
+                        {agg ? fmtMoney(agg.pnl, { signed: true, compact: true }) : "–"}
+                      </span>
+                    </button>
+                  )
+                })}
+              </div>
+            </section>
+          )
+        })}
+      </div>
+
+      <div className="hidden overflow-x-auto sm:block">
         <table className="w-full min-w-[820px] border-separate border-spacing-1.5 p-2 text-sm">
           <caption className="sr-only">Monthly P&amp;L by year</caption>
           <thead>

@@ -63,7 +63,7 @@ export function OnboardingChecklist({
         </div>
         <button
           onClick={() => { setDismissedNow(true); if (userId) dismissOnboarding(userId) }}
-          className="-mr-1.5 -mt-1.5 flex size-9 shrink-0 items-center justify-center rounded-lg text-gray-600 transition-colors hover:bg-white/[0.06] hover:text-gray-300"
+          className="relative tap-44 -mr-1.5 -mt-1.5 flex size-9 shrink-0 items-center justify-center rounded-lg text-gray-600 transition-colors hover:bg-white/[0.06] hover:text-gray-300"
         >
           <X className="size-4" />
           <span className="sr-only">Dismiss</span>

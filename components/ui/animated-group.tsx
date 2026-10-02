@@ -5,8 +5,6 @@ import React from "react"
 
 import { cn } from "@/lib/utils"
 
-type PresetType = "fade" | "slide" | "scale" | "blur" | "blur-slide"
-
 type AnimatedGroupProps = {
   children: React.ReactNode
   className?: string
@@ -14,7 +12,6 @@ type AnimatedGroupProps = {
     container?: Variants
     item?: Variants
   }
-  preset?: PresetType
 }
 
 const defaultContainerVariants: Variants = {
@@ -30,47 +27,9 @@ const defaultItemVariants: Variants = {
   visible: { opacity: 1 },
 }
 
-const presetVariants: Record<PresetType, { container: Variants; item: Variants }> = {
-  fade: {
-    container: defaultContainerVariants,
-    item: defaultItemVariants,
-  },
-  slide: {
-    container: defaultContainerVariants,
-    item: {
-      hidden: { opacity: 0, y: 20 },
-      visible: { opacity: 1, y: 0 },
-    },
-  },
-  scale: {
-    container: defaultContainerVariants,
-    item: {
-      hidden: { opacity: 0, scale: 0.8 },
-      visible: { opacity: 1, scale: 1 },
-    },
-  },
-  blur: {
-    container: defaultContainerVariants,
-    item: {
-      hidden: { opacity: 0, filter: "blur(4px)" },
-      visible: { opacity: 1, filter: "blur(0px)" },
-    },
-  },
-  "blur-slide": {
-    container: defaultContainerVariants,
-    item: {
-      hidden: { opacity: 0, filter: "blur(4px)", y: 20 },
-      visible: { opacity: 1, filter: "blur(0px)", y: 0 },
-    },
-  },
-}
-
-export function AnimatedGroup({ children, className, variants, preset }: AnimatedGroupProps) {
-  const selected = preset
-    ? presetVariants[preset]
-    : { container: defaultContainerVariants, item: defaultItemVariants }
-  const containerVariants = variants?.container ?? selected.container
-  const itemVariants = variants?.item ?? selected.item
+export function AnimatedGroup({ children, className, variants }: AnimatedGroupProps) {
+  const containerVariants = variants?.container ?? defaultContainerVariants
+  const itemVariants = variants?.item ?? defaultItemVariants
 
   return (
     <motion.div

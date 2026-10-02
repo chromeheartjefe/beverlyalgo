@@ -44,7 +44,7 @@ export function RemotionFigure({
   )
 }
 
-export const EASE_REMOTION = Easing.bezier(0.22, 1, 0.36, 1)
+const EASE_REMOTION = Easing.bezier(0.22, 1, 0.36, 1)
 
 /** Clamped interpolate with the house ease */
 export function iv(frame: number, input: [number, number], output: [number, number]) {

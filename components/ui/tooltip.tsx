@@ -3,6 +3,7 @@
 import * as TooltipPrimitive from "@radix-ui/react-tooltip";
 import * as React from "react";
 
+import { useMediaQuery } from "@/lib/use-media-query";
 import { cn } from "@/lib/utils";
 
 function TooltipProvider({
@@ -22,25 +23,11 @@ function TooltipProvider({
 // so a tooltip there only ever shows after a tap and looks stuck.
 const HOVER_QUERY = "(hover: hover) and (pointer: fine)";
 
-function subscribeHover(onChange: () => void) {
-  const mql = window.matchMedia(HOVER_QUERY);
-  mql.addEventListener("change", onChange);
-  return () => mql.removeEventListener("change", onChange);
-}
-
-function useCanHover() {
-  return React.useSyncExternalStore(
-    subscribeHover,
-    () => window.matchMedia(HOVER_QUERY).matches,
-    () => false,
-  );
-}
-
 function Tooltip({
   open,
   ...props
 }: React.ComponentProps<typeof TooltipPrimitive.Root>) {
-  const canHover = useCanHover();
+  const canHover = useMediaQuery(HOVER_QUERY);
   return (
     <TooltipProvider>
       <TooltipPrimitive.Root
@@ -81,4 +68,4 @@ function TooltipContent({
   );
 }
 
-export { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger };
+export { Tooltip, TooltipContent, TooltipTrigger };

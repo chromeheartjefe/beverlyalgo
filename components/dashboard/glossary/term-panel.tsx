@@ -66,11 +66,11 @@ export function TermPanel({
                 <div className="flex items-start justify-between gap-3">
                   <div className="min-w-0">
                     <div className="flex flex-wrap items-center gap-2">
-                      <span className={cn("inline-flex items-center gap-1.5 rounded-full border px-2 py-0.5 text-[11px] font-semibold", style.chip)}>
+                      <span className={cn("inline-flex items-center gap-1.5 rounded-full border px-2 py-0.5 text-xs font-semibold", style.chip)}>
                         <span className={cn("size-1.5 rounded-full", style.dot)} aria-hidden />
                         {style.label}
                       </span>
-                      <span className={cn("text-[11px] font-semibold", LEVEL_STYLE[term.level].className)}>{LEVEL_STYLE[term.level].label}</span>
+                      <span className={cn("text-xs font-semibold", LEVEL_STYLE[term.level].className)}>{LEVEL_STYLE[term.level].label}</span>
                     </div>
                     <Dialog.Title className="mt-2 text-2xl font-bold text-white">{term.term}</Dialog.Title>
                     {term.aliases && term.aliases.length > 0 && (
@@ -94,13 +94,13 @@ export function TermPanel({
                       type="button"
                       onClick={() => void copyLink()}
                       aria-label="Copy link to this term"
-                      className="flex size-10 items-center justify-center rounded-xl text-gray-400 transition-colors hover:bg-white/[0.06] hover:text-gray-200"
+                      className="relative tap-44 flex size-10 items-center justify-center rounded-xl text-gray-400 transition-colors hover:bg-white/[0.06] hover:text-gray-200"
                     >
                       {copied ? <Check className="size-5 text-emerald-400" /> : <Link2 className="size-5" />}
                     </button>
                     <Dialog.Close
                       aria-label="Close"
-                      className="flex size-10 items-center justify-center rounded-xl text-gray-400 transition-colors hover:bg-white/[0.06] hover:text-gray-200"
+                      className="relative tap-44 flex size-10 items-center justify-center rounded-xl text-gray-400 transition-colors hover:bg-white/[0.06] hover:text-gray-200"
                     >
                       <X className="size-5" />
                     </Dialog.Close>
@@ -142,7 +142,7 @@ export function TermPanel({
                       >
                         <GraduationCap className="size-5 shrink-0 text-purple-300" aria-hidden />
                         <div className="min-w-0 flex-1">
-                          <p className="text-[11px] font-semibold uppercase tracking-wider text-purple-300/90">Learn it in the Academy</p>
+                          <p className="text-xs font-semibold uppercase tracking-wider text-purple-300/90">Learn it in the Academy</p>
                           <p className="truncate text-sm font-semibold text-white">{lesson.lesson.title}</p>
                           <p className="truncate text-xs text-gray-500">
                             Unit {lesson.unit.id.slice(1)} · {lesson.unit.title}
@@ -166,7 +166,7 @@ export function TermPanel({
 
                 {term.related.length > 0 && (
                   <div>
-                    <p className="text-[11px] font-semibold uppercase tracking-wider text-gray-500">Related terms</p>
+                    <p className="text-xs font-semibold uppercase tracking-wider text-gray-500">Related terms</p>
                     <div className="mt-2 flex flex-wrap gap-2">
                       {term.related.map((slug) => {
                         const r = TERM_BY_SLUG[slug]

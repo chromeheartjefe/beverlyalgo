@@ -1,30 +1,19 @@
 "use client"
 
 import { Activity, Check, TrendingUp } from "lucide-react"
-import { useSyncExternalStore } from "react"
 
 import { IndicatorSignalPreview } from "@/components/dashboard/indicator-signal-preview"
 import { BackgroundGradientAnimation } from "@/components/ui/background-gradient-animation"
 import { Reveal } from "@/components/ui/reveal"
+import { useMediaQuery } from "@/lib/use-media-query"
 
 // Stacked layout (below lg) uses the dashboard's smaller chart, whose signal
 // anchors are the component defaults; side by side uses the taller one.
 // The chart measures its own box, so it is resized rather than CSS-zoomed.
 const LG = "(min-width: 1024px)"
-function useWide() {
-  return useSyncExternalStore(
-    (cb) => {
-      const mq = window.matchMedia(LG)
-      mq.addEventListener("change", cb)
-      return () => mq.removeEventListener("change", cb)
-    },
-    () => window.matchMedia(LG).matches,
-    () => false,
-  )
-}
 
 export function AiIndicatorPreview() {
-  const wide = useWide()
+  const wide = useMediaQuery(LG)
   return (
     <section className="relative bg-black pb-3 pt-3 md:pb-4 md:pt-4">
       <div className="mx-auto max-w-7xl px-6">

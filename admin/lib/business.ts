@@ -28,7 +28,7 @@ import { getStripeData, mrr, revenueByMonth } from "~/lib/queries/revenue"
 const DAY = 86400_000
 const DAYS_STALE = 7
 
-export type Revenue = {
+type Revenue = {
   mrr: number
   arr: number
   liveSubs: number
@@ -43,7 +43,7 @@ export type Revenue = {
   disputes12m: number
 }
 
-export type Checkout = { opens30d: number; paid30d: number; abandoned30d: number; openers30d: number; buyers30d: number }
+type Checkout = { opens30d: number; paid30d: number; abandoned30d: number; openers30d: number; buyers30d: number }
 
 export type Business = {
   generatedAt: string

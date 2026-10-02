@@ -19,7 +19,7 @@ import {
 // order (validated on this console's #0d0d1c surface: CVD ΔE 9.4, contrast
 // ≥3:1). Charts here never use more than three series, the limit that holds
 // for every chart form. A single series always takes slot 1.
-export const SERIES = ["#3987e5", "#d95926", "#199e70"] as const
+const SERIES = ["#3987e5", "#d95926", "#199e70"] as const
 
 const SURFACE = "#0c0c1a"
 const GRID = "rgba(255,255,255,0.07)"
@@ -66,7 +66,7 @@ const FORMATTERS: Record<ValueFormat, (v: number) => string> = {
 }
 
 // Accent colours for single-measure charts and sparklines (match the UI accents)
-export const ACCENT_HEX = {
+const ACCENT_HEX = {
   violet: "#a78bfa",
   sky: "#38bdf8",
   emerald: "#34d399",

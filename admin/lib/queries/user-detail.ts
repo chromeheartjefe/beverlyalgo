@@ -12,7 +12,7 @@ export type UserDetail = {
   last_login_at: string | null; login_count: number; session_version: number
   stripe_customer_id: string | null; stripe_subscription_id: string | null; period_end: string | null
   tradingview_username: string | null; indicator_requested_at: string | null; indicator_invited_at: string | null
-  notif_signals: boolean; notif_journal: boolean; notif_updates: boolean; has_avatar: boolean
+  has_avatar: boolean
 }
 
 export async function getUser(id: string) {
@@ -20,7 +20,7 @@ export async function getUser(id: string) {
     SELECT id, name, email, plan, ${PLAN_KIND("")} AS plan_kind, email_verified, created_at, last_seen_at,
       last_login_at, login_count, session_version, stripe_customer_id, stripe_subscription_id,
       stripe_current_period_end AS period_end, tradingview_username, indicator_requested_at,
-      indicator_invited_at, notif_signals, notif_journal, notif_updates, (avatar IS NOT NULL) AS has_avatar
+      indicator_invited_at, (avatar IS NOT NULL) AS has_avatar
     FROM users WHERE id = ${id}
   `)
 }

@@ -31,23 +31,4 @@ export function findFvgs(candles: Candle[], minSize = 0): Fvg[] {
 /** Midpoint of a range: ICT's consequent encroachment of a gap */
 export const midpoint = (top: number, bottom: number) => Number(((top + bottom) / 2).toFixed(4))
 
-/** Body top and bottom of a candle */
-export const body = (c: Candle) => ({ top: Math.max(c[0], c[3]), bottom: Math.min(c[0], c[3]) })
-
-export const isUp = (c: Candle) => c[3] > c[0]
 export const isDown = (c: Candle) => c[3] < c[0]
-
-/** First index after `from` where the candle closes above (dir "up") or below `level` */
-export function firstCloseBeyond(candles: Candle[], from: number, level: number, dir: "up" | "down"): number {
-  return candles.findIndex((c, i) => i > from && (dir === "up" ? c[3] > level : c[3] < level))
-}
-
-/** First index after `from` whose wick reaches `level` */
-export function firstTouch(candles: Candle[], from: number, level: number, side: "above" | "below"): number {
-  return candles.findIndex((c, i) => i > from && (side === "below" ? c[2] <= level : c[1] >= level))
-}
-
-/** Set one candle to an exact shape (keeps neighbouring opens consistent where possible) */
-export function setCandle(candles: Candle[], index: number, c: Candle): Candle[] {
-  return candles.map((k, i) => (i === index ? c : k))
-}

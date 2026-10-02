@@ -60,7 +60,7 @@ function GoalRing({ progress, reached, label }: { progress: number; reached: boo
       </svg>
       <div className="absolute inset-0 flex flex-col items-center justify-center">
         <span className="text-xl font-bold tabular-nums text-white">{label}</span>
-        <span className="text-[10px] uppercase tracking-wider text-gray-500">of goal</span>
+        <span className="text-[11px] uppercase tracking-wider text-gray-500">of goal</span>
       </div>
     </div>
   )
@@ -80,7 +80,7 @@ function Stat({ label, value, tone }: { label: string; value: string; tone?: "up
       <p className={cn("truncate text-sm font-semibold tabular-nums", value === EMPTY ? "text-gray-600" : tone === "up" ? "text-emerald-300" : tone === "down" ? "text-rose-300" : "text-white")}>
         {value}
       </p>
-      <p className="truncate text-[10px] text-gray-500">{label}</p>
+      <p className="truncate text-[11px] text-gray-500">{label}</p>
     </div>
   )
 }
@@ -207,7 +207,7 @@ export function GoalCard({ trades, goals, loading }: { trades: TradeRow[]; goals
               <GoalRing progress={progress} reached={reached} label={`${Math.round((summary.pnl / goal.amount) * 100)}%`} />
             ) : null}
             <div className="min-w-0">
-              <p className="text-[11px] font-medium uppercase tracking-wider text-gray-500">Month P&L</p>
+              <p className="text-xs font-medium uppercase tracking-wider text-gray-500">Month P&L</p>
               <p className={cn("text-2xl font-bold tabular-nums", pnlText(summary.pnl))}>{fmtMoney(summary.pnl, { signed: true })}</p>
               {goal ? (
                 <p className="mt-1 text-xs leading-relaxed text-gray-400">

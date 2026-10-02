@@ -9,6 +9,7 @@ import useSWR from "swr"
 import type { ScreenerResult } from "@/app/api/screener/route"
 import { Collapse } from "@/components/ui/motion"
 import { ApiError, requestJson, userMessage } from "@/lib/api-client"
+import { timeAgo } from "@/lib/format"
 import { fetcher } from "@/lib/swr"
 
 // Only rendered once a scan has completed — see the component's own file
@@ -30,14 +31,6 @@ const ScreenerResults = dynamic(
 // hourly gate) still reads as the AI actually doing work, exactly as many
 // times in a row as the user wants to press the button.
 const MIN_ANIMATION_MS = 1900
-
-function timeAgo(iso: string): string {
-  const mins = Math.floor((Date.now() - new Date(iso).getTime()) / 60000)
-  if (mins < 1)  return "just now"
-  if (mins < 60) return `${mins}m ago`
-  const hrs = Math.floor(mins / 60)
-  return `${hrs}h ago`
-}
 
 // ─── Radar scan animation ──────────────────────────────────────────────────
 

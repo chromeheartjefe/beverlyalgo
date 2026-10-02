@@ -6,10 +6,10 @@
 // symbol / uppercase" rules; those annoy people without adding much. Long,
 // ordinary passwords like "Password11122" are fine.
 
-export const PASSWORD_MIN = 8
-export const PASSWORD_MAX_BYTES = 72 // bcrypt only reads the first 72 bytes
+const PASSWORD_MIN = 8
+const PASSWORD_MAX_BYTES = 72 // bcrypt only reads the first 72 bytes
 
-export type PasswordLevel = 0 | 1 | 2 | 3 // 0 = too weak (blocked)
+type PasswordLevel = 0 | 1 | 2 | 3 // 0 = too weak (blocked)
 
 export type PasswordCheck = {
   ok:    boolean

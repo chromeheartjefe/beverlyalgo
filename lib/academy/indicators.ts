@@ -97,7 +97,7 @@ export function bollinger(candles: Candle[], period = 20, k = 2) {
 }
 
 /** True range of candle i */
-export function trueRange(candles: Candle[], i: number): number {
+function trueRange(candles: Candle[], i: number): number {
   const [, h, l] = candles[i]
   if (i === 0) return h - l
   const prevClose = candles[i - 1][3]

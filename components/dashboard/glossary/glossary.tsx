@@ -60,13 +60,13 @@ function TermCard({ term, saved, onOpen }: { term: GlossaryTerm; saved: boolean;
         <div className="min-w-0">
           <p className="text-[15px] font-semibold text-white">{term.term}</p>
           {term.aliases && term.aliases.length > 0 && (
-            <p className="mt-0.5 truncate font-mono text-[11px] text-gray-500">{term.aliases.slice(0, 3).join(" · ")}</p>
+            <p className="mt-0.5 truncate font-mono text-xs text-gray-500">{term.aliases.slice(0, 3).join(" · ")}</p>
           )}
         </div>
         {saved && <BookmarkCheck className="size-4 shrink-0 text-amber-300" aria-label="Saved" />}
       </div>
       <p className="mt-2 line-clamp-2 text-sm leading-relaxed text-gray-400">{term.short}</p>
-      <div className="mt-auto flex flex-wrap items-center gap-x-3 gap-y-1.5 pt-3 text-[11px]">
+      <div className="mt-auto flex flex-wrap items-center gap-x-3 gap-y-1.5 pt-3 text-xs">
         <span className={cn("inline-flex items-center gap-1.5 rounded-full border px-2 py-0.5 font-semibold", style.chip)}>
           <span className={cn("size-1.5 rounded-full", style.dot)} aria-hidden />
           {style.label}
@@ -223,7 +223,7 @@ export function Glossary() {
                   searchRef.current?.focus()
                 }}
                 aria-label="Clear search"
-                className="flex size-9 items-center justify-center rounded-lg text-gray-400 hover:bg-white/[0.06] hover:text-gray-200"
+                className="relative tap-44 flex size-9 items-center justify-center rounded-lg text-gray-400 hover:bg-white/[0.06] hover:text-gray-200"
               >
                 <X className="size-4" />
               </button>
@@ -318,7 +318,7 @@ export function Glossary() {
               <Sparkles className="size-5 text-purple-200" aria-hidden />
             </div>
             <div className="min-w-0">
-              <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-purple-300/90">Term of the day</p>
+              <p className="text-xs font-semibold uppercase tracking-[0.16em] text-purple-300/90">Term of the day</p>
               <p className="mt-1 text-lg font-bold text-white">{daily.term}</p>
               <p className="mt-1 text-sm text-gray-400">{daily.short}</p>
             </div>

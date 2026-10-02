@@ -7,7 +7,7 @@ import { USERS } from "~/lib/excluded"
 import { COST } from "~/lib/format"
 
 /** The last `n` days (UTC) as a generate_series, oldest first. */
-export const DAYS = (n: number) =>
+const DAYS = (n: number) =>
   sql.raw(`generate_series(date_trunc('day', now()) - interval '${n - 1} days', date_trunc('day', now()), interval '1 day')`)
 
 export type Kpis = {

@@ -505,6 +505,9 @@ export function TeachingChart({
                   className={cn("outline-none", !locked && "cursor-pointer")}
                   onPointerEnter={() => setHover(i)}
                   onPointerLeave={() => setHover((h) => (h === i ? null : h))}
+                  // Keyboard focus lights the point up the same way
+                  onFocus={() => setHover(i)}
+                  onBlur={() => setHover((h) => (h === i ? null : h))}
                   onClick={() => !locked && tap.onSelect(i)}
                   onKeyDown={(e) => {
                     if (!locked && (e.key === " " || e.key === "Enter")) {

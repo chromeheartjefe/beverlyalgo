@@ -100,18 +100,18 @@ export function LessonComplete({
           className="mt-8 grid w-full grid-cols-3 gap-2.5"
         >
           <div className="border border-amber-400/30 bg-amber-500/[0.08] px-2 py-3">
-            <p className="text-[10px] font-semibold uppercase tracking-wider text-amber-300/80">XP earned</p>
+            <p className="text-[11px] font-semibold uppercase tracking-wider text-amber-300/80">XP earned</p>
             <p className="mt-1 flex items-center justify-center gap-1 text-2xl font-bold text-amber-200">
               <Sparkles className="size-4" aria-hidden />
               {saved ? <NumberFlow value={shownXp} prefix="+" /> : "..."}
             </p>
           </div>
           <div className="border border-emerald-400/30 bg-emerald-500/[0.08] px-2 py-3">
-            <p className="text-[10px] font-semibold uppercase tracking-wider text-emerald-300/80">Accuracy</p>
+            <p className="text-[11px] font-semibold uppercase tracking-wider text-emerald-300/80">Accuracy</p>
             <p className="mt-1 text-2xl font-bold text-emerald-200">{accuracy}%</p>
           </div>
           <div className="border border-orange-400/30 bg-orange-500/[0.08] px-2 py-3">
-            <p className="text-[10px] font-semibold uppercase tracking-wider text-orange-300/80">Streak</p>
+            <p className="text-[11px] font-semibold uppercase tracking-wider text-orange-300/80">Streak</p>
             <p className="mt-1 flex items-center justify-center gap-1 text-2xl font-bold text-orange-200">
               <Flame className="size-4" aria-hidden />
               {saved ? saved.state.streak : "..."}

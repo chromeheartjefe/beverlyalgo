@@ -61,7 +61,7 @@ function Caption({ frame, from, to, text }: { frame: number; from: number; to: n
   )
 }
 
-export function StructureStoryScene() {
+function StructureStoryScene() {
   const frame = useCurrentFrame()
   const drawn = iv(frame, [10, DRAW_END], [0, TOTAL])
   const shown = (len: number) => iv(drawn, [len, len + 25], [0, 1])

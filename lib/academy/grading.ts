@@ -14,7 +14,7 @@ export type Answer = {
 
 export const EMPTY_ANSWER: Answer = { choice: null, tf: null, tap: null, numeric: "", match: {} }
 
-export function parseNumber(raw: string): number | null {
+function parseNumber(raw: string): number | null {
   const cleaned = raw.replace(/[\s$€£,]/g, (c) => (c === "," ? "." : ""))
   if (!cleaned) return null
   const n = Number(cleaned)

@@ -35,7 +35,7 @@ const y = (p: number) => 452 - (p - 99.4) * 60
 // Candles 0-3 come in quickly, then a pause to show the gap, then the rest
 const appear = (i: number) => (i <= 3 ? 10 + i * 18 : 130 + (i - 4) * 22)
 
-export function FvgFillScene() {
+function FvgFillScene() {
   const frame = useCurrentFrame()
   const box = iv(frame, [92, 110], [0, 1])
   const ce = iv(frame, [110, 124], [0, 1])

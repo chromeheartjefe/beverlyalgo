@@ -110,7 +110,7 @@ export function VerifyBanner() {
       </div>
       <button
         onClick={() => setDismissed(true)}
-        className="-my-1.5 -mr-1 flex size-7 shrink-0 items-center justify-center rounded-lg text-amber-400/70 transition-colors hover:bg-amber-500/10 hover:text-amber-200 sm:-mr-1.5 sm:size-9"
+        className="relative tap-44 -my-1.5 -mr-1 flex size-7 shrink-0 items-center justify-center rounded-lg text-amber-400/70 transition-colors hover:bg-amber-500/10 hover:text-amber-200 sm:-mr-1.5 sm:size-9"
       >
         <X className="size-3.5 sm:size-4" />
         <span className="sr-only">Dismiss</span>

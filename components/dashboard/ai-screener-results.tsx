@@ -10,6 +10,7 @@ import { ArrowDown, ArrowRight, ArrowUp, Bitcoin, Eye, LineChart, Minus, Trendin
 import { useMemo } from "react"
 
 import type { ScreenerResult, ScreenerTicker } from "@/app/api/screener/route"
+import { fmtPrice } from "@/lib/format"
 import { cn } from "@/lib/utils"
 
 // Same two-layer glow treatment as chart-analysis-results.tsx's SignalHero
@@ -121,14 +122,6 @@ const SIGNAL_STYLE: Record<MicroSignal, { chip: string; text: string }> = {
   BUY:     { chip: "bg-emerald-500/15", text: "text-emerald-400" },
   SELL:    { chip: "bg-red-500/15",     text: "text-red-400"     },
   NEUTRAL: { chip: "bg-amber-500/15",   text: "text-amber-400"   },
-}
-
-// Same tiered precision as chart-analysis-results.tsx's fmtPrice — sub-$1
-// assets (meme coins, penny movers) need more than 2 decimals to be legible.
-function fmtPrice(n: number) {
-  const abs = Math.abs(n)
-  const decimals = abs >= 1 ? 2 : abs >= 0.01 ? 4 : abs >= 0.0001 ? 6 : 8
-  return `$${n.toLocaleString(undefined, { minimumFractionDigits: decimals, maximumFractionDigits: decimals })}`
 }
 
 // "Long" means the digits themselves are long (7+, not counting the decimal
@@ -294,7 +287,7 @@ function SignalChip({ label, signal, delay }: { label: string; signal: MicroSign
       <div className={cn("flex size-8 items-center justify-center rounded-full", style.chip)}>
         <Icon className={cn("size-4", style.text)} strokeWidth={2.75} />
       </div>
-      <span className="text-[10px] font-semibold uppercase tracking-wide text-gray-500">{label}</span>
+      <span className="text-[11px] font-semibold uppercase tracking-wide text-gray-500">{label}</span>
     </motion.div>
   )
 }
@@ -327,7 +320,7 @@ function IndicatorPanel({ direction, seed }: { direction: ScreenerTicker["direct
       <div className="mt-3 space-y-1.5">
         <ConsensusBar buy={panel.buy} sell={panel.sell} neutral={panel.neutral} />
         <div className="flex items-center justify-between">
-          <span className="text-[10px] font-medium text-gray-600">Signal consensus</span>
+          <span className="text-xs font-medium text-gray-600">Signal consensus</span>
           <span className={cn("text-xs font-black", theme.text)}>{panel.consensus}%</span>
         </div>
       </div>
@@ -462,7 +455,7 @@ export function ScreenerResults({ result }: { result: ScreenerResult }) {
         <CategoryBlock>
           <ColumnHeader label="Stocks" count={stocks.length} icon={LineChart} />
           {result.stocksAsOf && stocks.length > 0 && (
-            <p className="-mt-1 mb-3 text-[11px] text-amber-300/80">
+            <p className="-mt-1 mb-3 text-xs text-amber-300/80">
               Stock prices from the previous scan, {stocksAge(result.stocksAsOf)}. Live stock data was unavailable this time.
             </p>
           )}
@@ -480,7 +473,7 @@ export function ScreenerResults({ result }: { result: ScreenerResult }) {
         </CategoryBlock>
       </div>
 
-      <p className="text-center text-[11px] text-gray-700">
+      <p className="text-center text-xs text-gray-700">
         Not financial advice. Always do your own research before trading.
       </p>
     </div>

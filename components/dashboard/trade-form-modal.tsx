@@ -44,11 +44,11 @@ function emptyForm(date?: string): TradeFormState {
 }
 
 const inputCls =
-  "w-full rounded-xl border border-white/15 bg-white/[0.04] px-3.5 py-2.5 text-sm text-white placeholder:text-gray-600 focus:border-purple-500/40 focus:outline-none focus:ring-1 focus:ring-purple-500/50"
+  "w-full rounded-xl border border-white/15 bg-white/[0.04] px-3.5 py-2.5 text-base sm:text-sm text-white placeholder:text-gray-600 focus:border-purple-500/40 focus:outline-none focus:ring-1 focus:ring-purple-500/50"
 
 // ─── Modal ────────────────────────────────────────────────────────────────────
 
-export function TradeFormModal({
+function TradeFormModal({
   open,
   onOpenChange,
   editing,
@@ -103,7 +103,7 @@ export function TradeFormModal({
             <Dialog.Title className="text-sm font-semibold text-white">
               {editing ? "Edit Trade" : "Add Trade"}
             </Dialog.Title>
-            <Dialog.Close className="-mr-2 -mt-2 flex size-9 items-center justify-center rounded-lg text-gray-500 transition-colors hover:bg-white/[0.06] hover:text-gray-300">
+            <Dialog.Close className="relative tap-44 -mr-2 -mt-2 flex size-9 items-center justify-center rounded-lg text-gray-500 transition-colors hover:bg-white/[0.06] hover:text-gray-300">
               <X className="size-4" />
               <span className="sr-only">Close</span>
             </Dialog.Close>

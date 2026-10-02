@@ -734,13 +734,3 @@ export default function CandleChart({
     </div>
   )
 }
-
-export function Demo() {
-  return (
-    <div className="flex min-h-[420px] w-full items-center justify-center p-6">
-      <CandleChart />
-    </div>
-  )
-}
-
-export { CandleChart as Component }

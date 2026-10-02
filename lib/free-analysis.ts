@@ -16,7 +16,7 @@ import { chartAnalyses, freeAnalysisClaims } from "@/db/schema"
 // A claim is taken before the AI call and given back if no analysis comes out
 // (rejected screenshot, AI error), so a bad upload doesn't use it up.
 
-export const FREE_CLAIMS_PER_IP = 3
+const FREE_CLAIMS_PER_IP = 3
 const IP_WINDOW_MS = 30 * 24 * 60 * 60 * 1000
 // Free accounts can retry rejected screenshots, but not endlessly
 export const FREE_DAILY_ATTEMPTS = 5
@@ -31,7 +31,7 @@ export type FreeAnalysisState =
 type UserRow = { id: string; email: string; emailVerified: Date | null; plan: string }
 
 /** The inbox an address delivers to: lowercased, +tag removed, Gmail dots removed. */
-export function emailKey(email: string): string {
+function emailKey(email: string): string {
   const value = email.trim().toLowerCase()
   const at = value.lastIndexOf("@")
   if (at < 1) return value
@@ -58,7 +58,7 @@ const DISPOSABLE_DOMAINS = new Set([
   "yopmail.com", "yopmail.fr", "yopmail.net",
 ])
 
-export function isDisposableEmail(email: string): boolean {
+function isDisposableEmail(email: string): boolean {
   const domain = email.trim().toLowerCase().split("@").pop() ?? ""
   return DISPOSABLE_DOMAINS.has(domain)
 }

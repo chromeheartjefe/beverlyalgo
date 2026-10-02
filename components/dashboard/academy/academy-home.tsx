@@ -193,7 +193,7 @@ function UpNext({ next, completed }: { next: LessonRef | null; completed: Academ
 
       <div className="relative flex items-start justify-between gap-4">
         <div className="min-w-0">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-purple-300/90">
+          <p className="text-xs font-semibold uppercase tracking-[0.16em] text-purple-300/90">
             Up next · Unit {unitNumber}, lesson {lessonNumber}
           </p>
           <p className="mt-1.5 text-xl font-bold text-white">{next.lesson.title}</p>
@@ -232,7 +232,7 @@ function PracticeCard({ dueCount, ready }: { dueCount: number; ready: boolean })
   return (
     <div className="relative flex flex-col justify-between gap-4 overflow-hidden rounded-2xl border border-sky-400/25 bg-sky-500/[0.06] p-5 sm:p-6">
       <div>
-        <div className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.16em] text-sky-300/90">
+        <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.16em] text-sky-300/90">
           <Dumbbell className="size-3.5" aria-hidden /> Practice
         </div>
         <p className="mt-1.5 text-lg font-bold text-white">
@@ -349,7 +349,7 @@ function Path({ state, status, nextUnitId }: { state: AcademyState; status: Map<
           <section key={level.id}>
             <div className="mb-4 flex flex-wrap items-end justify-between gap-2">
               <div>
-                <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-purple-300/80">Level {li + 1}</p>
+                <p className="text-xs font-semibold uppercase tracking-[0.16em] text-purple-300/80">Level {li + 1}</p>
                 <h2 className="mt-1 text-lg font-bold text-white">{level.title}</h2>
                 <p className="mt-0.5 text-sm text-gray-500">{level.summary}</p>
               </div>
@@ -378,7 +378,7 @@ function Path({ state, status, nextUnitId }: { state: AcademyState; status: Map<
                         <div className="flex flex-wrap items-center gap-2">
                           <p className="text-[15px] font-semibold text-white">{u.title}</p>
                           {!written && (
-                            <span className="border border-white/10 px-1.5 py-px text-[10px] font-semibold uppercase tracking-wider text-gray-500">
+                            <span className="border border-white/10 px-1.5 py-px text-[11px] font-semibold uppercase tracking-wider text-gray-500">
                               Coming soon
                             </span>
                           )}
@@ -441,7 +441,7 @@ function FinalExamCard({ state, written, doneCount }: { state: AcademyState; wri
             {passed ? <Award className="size-6 text-amber-200" aria-hidden /> : <ScrollText className="size-6 text-amber-200" aria-hidden />}
           </div>
           <div>
-            <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-amber-300/90">Capstone</p>
+            <p className="text-xs font-semibold uppercase tracking-[0.16em] text-amber-300/90">Capstone</p>
             <p className="mt-1 text-lg font-bold text-white">{passed ? "You're certified" : "Final exam and certificate"}</p>
             <p className="mt-1 text-sm text-gray-400">
               {passed

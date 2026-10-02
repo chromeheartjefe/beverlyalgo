@@ -68,7 +68,7 @@ export const REVERSAL_DEEP: Candle[] = REVERSAL.map((c, i) => {
 export const REVERSAL_NO_SWEEP: Candle[] = REVERSAL.map((c, i) => (i === 15 ? [103.1, 103.2, 102.98, 103.05] : c))
 
 /** Mirror candles around a price, turning a bullish story into a bearish one */
-export function mirror(candles: Candle[], axis: number): Candle[] {
+function mirror(candles: Candle[], axis: number): Candle[] {
   const m = (p: number) => Number((2 * axis - p).toFixed(2))
   return candles.map(([o, h, l, c]) => [m(o), m(l), m(h), m(c)])
 }

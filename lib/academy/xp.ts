@@ -4,9 +4,9 @@
 /** First completion of a lesson */
 export const XP_LESSON = 10
 /** Bonus when every question was right on the first try */
-export const XP_PERFECT_BONUS = 5
+const XP_PERFECT_BONUS = 5
 /** Replaying a finished lesson, at most once per lesson per day */
-export const XP_REPLAY = 2
+const XP_REPLAY = 2
 
 export function lessonXp({ firstTime, perfect }: { firstTime: boolean; perfect: boolean }): number {
   if (!firstTime) return XP_REPLAY
@@ -50,7 +50,7 @@ function dayNumber(day: string): number {
 }
 
 /** Whole days from a to b (b later = positive) */
-export function daysBetween(a: string, b: string): number {
+function daysBetween(a: string, b: string): number {
   return dayNumber(b) - dayNumber(a)
 }
 
@@ -72,7 +72,7 @@ export function isPlausibleDay(day: string, now = new Date()): boolean {
 }
 
 /** One missed day is forgiven by a streak freeze, refilled every 7 days */
-export const FREEZE_EVERY_DAYS = 7
+const FREEZE_EVERY_DAYS = 7
 
 export function freezeAvailable(freezeUsedOn: string | null, today: string): boolean {
   return !freezeUsedOn || daysBetween(freezeUsedOn, today) >= FREEZE_EVERY_DAYS

@@ -267,17 +267,17 @@ export default function TradingBotPage() {
                 placeholder="Ask anything about trading..."
                 aria-label="Message the AI trading assistant"
                 disabled={sending}
-                className="max-h-32 flex-1 resize-none rounded-xl border border-white/15 bg-white/[0.04] px-3.5 py-2.5 text-sm text-white placeholder:text-gray-600 focus:border-purple-500/40 focus:outline-none focus:ring-1 focus:ring-purple-500/50 disabled:opacity-60 short:max-h-24 short:py-2"
+                className="max-h-32 flex-1 resize-none rounded-xl border border-white/15 bg-white/[0.04] px-3.5 py-2.5 text-base sm:text-sm text-white placeholder:text-gray-600 focus:border-purple-500/40 focus:outline-none focus:ring-1 focus:ring-purple-500/50 disabled:opacity-60 short:max-h-24 short:py-2"
               />
               <button
                 type="submit"
                 disabled={sending || !input.trim()}
-                className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-purple-500 text-white transition-colors hover:bg-purple-400 disabled:opacity-40 short:size-9"
+                className="relative tap-44 flex size-10 shrink-0 items-center justify-center rounded-xl bg-purple-500 text-white transition-colors hover:bg-purple-400 disabled:opacity-40 short:size-9"
               >
                 {sending ? <Loader2 className="size-4 animate-spin" /> : <Send className="size-4" />}
               </button>
             </form>
-            <p className="mt-2.5 text-center text-[11px] text-gray-700 short:mt-1.5">
+            <p className="mt-2.5 text-center text-xs text-gray-700 short:mt-1.5">
               AI-generated for educational purposes only. Not financial advice.
             </p>
           </div>

@@ -4,16 +4,7 @@ import * as Sentry from "@sentry/nextjs"
 import { useEffect, useState } from "react"
 
 import { SupportEmail } from "@/components/ui/support-email"
-
-// Crashes that come from the framework or from the DOM being changed under
-// React (translation, extensions), not from our own logic. After one of these
-// the client router's state is corrupt, so reset() re-renders into the same
-// error; a full reload is what actually recovers.
-const RECOVERABLE =
-  /Rendered (more|fewer) hooks than|Failed to execute '(removeChild|insertBefore)' on 'Node'|ChunkLoadError|Loading chunk [\w-]+ failed/i
-
-const RELOAD_KEY = "entrix:global-error-reload"
-const RELOAD_WINDOW_MS = 60_000
+import { autoReload, isRecoverable } from "@/lib/error-recovery"
 
 export default function GlobalError({
   error,
@@ -25,20 +16,10 @@ export default function GlobalError({
   const [reloading, setReloading] = useState(false)
 
   useEffect(() => {
-    Sentry.captureException(error, { tags: { global_error_auto_reload: RECOVERABLE.test(error.message) ? "attempted" : "no" } })
+    Sentry.captureException(error, { tags: { global_error_auto_reload: isRecoverable(error) ? "attempted" : "no" } })
 
-    if (!RECOVERABLE.test(error.message)) return
-    // At most one automatic reload per minute, so a persistent error can't
-    // put the page into a reload loop
-    try {
-      const last = Number(sessionStorage.getItem(RELOAD_KEY) ?? 0)
-      if (Date.now() - last < RELOAD_WINDOW_MS) return
-      sessionStorage.setItem(RELOAD_KEY, String(Date.now()))
-    } catch {
-      return
-    }
-    setReloading(true)
-    window.location.reload()
+    // Framework / DOM crashes recover with one reload (see lib/error-recovery.ts)
+    if (autoReload(error)) setReloading(true)
   }, [error])
 
   return (

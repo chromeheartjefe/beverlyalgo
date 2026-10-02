@@ -3,8 +3,8 @@ import { sql } from "drizzle-orm"
 // Rows recorded before 2026-09-28 have no cost_usd. They were all
 // gpt-5.6-luna calls, so they are estimated at its rates (same as the site's
 // monthly budget check in lib/ai-budget.ts). Newer rows carry their real cost.
-export const LEGACY_COST_IN  = 0.20 / 1_000_000
-export const LEGACY_COST_OUT = 1.20 / 1_000_000
+const LEGACY_COST_IN  = 0.20 / 1_000_000
+const LEGACY_COST_OUT = 1.20 / 1_000_000
 export const AI_BUDGET_USD = Number(process.env.AI_MONTHLY_BUDGET_USD ?? 50)
 
 /** SQL for a row's AI cost: the recorded cost, or an estimate for old rows. */
