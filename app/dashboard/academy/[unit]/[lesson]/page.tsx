@@ -11,7 +11,7 @@ type Params = Promise<{ unit: string; lesson: string }>
 export async function generateMetadata({ params }: { params: Params }): Promise<Metadata> {
   const { unit, lesson } = await params
   const ref = findLesson(unit, lesson)
-  return { title: ref ? `${ref.lesson.title} – Academy – EntrixAlgo` : "Academy – EntrixAlgo" }
+  return { title: ref ? `${ref.lesson.title} – Academy` : "Academy" }
 }
 
 export default async function LessonPage({ params }: { params: Params }) {

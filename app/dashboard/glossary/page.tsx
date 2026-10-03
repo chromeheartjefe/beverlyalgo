@@ -4,7 +4,7 @@ import { Suspense } from "react"
 import { Glossary } from "@/components/dashboard/glossary/glossary"
 
 export const metadata: Metadata = {
-  title: "Trading Glossary – EntrixAlgo",
+  title: "Trading Glossary",
 }
 
 export default function GlossaryPage() {

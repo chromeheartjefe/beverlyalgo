@@ -6,7 +6,7 @@ import Link from "next/link"
 import { SupportEmail } from "@/components/ui/support-email"
 
 export const metadata: Metadata = {
-  title:       "About – EntrixAlgo",
+  title:       "About",
   description: "What EntrixAlgo is, and why we built it.",
 }
 

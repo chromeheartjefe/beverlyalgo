@@ -67,12 +67,6 @@ export default function RootLayout({
   return (
     <html lang="en" style={{ colorScheme: "dark" }} className="dark scroll-smooth">
       <body className={`${inter.className} bg-background antialiased`}>
-        <a
-          href="#main-content"
-          className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:rounded-lg focus:bg-purple-500 focus:px-4 focus:py-2.5 focus:text-sm focus:font-semibold focus:text-white focus:shadow-lg"
-        >
-          Skip to content
-        </a>
         <SessionProvider>
           <MotionProvider>{children}</MotionProvider>
           <SupportChat />

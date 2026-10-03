@@ -55,10 +55,11 @@ function DetailText({ data }: { data: PlanStatus }) {
         </span>
       )
     }
-    if (!data.periodEnd) return <span>Monthly</span>
-    return data.status === "canceling"
-      ? <span className="text-amber-200">Access until {fmtDate(data.periodEnd)}</span>
-      : <span>Monthly · renews {fmtDate(data.periodEnd)}</span>
+    // An active subscription just says "Monthly": the renewal date lives in the billing portal
+    if (data.status === "canceling" && data.periodEnd) {
+      return <span className="text-amber-200">Access until {fmtDate(data.periodEnd)}</span>
+    }
+    return <span>Monthly</span>
   }
   if (data.billing === "lifetime") return <span>Lifetime access</span>
   return <span>Full access</span>
@@ -92,7 +93,7 @@ function ProCard({ data }: { data: PlanStatus | undefined }) {
 
 // ─── Free ─────────────────────────────────────────────────────────────────────
 
-const PRO_UNLOCKS = ["AI Chart Analysis", "AI Trading Indicator", "AI Trading Bot"]
+const PRO_UNLOCKS = ["AI Chart Analysis", "AI Trading Bot"]
 
 function FreeCard({ onNavigate }: { onNavigate?: () => void }) {
   return (

@@ -13,7 +13,7 @@ type Params = Promise<{ id: string }>
 export async function generateMetadata({ params }: { params: Params }): Promise<Metadata> {
   const { id } = await params
   const cert = await getCertificate(id)
-  if (!cert) return { title: "Certificate not found – EntrixAlgo", robots: { index: false } }
+  if (!cert) return { title: "Certificate not found", robots: { index: false } }
   const title = `${cert.name} completed Entrix Academy`
   const image = `/api/certificate/${cert.id}/image`
   return {

@@ -12,7 +12,7 @@ import { db } from "@/db"
 import { academyCertificates } from "@/db/schema"
 
 export const metadata: Metadata = {
-  title: "Certificate – Academy – EntrixAlgo",
+  title: "Certificate – Academy",
 }
 
 export default async function CertificatePage() {

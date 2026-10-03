@@ -4,7 +4,7 @@ import { AcademyHome } from "@/components/dashboard/academy/academy-home"
 import { LESSON_CONTENT } from "@/content/academy"
 
 export const metadata: Metadata = {
-  title: "Academy – EntrixAlgo",
+  title: "Academy",
 }
 
 export default function AcademyPage() {

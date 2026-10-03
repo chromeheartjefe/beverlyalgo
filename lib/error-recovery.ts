@@ -4,8 +4,14 @@
 // React (translation, extensions), not from our own logic. After one of these
 // the client router's state is corrupt, so reset() re-renders into the same
 // error; a full reload is what actually recovers.
+//
+// The last three patterns are a version mismatch: a tab opened before a
+// release asks for a page after it and gets code that expects modules the old
+// page never loaded, so the bundler fails inside its own loader. The wording
+// depends on the browser (seen 2026-10-03 as "e[a] is not a function"). A
+// reload puts the tab on the new release.
 const RECOVERABLE =
-  /Rendered (more|fewer) hooks than|Failed to execute '(removeChild|insertBefore)' on 'Node'|ChunkLoadError|Loading chunk [\w-]+ failed/i
+  /Rendered (more|fewer) hooks than|Failed to execute '(removeChild|insertBefore)' on 'Node'|ChunkLoadError|Loading chunk [\w-]+ failed|^\w\[\w\] is not a function|Cannot read properties of undefined \(reading 'call'\)|undefined is not an object \(evaluating '\w\[\w\]\.call'\)/i
 
 const RELOAD_KEY = "entrix:global-error-reload"
 const RELOAD_WINDOW_MS = 60_000
