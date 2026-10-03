@@ -1,13 +1,14 @@
 "use client"
 
 import { AnimatePresence, motion } from "framer-motion"
-import { Activity, ArrowUpRight, Bot, CheckCircle, Clock, CloudUpload, Gift, Lightbulb, Loader2, Minus, Ruler, Sparkles, Tag, TrendingDown, TrendingUp, XCircle, Zap, ZoomIn } from "lucide-react"
+import { AlertTriangle, ArrowUpRight, Bot, CheckCircle, Clock, CloudUpload, Gift, Lightbulb, Loader2, Minus, Ruler, Sparkles, Tag, TrendingDown, TrendingUp, X, XCircle, Zap, ZoomIn } from "lucide-react"
 import dynamic from "next/dynamic"
 import Link from "next/link"
 import { useSession } from "next-auth/react"
-import { useCallback, useMemo, useState } from "react"
+import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import useSWR from "swr"
 
+import { ChartFrame, type ChartImage, ChartPicture } from "@/components/dashboard/chart-frame"
 import { FeatureLock } from "@/components/dashboard/feature-lock"
 import { Collapse, Loaded } from "@/components/ui/motion"
 import { ApiError, requestJson, userMessage } from "@/lib/api-client"
@@ -35,9 +36,12 @@ const ResultsView = dynamic(
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
-type Phase = "idle" | "dragging" | "selected" | "analyzing" | "results"
+type Phase = "idle" | "selected" | "analyzing" | "results"
 
-const MAX_UPLOAD_BYTES = 5 * 1024 * 1024 // 5 MB
+// The picked file can be big: it is shrunk in the browser before it goes up,
+// and only that smaller copy has to fit the server's 5 MB limit. A 4K monitor
+// screenshot or a phone photo over 5 MB used to be turned away here.
+const MAX_SOURCE_BYTES = 20 * 1024 * 1024 // 20 MB
 
 export type AnalysisResult = {
   signal:          "BUY" | "SELL" | "NEUTRAL"
@@ -90,34 +94,61 @@ type RawAnalysisRow = {
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
-// Screenshots go up at ≤1536 px on the longest edge, JPEG 0.92. 768 px used to
-// be the cap here, but it crushed the Y-axis on sub-$1 pairs: tightly packed
-// 4-decimal labels (e.g. 0.2088/0.2086/0.2084 a few px apart) blurred into
-// illegibility, so the model guessed a "plausible" price from training priors
-// instead of reading the chart. Wrong entry/SL/TP costs real money here, so
-// legibility wins over shaving a bit of image-token cost.
-const UPLOAD_MAX_PX = 1536
+// Screenshots go up at ≤2048 px on the longest edge and inside the model's
+// own image budget, so the model reads the picture as sent instead of
+// shrinking it a second time. 768 px used to be the cap here, but it crushed
+// the Y-axis on sub-$1 pairs: tightly packed 4-decimal labels (e.g.
+// 0.2088/0.2086/0.2084 a few px apart) blurred into illegibility, so the model
+// guessed a "plausible" price from training priors instead of reading the
+// chart. 1536 px then still shrank a portrait phone screenshot to about 710 px
+// wide, and blurred a plain 1920×1080 one that now goes up untouched. Wrong
+// entry/SL/TP costs real money here, so legibility wins over shaving a bit of
+// image-token cost.
+const UPLOAD_MAX_PX = 2048
 const UPLOAD_JPEG_QUALITY = 0.92
+// "high" detail: the model cuts the picture into 32 px patches and scales it
+// down itself above 2,500 of them (OpenAI's images and vision guide). Recheck
+// both numbers when lib/chart-analysis moves to another model.
+const MODEL_PATCH_PX = 32
+const MODEL_MAX_PATCHES = 2500
+const fitsModel = (width: number, height: number) =>
+  Math.ceil(width / MODEL_PATCH_PX) * Math.ceil(height / MODEL_PATCH_PX) <= MODEL_MAX_PATCHES
+// A PNG screenshot stays a PNG while it is this small: JPEG leaves faint halos
+// around thin text such as the price labels
+const UPLOAD_PNG_MAX_BYTES = 3 * 1024 * 1024
+// Below this on its longest edge a picture rarely has room for readable prices
+const SMALL_IMAGE_PX = 640
+
+// Opens the picked file as a picture and measures it. Fails when the browser
+// can't decode it (a HEIC photo on a PC, a renamed PDF), so that is caught on
+// selection and not after pressing Analyze. The object URL doubles as the
+// preview: lighter than holding the whole file as a base64 string.
+function openImage(file: File): Promise<ChartImage> {
+  return new Promise((resolve, reject) => {
+    const url = URL.createObjectURL(file)
+    const img = new Image()
+    const fail = () => { URL.revokeObjectURL(url); reject(new Error("Unreadable image")) }
+    img.onload = () => {
+      if (img.naturalWidth > 0 && img.naturalHeight > 0) resolve({ url, width: img.naturalWidth, height: img.naturalHeight })
+      else fail()
+    }
+    img.onerror = fail
+    img.src = url
+  })
+}
 
 // ─── Drop zone ────────────────────────────────────────────────────────────────
 
 function DropZone({
-  phase,
+  isDragging,
   error,
-  onDragEnter,
-  onDragLeave,
-  onDrop,
   onFileSelect,
 }: {
-  phase: Phase
+  // A file is being dragged over the page (the page itself takes the drop)
+  isDragging: boolean
   error?: string | null
-  onDragEnter: () => void
-  onDragLeave: () => void
-  onDrop: (e: React.DragEvent) => void
   onFileSelect: (f: File) => void
 }) {
-  const isDragging = phase === "dragging"
-
   return (
     <>
     {/* A <label> reliably opens the native file/photo picker on both Android and
@@ -126,10 +157,6 @@ function DropZone({
         reader accessible for free, no extra role/tabIndex plumbing needed. */}
     <label
       htmlFor="chart-upload-input"
-      onDragOver={(e) => { e.preventDefault(); onDragEnter() }}
-      onDragEnter={(e) => { e.preventDefault(); onDragEnter() }}
-      onDragLeave={onDragLeave}
-      onDrop={(e) => { e.preventDefault(); onDrop(e) }}
       className={cn(
         "relative flex h-64 cursor-pointer flex-col items-center justify-center rounded-2xl border-2 border-dashed p-4 text-center transition-all duration-200 sm:h-72",
         isDragging
@@ -166,7 +193,9 @@ function DropZone({
       <p className="mt-4 text-sm font-semibold text-gray-200">
         {isDragging ? "Drop to analyze" : "Tap to upload your chart"}
       </p>
-      <p className="mt-1 text-xs text-gray-600">or drag and drop · PNG, JPG, WEBP up to 5 MB</p>
+      {/* Dragging and pasting need a mouse and a keyboard: phones don't see this line */}
+      <p className="mt-1 hidden text-xs text-gray-600 pointer-fine:block">or drag and drop, or paste a screenshot</p>
+      <p className="mt-1 text-xs text-gray-600">PNG, JPG or WEBP, up to 20 MB</p>
 
       <span className="mt-5 inline-flex items-center gap-2 rounded-xl border border-white/15 bg-white/[0.05] px-5 py-2.5 text-sm font-medium text-gray-300 transition-colors hover:bg-white/[0.08]">
         Browse files
@@ -199,18 +228,24 @@ function DropZone({
 // ─── Selected (file chosen) ───────────────────────────────────────────────────
 
 function SelectedView({
-  filename,
-  preview,
+  image,
+  isDragging,
+  uploadError,
   error,
   onAnalyze,
   onReset,
 }: {
-  filename: string
-  preview: string | null
+  image: ChartImage
+  // Another file is being dragged over the page: dropping it replaces this one
+  isDragging: boolean
+  // Why a replacement (dropped or pasted) was turned away; this picture stays
+  uploadError: string | null
   error: string | null
   onAnalyze: () => void
   onReset: () => void
 }) {
+  const small = Math.max(image.width, image.height) < SMALL_IMAGE_PX
+
   return (
     <motion.div
       initial={{ opacity: 0, scale: 0.98 }}
@@ -218,25 +253,35 @@ function SelectedView({
       exit={{ opacity: 0 }}
       className="space-y-4"
     >
-      <div className="max-h-80 overflow-hidden rounded-2xl border border-white/15 bg-white/[0.02]">
-        {preview && (
-          <img src={preview} alt="Selected chart" className="w-full" />
-        )}
-        <div className="flex items-center justify-between px-4 py-3">
-          <div className="flex items-center gap-2.5">
-            <div className="flex size-8 items-center justify-center rounded-lg bg-purple-500/10">
-              <CloudUpload className="size-4 text-purple-400" />
-            </div>
-            <div>
-              <p className="text-sm font-medium text-white">{filename}</p>
-              <p className="text-xs text-gray-600">Ready to analyze</p>
-            </div>
+      <ChartPicture image={image} alt="Selected chart">
+        <button
+          type="button"
+          onClick={onReset}
+          aria-label="Remove this chart"
+          className="absolute right-2 top-2 flex size-11 items-center justify-center rounded-xl border border-white/20 bg-black/60 text-gray-200 backdrop-blur-sm transition-colors hover:bg-black/80 hover:text-white"
+        >
+          <X className="size-4" aria-hidden />
+        </button>
+        {isDragging && (
+          <div className="pointer-events-none absolute inset-0 flex items-center justify-center rounded-2xl border-2 border-dashed border-purple-500/60 bg-[#08080f]/85 text-sm font-semibold text-gray-200">
+            Drop to replace this chart
           </div>
-          <button onClick={onReset} className="text-xs text-gray-600 hover:text-gray-400">
-            Remove
-          </button>
-        </div>
-      </div>
+        )}
+      </ChartPicture>
+
+      <Collapse show={small} className="pb-4">
+        <p className="flex items-start gap-2 rounded-xl border border-amber-500/20 bg-amber-500/[0.07] px-4 py-3 text-xs leading-relaxed text-amber-200">
+          <AlertTriangle className="mt-0.5 size-3.5 shrink-0" aria-hidden />
+          This picture is small ({image.width} × {image.height} px), so prices may be hard to read. A full-size screenshot gives more accurate levels.
+        </p>
+      </Collapse>
+
+      <Collapse show={!!uploadError} className="pb-4">
+        <p role="alert" className="flex items-center gap-1.5 text-xs text-red-400">
+          <XCircle className="size-3.5 shrink-0" />
+          {uploadError}
+        </p>
+      </Collapse>
 
       {/* API error banner */}
       <Collapse show={!!error} className="pb-4">
@@ -259,7 +304,7 @@ function SelectedView({
 
 // ─── Analyzing ────────────────────────────────────────────────────────────────
 
-function AnalyzingView({ filename }: { filename: string }) {
+function AnalyzingView({ filename, size }: { filename: string; size: ChartImage | null }) {
   const steps = [
     "Detecting chart patterns",
     "Identifying support & resistance levels",
@@ -275,23 +320,23 @@ function AnalyzingView({ filename }: { filename: string }) {
       className="space-y-5"
     >
       <div className="flex items-center justify-between rounded-xl border border-white/15 bg-white/[0.03] px-4 py-3">
-        <div className="flex items-center gap-2 text-sm text-gray-400">
-          <span className="inline-block size-2 rounded-full bg-purple-400" />
-          {filename}
+        <div className="flex min-w-0 items-center gap-2 text-sm text-gray-400">
+          <span className="inline-block size-2 shrink-0 rounded-full bg-purple-400" />
+          <span className="truncate">{filename}</span>
         </div>
         <motion.div
           animate={{ opacity: [0.5, 1, 0.5] }}
           transition={{ duration: 1.3, repeat: Infinity }}
-          className="flex items-center gap-1.5 text-xs text-purple-400"
+          className="flex shrink-0 items-center gap-1.5 pl-3 text-xs text-purple-400"
         >
           <Loader2 className="size-3 animate-spin" />
           Analyzing…
         </motion.div>
       </div>
 
-      {/* Chart skeleton + scan line */}
-      <div className="relative h-52 overflow-hidden rounded-xl border border-white/15 bg-[#08080f]">
-        <svg viewBox="0 0 400 180" className="h-full w-full opacity-15">
+      {/* Chart skeleton + scan line, in a box the size the picked chart had */}
+      <ChartFrame size={size}>
+        <svg viewBox="0 0 400 180" className="absolute inset-0 size-full opacity-15">
           {[
             [20,  100, 118, 95,  123],
             [46,  88,  104, 83,  109],
@@ -326,7 +371,7 @@ function AnalyzingView({ filename }: { filename: string }) {
           }}
         />
         <div className="pointer-events-none absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-[#08080f] to-transparent" />
-      </div>
+      </ChartFrame>
 
       <div className="space-y-2">
         {steps.map((text, i) => (
@@ -816,7 +861,7 @@ function lockCard(state: FreeAnalysisState | undefined) {
   if (state === "used") {
     return {
       title: "You've used your free analysis",
-      description: "Upgrade to Pro to keep analyzing your charts, plus the AI Trading Bot and the TradingView indicator.",
+      description: "Upgrade to Pro to keep analyzing your charts, plus the AI Trading Bot.",
     }
   }
   return undefined
@@ -827,7 +872,6 @@ function lockCard(state: FreeAnalysisState | undefined) {
 const PRO_PERKS = [
   { icon: Zap,      text: "Chart Analysis",        chip: "bg-purple-500/20 text-purple-200 ring-purple-400/40 shadow-[0_0_18px_-2px_rgba(168,85,247,0.65)]" },
   { icon: Bot,      text: "AI Trading Bot",        chip: "bg-fuchsia-500/20 text-fuchsia-200 ring-fuchsia-400/40 shadow-[0_0_18px_-2px_rgba(217,70,239,0.65)]" },
-  { icon: Activity, text: "TradingView indicator", chip: "bg-sky-500/20 text-sky-200 ring-sky-400/40 shadow-[0_0_18px_-2px_rgba(56,189,248,0.6)]" },
 ]
 
 function FreeUsedUpsell() {
@@ -848,7 +892,7 @@ function FreeUsedUpsell() {
         </div>
       </div>
 
-      <ul className="relative mt-5 grid gap-2.5 sm:grid-cols-3">
+      <ul className="relative mt-5 grid gap-2.5 sm:grid-cols-2">
         {PRO_PERKS.map(({ icon: Icon, text, chip }) => (
           // Solid fill (not translucent) so the grid doesn't show through
           <li key={text} className="flex items-center gap-3 rounded-xl border border-white/10 bg-[#121026] px-3.5 py-3 text-sm font-medium text-white">
@@ -884,10 +928,14 @@ export default function ChartAnalysisPage() {
   const [phase,    setPhase]    = useState<Phase>("idle")
   const [variant,  setVariant]  = useState("v2")
   const [file,     setFile]     = useState<File | null>(null)
-  const [preview,  setPreview]  = useState<string | null>(null)
+  const [image,    setImage]    = useState<ChartImage | null>(null)
   const [result,   setResult]   = useState<AnalysisResult | null>(null)
   const [apiError, setApiError] = useState<string | null>(null)
   const [uploadError, setUploadError] = useState<string | null>(null)
+  // A file is being dragged over the page
+  const [dragging, setDragging] = useState(false)
+  // Counts picks, so a slow-to-open file can't land after a newer pick or a reset
+  const pickId = useRef(0)
   // Lock only once the plan is known: while the session loads, a Pro user
   // would otherwise see the "Pro feature" lock flash over their own page.
   // Free accounts stay unlocked while their free analysis is available.
@@ -918,45 +966,128 @@ export default function ChartAnalysisPage() {
     [analysesData]
   )
 
-  const handleFile = useCallback((f: File) => {
+  // A rejected file leaves things as they are: the drop zone, or the chart
+  // already picked, stays, with the reason shown under it
+  const handleFile = useCallback(async (f: File) => {
+    const id = ++pickId.current
+    let opened: ChartImage | null = null
+    let problem: string | null = null
     if (!f.type.startsWith("image/")) {
-      setUploadError("Please choose an image file (PNG, JPG, or WEBP).")
-      setPhase("idle")
+      problem = "Please choose an image file (PNG, JPG, or WEBP)."
+    } else if (f.size > MAX_SOURCE_BYTES) {
+      problem = "That image is over 20 MB. Please choose a smaller one."
+    } else {
+      opened = await openImage(f).catch(() => null)
+      if (!opened) problem = "We couldn't open that file. Please use a PNG, JPG or WEBP screenshot."
+    }
+    // Overtaken while it was opening (a newer pick, Analyze or a reset)
+    if (id !== pickId.current) {
+      if (opened) URL.revokeObjectURL(opened.url)
       return
     }
-    if (f.size > MAX_UPLOAD_BYTES) {
-      setUploadError("That image is over 5 MB — please choose a smaller one.")
-      setPhase("idle")
+    if (!opened) {
+      setUploadError(problem)
       return
     }
     setUploadError(null)
-    setFile(f)
     setApiError(null)
-    const reader = new FileReader()
-    reader.onload = (e) => setPreview(e.target?.result as string)
-    reader.readAsDataURL(f)
+    setFile(f)
+    setImage(opened)
     setPhase("selected")
   }, [])
 
-  const handleDrop = useCallback((e: React.DragEvent) => {
-    const f = e.dataTransfer.files?.[0]
-    if (f) handleFile(f)
-    else    setPhase("idle")
-  }, [handleFile])
+  // The preview is a local object URL: let go of it when the picture is
+  // replaced or removed, and when the page closes
+  useEffect(() => {
+    if (!image) return
+    return () => URL.revokeObjectURL(image.url)
+  }, [image])
+
+  // A new chart can come in while the drop zone or a picked chart is showing
+  const acceptsFile = !locked && (phase === "idle" || phase === "selected")
+  const isDragging = dragging && acceptsFile
+
+  // Dropping and pasting work anywhere on the page, not only on the drop zone.
+  // A near miss used to make the browser open the picture and leave the page;
+  // now the page takes it, and a new picture replaces the one already picked.
+  useEffect(() => {
+    const hasFiles = (e: DragEvent) => !!e.dataTransfer?.types.includes("Files")
+    // Every element the drag is inside right now. A plain "left the zone" check
+    // fires each time the pointer crosses a child, which made the highlight flicker.
+    const entered = new Set<EventTarget>()
+
+    const onDragEnter = (e: DragEvent) => {
+      if (!hasFiles(e)) return
+      e.preventDefault()
+      if (e.target) entered.add(e.target)
+      setDragging(true)
+    }
+    const onDragOver = (e: DragEvent) => {
+      if (!hasFiles(e)) return
+      e.preventDefault()
+      if (e.dataTransfer) e.dataTransfer.dropEffect = acceptsFile ? "copy" : "none"
+    }
+    const onDragLeave = (e: DragEvent) => {
+      if (!hasFiles(e)) return
+      if (e.target) entered.delete(e.target)
+      for (const t of entered) {
+        if (!(t instanceof Node) || !document.contains(t)) entered.delete(t)
+      }
+      if (entered.size === 0) setDragging(false)
+    }
+    const onDrop = (e: DragEvent) => {
+      if (!hasFiles(e)) return
+      e.preventDefault()
+      entered.clear()
+      setDragging(false)
+      if (!acceptsFile) return
+      const files = Array.from(e.dataTransfer?.files ?? [])
+      const f = files.find((x) => x.type.startsWith("image/")) ?? files[0]
+      if (f) void handleFile(f)
+    }
+    // Ctrl+V with a screenshot on the clipboard. Text fields keep their own
+    // paste (the support chat box), and so does any paste without a picture.
+    const onPaste = (e: ClipboardEvent) => {
+      if (!acceptsFile) return
+      if (e.target instanceof Element && e.target.closest("input, textarea, [contenteditable]")) return
+      const f = Array.from(e.clipboardData?.files ?? []).find((x) => x.type.startsWith("image/"))
+      if (!f) return
+      e.preventDefault()
+      void handleFile(f)
+    }
+
+    window.addEventListener("dragenter", onDragEnter)
+    window.addEventListener("dragover", onDragOver)
+    window.addEventListener("dragleave", onDragLeave)
+    window.addEventListener("drop", onDrop)
+    window.addEventListener("paste", onPaste)
+    return () => {
+      window.removeEventListener("dragenter", onDragEnter)
+      window.removeEventListener("dragover", onDragOver)
+      window.removeEventListener("dragleave", onDragLeave)
+      window.removeEventListener("drop", onDrop)
+      window.removeEventListener("paste", onPaste)
+    }
+  }, [acceptsFile, handleFile])
 
   const handleAnalyze = async () => {
     if (!file) return
+    pickId.current++
     setPhase("analyzing")
     setApiError(null)
+    setUploadError(null)
 
     try {
-      // Downscale client-side before sending, mainly to cap upload size —
-      // see resizeForUpload for why the cap itself is 1536 px, not smaller.
-      const resized = await resizeForUpload(file, UPLOAD_MAX_PX, UPLOAD_JPEG_QUALITY).catch(() => {
+      // Downscale client-side before sending: see UPLOAD_MAX_PX for why the
+      // cap is what it is. A PNG screenshot stays a PNG when it is small enough.
+      const resized = await resizeForUpload(file, UPLOAD_MAX_PX, UPLOAD_JPEG_QUALITY, {
+        keepPngUnder: UPLOAD_PNG_MAX_BYTES,
+        fits: fitsModel,
+      }).catch(() => {
         throw new ApiError("We couldn't read that image file. Please upload a PNG or JPG screenshot.")
       })
       const form = new FormData()
-      form.append("image", resized, file.name.replace(/\.[^.]+$/, ".jpg"))
+      form.append("image", resized, file.name.replace(/\.[^.]+$/, "") + (resized.type === "image/png" ? ".png" : ".jpg"))
       if (variantOpts.length > 1) form.append("variant", variant)
 
       const data = await requestJson<{ analysis?: AnalysisResult }>("/api/analyze", { method: "POST", body: form })
@@ -983,10 +1114,11 @@ export default function ChartAnalysisPage() {
   }
 
   const handleReset = () => {
+    pickId.current++
     setFreeJustUsed(false)
     setPhase("idle")
     setFile(null)
-    setPreview(null)
+    setImage(null)
     setResult(null)
     setApiError(null)
     setUploadError(null)
@@ -1029,24 +1161,22 @@ export default function ChartAnalysisPage() {
                 server HTML) until the JS ran, so on phones it showed up late.
                 Later swaps (preview, results, back) still cross-fade. */}
             <AnimatePresence mode="wait" initial={false}>
-              {(phase === "idle" || phase === "dragging") && (
+              {phase === "idle" && (
                 <motion.div key="dropzone" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
                   <DropZone
-                    phase={phase}
+                    isDragging={isDragging}
                     error={uploadError}
-                    onDragEnter={() => setPhase("dragging")}
-                    onDragLeave={() => setPhase("idle")}
-                    onDrop={handleDrop}
                     onFileSelect={handleFile}
                   />
                 </motion.div>
               )}
 
-              {phase === "selected" && (
+              {phase === "selected" && image && (
                 <SelectedView
                   key="selected"
-                  filename={file?.name ?? ""}
-                  preview={preview}
+                  image={image}
+                  isDragging={isDragging}
+                  uploadError={uploadError}
                   error={apiError}
                   onAnalyze={handleAnalyze}
                   onReset={handleReset}
@@ -1054,13 +1184,13 @@ export default function ChartAnalysisPage() {
               )}
 
               {phase === "analyzing" && (
-                <AnalyzingView key="analyzing" filename={file?.name ?? ""} />
+                <AnalyzingView key="analyzing" filename={file?.name ?? ""} size={image} />
               )}
 
               {phase === "results" && result && (
                 <ResultsView
                   key="results"
-                  preview={preview}
+                  image={image}
                   filename={file?.name ?? ""}
                   result={result}
                   onReset={handleReset}

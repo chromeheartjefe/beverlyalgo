@@ -251,7 +251,7 @@ function UploadPhase() {
       </motion.div>
 
       <p className="relative mt-4 text-sm font-semibold text-gray-200">{dragging ? "Drop to analyze" : "Tap to upload your chart"}</p>
-      <p className="relative mt-1 text-xs text-gray-600">or drag and drop · PNG, JPG, WEBP up to 5 MB</p>
+      <p className="relative mt-1 text-xs text-gray-600">or drag and drop · PNG, JPG, WEBP up to 20 MB</p>
       <span className="relative mt-5 inline-flex items-center rounded-xl border border-white/15 bg-white/[0.05] px-5 py-2.5 text-sm font-medium text-gray-300">
         Browse files
       </span>
@@ -578,20 +578,25 @@ export function AiChartAnalyserPreview() {
 
             {/* ── Right: animated preview ── */}
             <div className="flex items-center justify-center border-t border-white/15 bg-gradient-to-br from-[#0b0b1e] to-[#050510] p-4 lg:border-l lg:border-t-0 lg:p-10">
-              {/* Phones: the demo is drawn on a taller canvas and scaled down
-                  further, so the tallest phase (results) has room to spare and
-                  nothing is clipped; narrower phones scale down more. The three
-                  zoom ranges don't overlap. Tablets and PC are as before. */}
-              <div className="flex h-[372px] w-full max-w-sm flex-col justify-center overflow-hidden max-[359px]:[zoom:0.66] min-[360px]:max-sm:[zoom:0.75] sm:h-[340px] sm:max-lg:[zoom:0.85] lg:h-[400px] lg:overflow-visible">
-                <DemoLiveContext.Provider value={live}>
-                  <MotionConfig reducedMotion="user">
-                    <AnimatePresence mode="wait">
-                      {phase === "upload"    && <UploadPhase    key="upload" />}
-                      {phase === "analyzing" && <AnalyzingPhase key="analyzing" />}
-                      {phase === "results"   && <ResultsPhase   key="results" />}
-                    </AnimatePresence>
-                  </MotionConfig>
-                </DemoLiveContext.Provider>
+              {/* Below PC the demo is drawn at full size on a fixed canvas and
+                  shrunk as a whole: 0.66 on the narrowest phones, 0.75 on
+                  phones (on a taller canvas, so the tallest phase has room),
+                  0.85 on tablets. The frame takes the shrunk size, the canvas
+                  inside is scaled with a transform. Not the CSS zoom property:
+                  iPhone Safari leaves text at full size under zoom, which made
+                  the demo overflow its box and get cut off there. */}
+              <div className="w-full max-w-[calc(24rem*var(--demo-scale))] overflow-hidden [--demo-scale:0.66] h-[calc(372px*var(--demo-scale))] min-[360px]:[--demo-scale:0.75] sm:[--demo-scale:0.85] sm:h-[calc(340px*var(--demo-scale))] lg:h-[400px] lg:max-w-sm lg:overflow-visible">
+                <div className="flex h-[372px] w-[calc(100%/var(--demo-scale))] origin-top-left [transform:scale(var(--demo-scale))] flex-col justify-center sm:h-[340px] lg:h-[400px] lg:w-full lg:[transform:none]">
+                  <DemoLiveContext.Provider value={live}>
+                    <MotionConfig reducedMotion="user">
+                      <AnimatePresence mode="wait">
+                        {phase === "upload"    && <UploadPhase    key="upload" />}
+                        {phase === "analyzing" && <AnalyzingPhase key="analyzing" />}
+                        {phase === "results"   && <ResultsPhase   key="results" />}
+                      </AnimatePresence>
+                    </MotionConfig>
+                  </DemoLiveContext.Provider>
+                </div>
               </div>
             </div>
 

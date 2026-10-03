@@ -27,6 +27,7 @@ import {
 } from "lucide-react"
 
 import type { AnalysisResult } from "@/app/dashboard/chart-analysis/page"
+import { ChartFrame, type ChartImage, ChartPicture } from "@/components/dashboard/chart-frame"
 import { fmtPrice } from "@/lib/format"
 import { RR_TIERS, rrTier } from "@/lib/risk-reward"
 import { cn } from "@/lib/utils"
@@ -673,19 +674,26 @@ function StructureCard({ result, className }: { result: AnalysisResult; classNam
 // ─── Results ──────────────────────────────────────────────────────────────────
 
 export function ResultsView({
-  preview,
+  image,
   filename,
   result,
   onReset,
   footer,
 }: {
-  preview: string | null
+  image: ChartImage | null
   filename: string
   result: AnalysisResult
   onReset: () => void
   // Shown under the full analysis, e.g. the upgrade card after a free one
   footer?: React.ReactNode
 }) {
+  // Sits on the picture without taking its taps (a tap opens the chart full size)
+  const analyzedBadge = (
+    <span className="pointer-events-none absolute right-3 top-3 flex items-center gap-1 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-2.5 py-1 text-xs text-emerald-400">
+      <CheckCircle className="size-3" /> Analyzed
+    </span>
+  )
+
   return (
     <motion.div
       initial={{ opacity: 0 }}
@@ -718,12 +726,17 @@ export function ResultsView({
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.1, duration: 0.3 }}
-        className="relative overflow-hidden rounded-2xl border border-white/15 bg-[#08080f]"
       >
-        {preview ? (
-          <img src={preview} alt="Analyzed chart" className="max-h-[420px] w-full object-contain" />
+        {/* Same frame as the picked chart, so the picture keeps its size. The
+            whole screenshot shows (down to the time axis) and a tap opens it
+            full size. */}
+        {image ? (
+          <ChartPicture image={image} alt="Analyzed chart">
+            {analyzedBadge}
+          </ChartPicture>
         ) : (
-          <svg viewBox="0 0 400 180" className="h-44 w-full opacity-60">
+          <ChartFrame>
+          <svg viewBox="0 0 400 180" className="absolute inset-0 size-full opacity-60">
             {(
               [
                 [20,  100, 118, 95,  123, false],
@@ -751,11 +764,10 @@ export function ResultsView({
             <line x1={0} y1={35}  x2={380} y2={35}  stroke="rgba(251,191,36,0.4)"  strokeWidth={1} strokeDasharray="5 4" />
             <line x1={0} y1={118} x2={380} y2={118} stroke="rgba(248,113,113,0.4)" strokeWidth={1} strokeDasharray="5 4" />
           </svg>
+          <div className="pointer-events-none absolute inset-x-0 bottom-0 h-8 bg-gradient-to-t from-[#08080f] to-transparent" />
+          {analyzedBadge}
+          </ChartFrame>
         )}
-        <div className="pointer-events-none absolute inset-x-0 bottom-0 h-8 bg-gradient-to-t from-[#08080f] to-transparent" />
-        <span className="absolute right-3 top-3 flex items-center gap-1 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-2.5 py-1 text-xs text-emerald-400">
-          <CheckCircle className="size-3" /> Analyzed
-        </span>
       </motion.div>
 
       {/* Analysis block */}
