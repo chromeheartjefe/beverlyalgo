@@ -44,3 +44,7 @@ next-env.d.ts
 
 # local-only TradingView indicator work (Pine scripts, reference scripts, screenshots)
 /.indicator/
+
+# the original paper trading prototype (TradingView-styled, with its own copies of the skills): local reference only,
+# kept out of git and out of the Tailwind scan. The product version lives in lib/sim and components/dashboard/paper-trading.
+/trading simulator/

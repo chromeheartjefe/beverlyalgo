@@ -360,3 +360,62 @@ export const academyCertificates = pgTable("academy_certificates", {
 })
 
 export type AcademyCertificate = typeof academyCertificates.$inferSelect
+
+// ─── Paper Trading ───────────────────────────────────────────────────────────
+// The practice account of the Paper Trading tab (lib/sim). Virtual money only.
+// One row per player: the account they are on now, plus their totals.
+export const simAccounts = pgTable("sim_accounts", {
+  userId:       text("user_id").primaryKey().references(() => users.id, { onDelete: "cascade" }),
+  level:        integer("level").notNull().default(1),
+  startBalance: doublePrecision("start_balance").notNull(),
+  balance:      doublePrecision("balance").notNull(),
+  peak:         doublePrecision("peak").notNull(),
+  // The player's local "YYYY-MM-DD" the daily loss limit is counting, and the balance that day started with
+  dayKey:       varchar("day_key", { length: 10 }),
+  dayStart:     doublePrecision("day_start").notNull(),
+  trades:       integer("trades").notNull().default(0),
+  status:       varchar("status", { length: 16 }).notNull().default("active"), // active | passed | failed
+  failReason:   varchar("fail_reason", { length: 16 }),                         // drawdown | daily
+  bestLevel:    integer("best_level").notNull().default(1),
+  passes:       integer("passes").notNull().default(0),
+  fails:        integer("fails").notNull().default(0),
+  createdAt:    timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  updatedAt:    timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+})
+
+// Closed practice trades. The browser reports prices; pnl, r and risk_pct are
+// worked out on the server. Only the newest are kept per player (lib/sim/server.ts).
+export const simTrades = pgTable("sim_trades", {
+  id:           text("id").primaryKey().$defaultFn(() => crypto.randomUUID()),
+  userId:       text("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  level:        integer("level").notNull(),
+  side:         varchar("side", { length: 8 }).notNull(),    // long | short
+  entry:        doublePrecision("entry").notNull(),
+  exit:         doublePrecision("exit").notNull(),
+  qty:          doublePrecision("qty").notNull(),
+  stop:         doublePrecision("stop").notNull(),
+  target:       doublePrecision("target"),
+  pnl:          doublePrecision("pnl").notNull(),
+  r:            doublePrecision("r").notNull(),
+  riskPct:      doublePrecision("risk_pct").notNull(),
+  reason:       varchar("reason", { length: 12 }).notNull(), // target | stop | manual
+  spike:        boolean("spike").notNull().default(false),
+  lockedIn:     boolean("locked_in").notNull().default(false),
+  balanceAfter: doublePrecision("balance_after").notNull(),
+  closedAt:     timestamp("closed_at", { withTimezone: true }).notNull().defaultNow(),
+}, (table) => [
+  index("sim_trades_user_closed_idx").on(table.userId, table.closedAt),
+])
+
+export type SimTradeRow = typeof simTrades.$inferSelect
+
+// A mission the player has completed (lib/sim/missions.ts). Each pays its XP once.
+export const simMissions = pgTable("sim_missions", {
+  id:          text("id").primaryKey().$defaultFn(() => crypto.randomUUID()),
+  userId:      text("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  missionId:   varchar("mission_id", { length: 48 }).notNull(),
+  xp:          integer("xp").notNull(),
+  completedAt: timestamp("completed_at", { withTimezone: true }).notNull().defaultNow(),
+}, (table) => [
+  uniqueIndex("sim_missions_user_mission_idx").on(table.userId, table.missionId),
+])
