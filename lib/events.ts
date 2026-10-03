@@ -1,3 +1,5 @@
+import { and, eq, gt } from "drizzle-orm"
+
 import { db } from "@/db"
 import { userEvents } from "@/db/schema"
 
@@ -18,7 +20,8 @@ export type UserEventType =
   | "email_changed"         // meta.from / meta.to
   | "email_verified"
   | "indicator_requested"   // meta.username
-  | "checkout_abandoned"    // opened a Stripe payment page and never paid; meta.plan, meta.openedAt
+  | "checkout_opened"       // opened the site's own checkout page; meta.plan (the first plan looked at); once a day per account
+  | "checkout_abandoned"    // opened a Stripe payment page and never paid; meta.plan, meta.openedAt; once a day per account
 
 /**
  * Best-effort: never throws, so a logging problem can't break the action
@@ -31,4 +34,23 @@ export async function logEvent(userId: string, type: UserEventType, meta?: Recor
   } catch (err) {
     console.error("[events] failed to log", type, err)
   }
+}
+
+/**
+ * logEvent, unless this account already has the same event within the last
+ * `withinMs`. For funnel steps that should count people, not page loads.
+ * Best-effort like logEvent: two requests at the same instant can both log.
+ */
+export async function logEventOnce(userId: string, type: UserEventType, withinMs: number, meta?: Record<string, unknown>): Promise<void> {
+  try {
+    const [recent] = await db
+      .select({ id: userEvents.id })
+      .from(userEvents)
+      .where(and(eq(userEvents.userId, userId), eq(userEvents.type, type), gt(userEvents.createdAt, new Date(Date.now() - withinMs))))
+      .limit(1)
+    if (recent) return
+  } catch (err) {
+    console.error("[events] failed to check", type, err)
+  }
+  await logEvent(userId, type, meta)
 }

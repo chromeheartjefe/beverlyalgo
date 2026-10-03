@@ -7,14 +7,14 @@ import useSWR from "swr";
 
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Reveal, RevealGroup,revealItem } from "@/components/ui/reveal";
-import { Sparkles as SparklesComp } from "@/components/ui/sparkles";
+import { StarField } from "@/components/ui/star-field";
+import { checkoutPath, PAID_PLANS, type PaidPlan, SITE_CHECKOUT_ENABLED } from "@/config/plans";
 import type { PlanStatus } from "@/lib/plan-status";
 import { fetcher } from "@/lib/swr";
 import { cn } from "@/lib/utils";
 
 const PRO_FEATURES = [
   "Everything included:",
-  "Invite-only TradingView indicator access",
   "Unlimited AI chart analysis",
   "AI trading assistant chat",
   "Pattern recognition & signal detection",
@@ -44,6 +44,8 @@ type Plan = {
   popular: boolean
   // Stripe Payment Link; null for Free (account sign-up instead)
   buttonHref: string | null
+  // Which paid plan the site's own checkout opens; null for Free
+  checkout: PaidPlan | null
   features: string[]
 }
 
@@ -56,26 +58,29 @@ const plans: Plan[] = [
     buttonText: "Create free account",
     popular: false,
     buttonHref: null,
+    checkout: null,
     features: FREE_FEATURES,
   },
   {
     name: "EntrixAlgo PRO™ Monthly",
     description: "Billed monthly. Cancel anytime.",
-    price: 49,
+    price: PAID_PLANS.monthly.price,
     period: "month",
     buttonText: "Get started",
-    popular: false,
-    buttonHref: "https://buy.stripe.com/4gMcMYeZkeoI5Pibz26wE04",
+    popular: true,
+    buttonHref: PAID_PLANS.monthly.paymentLink,
+    checkout: "monthly",
     features: PRO_FEATURES,
   },
   {
     name: "EntrixAlgo PRO™ Lifetime",
     description: "One-time payment. Yours forever, no renewals.",
-    price: 299,
+    price: PAID_PLANS.lifetime.price,
     period: "lifetime",
     buttonText: "Get lifetime access",
-    popular: true,
-    buttonHref: "https://buy.stripe.com/00w14geZkdkE6Tm1Ys6wE0a",
+    popular: false,
+    buttonHref: PAID_PLANS.lifetime.paymentLink,
+    checkout: "lifetime",
     features: PRO_FEATURES,
   },
 ];
@@ -83,15 +88,21 @@ const plans: Plan[] = [
 export default function PricingSection4() {
   const { data: session, status } = useSession();
 
-  const getCheckoutHref = (baseHref: string) => {
+  const getCheckoutHref = (baseHref: string, checkout: PaidPlan | null) => {
+    const user = status === "authenticated" && session?.user?.email ? { id: session.user.id, email: session.user.email } : null;
+    // The site's own checkout page, when it is switched on. Signed out: sign
+    // up first, then land on the checkout for the plan that was clicked.
+    if (SITE_CHECKOUT_ENABLED && checkout) {
+      return user ? checkoutPath(checkout) : `/sign-up?callbackUrl=${encodeURIComponent(checkoutPath(checkout))}`;
+    }
     // Signed out: most are new visitors, so they start at sign-up (which links
     // to sign-in) and come back here with an account to pick their plan
-    if (status !== "authenticated" || !session?.user?.email) {
+    if (!user) {
       return "/sign-up?callbackUrl=%2F%23pricing";
     }
     const params = new URLSearchParams({
-      client_reference_id: session.user.id,
-      prefilled_email:     session.user.email,
+      client_reference_id: user.id,
+      prefilled_email:     user.email,
     });
     return `${baseHref}?${params.toString()}`;
   };
@@ -119,21 +130,15 @@ export default function PricingSection4() {
 
   // Free: make an account, or go straight in when already signed in
   const hrefFor = (plan: Plan) =>
-    owned(plan)?.href ?? (plan.buttonHref ? getCheckoutHref(plan.buttonHref) : status === "authenticated" ? "/dashboard" : "/sign-up");
+    owned(plan)?.href ?? (plan.buttonHref ? getCheckoutHref(plan.buttonHref, plan.checkout) : status === "authenticated" ? "/dashboard" : "/sign-up");
   const labelFor = (plan: Plan) =>
     owned(plan)?.label ?? (!plan.buttonHref && status === "authenticated" ? (isPro ? "You're on Pro" : "Go to dashboard") : plan.buttonText);
 
   return (
     <div className="min-h-screen sm:min-h-0 mx-auto relative overflow-x-hidden">
-      {/* Sparkles background — grid comes from body via globals.css */}
-      <div className="absolute top-0 h-96 w-full overflow-hidden [mask-image:radial-gradient(50%_50%,white,transparent)]">
-        <SparklesComp
-          density={150}
-          direction="bottom"
-          speed={0.8}
-          color="#FFFFFF"
-          className="absolute inset-x-0 bottom-0 h-full w-full [mask-image:radial-gradient(50%_50%,white,transparent_85%)]"
-        />
+      {/* Starry background (grid comes from body via globals.css) */}
+      <div className="absolute top-0 h-96 w-full overflow-hidden [mask-image:radial-gradient(70%_75%,white,transparent)]">
+        <StarField className="absolute inset-0 h-full w-full" />
       </div>
 
       {/* Purple glow ellipse */}
@@ -151,7 +156,7 @@ export default function PricingSection4() {
       {/* Heading */}
       <Reveal className="text-center mb-6 pt-12 sm:pt-16 max-w-3xl mx-auto space-y-4 relative z-30 px-6">
         <article>
-          <h2 className="from-foreground to-foreground dark:to-brand bg-linear-to-r bg-clip-text text-3xl font-extrabold text-transparent drop-shadow-[0_0_24px_var(--brand-foreground)] sm:font-bold sm:text-5xl pb-2">
+          <h2 className="from-foreground to-foreground dark:to-brand bg-linear-to-r bg-clip-text text-3xl font-extrabold text-transparent drop-shadow-[0_0_24px_var(--brand-foreground)] sm:text-5xl pb-2">
             Accelerate your trading potential, today.
           </h2>
 
@@ -210,7 +215,7 @@ export default function PricingSection4() {
               {plan.popular && (
                 <div className="absolute -top-3 left-1/2 -translate-x-1/2 z-30">
                   <span className="bg-purple-600 text-white text-xs font-semibold px-3 py-1 rounded-full border border-purple-400 shadow-lg shadow-purple-900/50">
-                    Best Value
+                    Most Popular
                   </span>
                 </div>
               )}

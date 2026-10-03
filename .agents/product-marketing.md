@@ -17,7 +17,7 @@ What the product does in practice: upload a chart screenshot, get an AI read wit
 Pro (paid):
 - **AI Chart Analysis**: the core product. Screenshot in, structured trade plan out (signal, confidence, entry, TP1, TP2, stop, R:R, patterns, market structure, risk notes). Works on any chart from any platform.
 - **AI Trading Bot**: chat assistant with live market data and news.
-- **TradingView indicator**: invite-only. Still in development as of 2026-10-02; paying users who requested it have been told "within the next few days". Do not promise a date or call it a direct TradingView invite.
+- **TradingView indicator**: pulled from the site on 2026-10-03 and not part of Pro for now. Its dashboard tab says it is under construction. The few Pro members who had asked for it get an early version by email. Do not sell it, promise a date, or make performance claims about it.
 
 Free on every account:
 - 1 AI Chart Analysis (verified email, one per inbox)
@@ -30,8 +30,8 @@ Free on every account:
 | Plan | Price | Notes |
 |---|---|---|
 | Free | $0 | No card. 1 chart analysis plus the free tools. |
-| Pro Monthly | $49/month | Cancel anytime. Every sale so far is this plan. |
-| Pro Lifetime | $299 once | Marked "Best Value" on the pricing section. 0 sales. |
+| Pro Monthly | $49/month | Cancel anytime. Every sale so far is this plan. Highlighted as "Most Popular" on the pricing section since 2026-10-03. |
+| Pro Lifetime | $299 once | Was highlighted as "Best Value" until 2026-10-03; now a plain card. 0 sales. |
 
 - Checkout is two Stripe Payment Links. Buttons live on the landing page pricing section (`/#pricing`); every "Upgrade to Pro" button in the dashboard links there.
 - No free trial (owner rejected a card-up-front trial: a few days of trading is luck, plus cancel and dispute risk).

@@ -29,7 +29,8 @@ export default async function middleware(req: NextRequest) {
 
   if (!token) {
     const loginUrl = new URL("/sign-in", req.nextUrl.origin)
-    loginUrl.searchParams.set("callbackUrl", req.nextUrl.pathname)
+    // With the query, so /checkout?plan=lifetime comes back to the same plan
+    loginUrl.searchParams.set("callbackUrl", req.nextUrl.pathname + req.nextUrl.search)
     return NextResponse.redirect(loginUrl)
   }
 
@@ -37,5 +38,5 @@ export default async function middleware(req: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/dashboard/:path*"],
+  matcher: ["/dashboard/:path*", "/checkout/:path*"],
 }

@@ -2,11 +2,14 @@ import { and, eq, isNull } from "drizzle-orm"
 import { NextRequest, NextResponse } from "next/server"
 import type Stripe from "stripe"
 
+import { PAID_PLANS } from "@/config/plans"
 import { db } from "@/db"
 import { processedStripeEvents, users } from "@/db/schema"
+import { planOfSiteCheckout } from "@/lib/checkout"
+import { fulfillCheckout, wasDuplicate } from "@/lib/checkout-fulfillment"
 import { sendBillingAlert } from "@/lib/email"
 import { requireEnv } from "@/lib/env"
-import { logEvent } from "@/lib/events"
+import { logEventOnce } from "@/lib/events"
 import { stripe } from "@/lib/stripe"
 
 // Events this endpoint needs switched on in the Stripe dashboard (Developers >
@@ -18,166 +21,17 @@ import { stripe } from "@/lib/stripe"
 //   charge.refunded, charge.dispute.created, charge.dispute.closed,
 //   radar.early_fraud_warning.created
 
-// Maps the exact Payment Link URLs used in components/ui/pricing-section-4.tsx
-// to our internal plan slug — avoids needing custom metadata set up in the
-// Stripe dashboard. The Monthly link is a recurring subscription; the Lifetime
-// link is a one-time payment (session.mode === "payment", no subscription) —
-// handleCheckoutCompleted branches on that so a one-time purchase still grants
-// "pro" instead of being silently dropped by a subscription-only check.
-const MONTHLY_LINK  = "https://buy.stripe.com/4gMcMYeZkeoI5Pibz26wE04" // subscription
-const LIFETIME_LINK = "https://buy.stripe.com/00w14geZkdkE6Tm1Ys6wE0a" // one-time
-
-const PAYMENT_LINK_URL_TO_PLAN: Record<string, string> = {
-  [MONTHLY_LINK]:  "pro",
-  [LIFETIME_LINK]: "pro",
-}
+// Granting Pro for a paid checkout lives in lib/checkout-fulfillment.ts, shared
+// with the checkout confirmation page. What stays here: everything that
+// happens to a purchase afterwards (renewals, cancellations, refunds, disputes).
+const LIFETIME_LINK = PAID_PLANS.lifetime.paymentLink // one-time
+const DAY_MS = 24 * 60 * 60 * 1000
 
 async function downgradeBySubscriptionId(subscriptionId: string) {
   await db
     .update(users)
     .set({ plan: "free", stripeSubscriptionId: null, stripeCurrentPeriodEnd: null })
     .where(eq(users.stripeSubscriptionId, subscriptionId))
-}
-
-const customerUrl = (customerId: string) => `https://dashboard.stripe.com/customers/${customerId}`
-
-const money = (session: Stripe.Checkout.Session) =>
-  session.amount_total == null ? "unknown" : `${(session.amount_total / 100).toFixed(2)} ${(session.currency ?? "usd").toUpperCase()}`
-
-// ─── Buying twice ──────────────────────────────────────────────────────────────
-// The pricing section hides the buy buttons from Pro accounts, but a payment
-// link can still be opened from an old tab or a saved address. A purchase that
-// duplicates what the account already has is never applied: the account keeps
-// exactly what it had, a new subscription is cancelled on the spot so it can't
-// bill again, and support gets an email to refund the payment. Nothing is
-// refunded automatically.
-
-type Account = { email: string; plan: string; customerId: string | null; subscriptionId: string | null }
-
-/** Pro without a subscription, bought through Stripe: a Lifetime account */
-const hasLifetime = (account: Account) => account.plan === "pro" && !account.subscriptionId && !!account.customerId
-
-async function reportDuplicate(account: Account, session: Stripe.Checkout.Session, had: string, bought: string, done: string) {
-  console.warn(`[/api/webhooks/stripe] Duplicate purchase (${bought}) on an account with ${had}; not applied`)
-  await sendBillingAlert({
-    subject: `Duplicate purchase to refund: ${account.email}`,
-    title:   "Duplicate purchase, refund needed",
-    summary: `This account paid for ${bought} while it already had ${had}. The account was left as it was. ${done}`,
-    rows: [
-      ["Account", account.email],
-      ["Already had", had],
-      ["Paid for", bought],
-      ["Amount", money(session)],
-    ],
-    action: "Refund this payment in Stripe. It was not refunded automatically.",
-    url:    customerUrl(String(session.customer)),
-  })
-}
-
-async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
-  const userId = session.client_reference_id
-  if (!userId || !session.payment_link || !session.customer) return
-
-  const paymentLink = await stripe.paymentLinks.retrieve(String(session.payment_link))
-  const plan = PAYMENT_LINK_URL_TO_PLAN[paymentLink.url]
-  if (!plan) return
-
-  const customerId = String(session.customer)
-  const [existing] = await db
-    .select({ email: users.email, plan: users.plan, customerId: users.stripeCustomerId, subscriptionId: users.stripeSubscriptionId })
-    .from(users)
-    .where(eq(users.id, userId))
-    .limit(1)
-
-  if (session.mode === "subscription" && session.subscription) {
-    const subscription = await stripe.subscriptions.retrieve(String(session.subscription))
-
-    // Already Pro, and this is a different subscription from the one on file
-    if (existing?.plan === "pro" && existing.subscriptionId !== subscription.id) {
-      let duplicateOf: string | null = null
-      if (hasLifetime(existing)) {
-        duplicateOf = "Lifetime access"
-      } else if (existing.subscriptionId) {
-        // A healthy subscription makes the new one a duplicate. One that is
-        // ending, cancelled or failing to renew doesn't: then the new purchase
-        // is the customer coming back, and it replaces the old one below.
-        // Only "no such subscription" counts as gone. Any other error fails the
-        // event so Stripe retries it, rather than guessing and billing twice.
-        const current = await stripe.subscriptions.retrieve(existing.subscriptionId).catch((err) => {
-          if ((err as { code?: string })?.code === "resource_missing") return null
-          throw err
-        })
-        const healthy = !!current && (current.status === "active" || current.status === "trialing") && !current.cancel_at_period_end && !current.cancel_at
-        if (healthy) {
-          duplicateOf = "an active Monthly subscription"
-        } else if (current && (current.status === "past_due" || current.status === "unpaid" || current.status === "incomplete")) {
-          // Stop the failing one from retrying the old card. This runs before
-          // the row below takes the new subscription id; if its deleted event
-          // arrives first, the row is fixed by the update right after.
-          await stripe.subscriptions.cancel(current.id).catch((err) =>
-            console.error("[/api/webhooks/stripe] Couldn't cancel the replaced subscription:", current.id, err))
-        }
-      }
-
-      if (duplicateOf) {
-        let done = "The new subscription was cancelled, so it will not bill again."
-        try {
-          await stripe.subscriptions.cancel(subscription.id)
-        } catch (err) {
-          console.error("[/api/webhooks/stripe] Couldn't cancel a duplicate subscription:", subscription.id, err)
-          done = "The new subscription could NOT be cancelled automatically: cancel it in Stripe as well."
-        }
-        await reportDuplicate(existing, session, duplicateOf, "a Monthly subscription", done)
-        return
-      }
-    }
-
-    const currentPeriodEnd = subscription.items.data[0]?.current_period_end
-
-    await db
-      .update(users)
-      .set({
-        plan,
-        stripeCustomerId:       customerId,
-        stripeSubscriptionId:   subscription.id,
-        stripeCurrentPeriodEnd: currentPeriodEnd ? new Date(currentPeriodEnd * 1000) : null,
-      })
-      .where(eq(users.id, userId))
-  } else {
-    // One-time purchase (e.g. Lifetime) — no subscription to track or ever expire.
-
-    // A second Lifetime. The Stripe customer on file stays the first purchase's:
-    // refunding this one must not look like a refund of the access they keep.
-    // (Same customer = this very purchase delivered again, so it falls through.)
-    if (existing && hasLifetime(existing) && existing.customerId !== customerId) {
-      await reportDuplicate(existing, session, "Lifetime access", "Lifetime access again", "There is no subscription to cancel.")
-      return
-    }
-
-    await db
-      .update(users)
-      .set({
-        plan,
-        stripeCustomerId:       customerId,
-        stripeSubscriptionId:   null,
-        stripeCurrentPeriodEnd: null,
-      })
-      .where(eq(users.id, userId))
-
-    // A monthly subscriber upgrading to Lifetime used to keep being billed
-    // monthly. Cancel the old subscription now. This runs AFTER the row above
-    // drops its subscription id, so the customer.subscription.deleted event
-    // this triggers matches no user and can't downgrade them. Cancelling
-    // immediately doesn't refund the current month (Stripe's default).
-    if (existing?.subscriptionId) {
-      try {
-        await stripe.subscriptions.cancel(existing.subscriptionId)
-      } catch (err) {
-        // Access is already correct; only the billing needs a manual cancel
-        console.error("[/api/webhooks/stripe] Couldn't cancel old subscription after Lifetime purchase:", existing.subscriptionId, err)
-      }
-    }
-  }
 }
 
 // ─── Refunds, disputes and fraud warnings ─────────────────────────────────────
@@ -200,17 +54,26 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
 // This Stripe account also takes payments for other products. Every handler
 // here acts only on a payment it can tie to an account in our own database.
 
-async function isLifetimeCharge(charge: Stripe.Charge): Promise<boolean> {
-  if (!charge.payment_intent) return false
+/** The checkout session of a Lifetime payment, or null for any other charge */
+async function lifetimeCheckoutOf(charge: Stripe.Charge): Promise<Stripe.Checkout.Session | null> {
+  if (!charge.payment_intent) return null
   const { data } = await stripe.checkout.sessions.list({ payment_intent: String(charge.payment_intent), limit: 1 })
   const checkout = data[0]
-  if (!checkout?.payment_link || checkout.mode !== "payment") return false
+  if (!checkout || checkout.mode !== "payment") return null
+  // Bought on the site's own checkout page: told apart by its Price
+  if (!checkout.payment_link) return (await planOfSiteCheckout(checkout)) === "lifetime" ? checkout : null
   const link = await stripe.paymentLinks.retrieve(String(checkout.payment_link))
-  return link.url === LIFETIME_LINK
+  return link.url === LIFETIME_LINK ? checkout : null
 }
 
 async function revokeLifetime(charge: Stripe.Charge, reason: string) {
-  if (!charge.customer || !(await isLifetimeCharge(charge))) return []
+  if (!charge.customer) return []
+  const checkout = await lifetimeCheckoutOf(charge)
+  if (!checkout) return []
+  // A second Lifetime payment that was set aside as a duplicate bought nothing.
+  // Refunding it (which support is asked to do) must not take away the access
+  // the first payment bought, even when both sit on the same Stripe customer.
+  if (await wasDuplicate(checkout.id)) return []
   const revoked = await db
     .update(users)
     .set({ plan: "free" })
@@ -268,7 +131,7 @@ async function ownerOfCharge(charge: Stripe.Charge, paymentIntentId: string | nu
     return former ? { kind: "monthly", account: former, subscriptionId } : null
   }
 
-  if (!customerId || !(await isLifetimeCharge(charge))) return null
+  if (!customerId || !(await lifetimeCheckoutOf(charge))) return null
   const [holder] = await db.select(account).from(users).where(eq(users.stripeCustomerId, customerId)).limit(1)
   return holder ? { kind: "lifetime", account: holder, subscriptionId: null } : null
 }
@@ -423,14 +286,18 @@ async function handleFraudWarning(warning: Stripe.Radar.EarlyFraudWarning) {
 // ─── Abandoned checkouts ──────────────────────────────────────────────────────
 // A payment page that was opened and never paid expires after about a day.
 // The site's buttons put the account id on it, so each one lands on that
-// account's timeline: the only record on our side that someone got as far as
-// the payment page. Paid checkouts never expire, so they are not counted here.
+// account's timeline. Paid checkouts never expire, so they are not counted
+// here. The site's own checkout page opens one session per plan looked at, so
+// someone who compared both and then paid leaves an unpaid one behind: an
+// account that is Pro by the time a session expires did not abandon anything.
+// It also opens a new session on every reload, so several can expire for one
+// visit: an account is counted once a day, to keep this a count of people.
 async function handleCheckoutExpired(session: Stripe.Checkout.Session) {
   const userId = session.client_reference_id
   if (!userId) return
-  const [account] = await db.select({ id: users.id }).from(users).where(eq(users.id, userId)).limit(1)
-  if (!account) return
-  await logEvent(account.id, "checkout_abandoned", {
+  const [account] = await db.select({ id: users.id, plan: users.plan }).from(users).where(eq(users.id, userId)).limit(1)
+  if (!account || account.plan === "pro") return
+  await logEventOnce(account.id, "checkout_abandoned", DAY_MS, {
     plan:     session.mode === "subscription" ? "monthly" : "lifetime",
     openedAt: new Date(session.created * 1000).toISOString(),
   })
@@ -493,12 +360,12 @@ export async function POST(req: NextRequest) {
         // Those are granted on async_payment_succeeded below instead.
         const checkout = event.data.object as Stripe.Checkout.Session
         if (checkout.payment_status === "paid" || checkout.payment_status === "no_payment_required") {
-          await handleCheckoutCompleted(checkout)
+          await fulfillCheckout(checkout)
         }
         break
       }
       case "checkout.session.async_payment_succeeded":
-        await handleCheckoutCompleted(event.data.object as Stripe.Checkout.Session)
+        await fulfillCheckout(event.data.object as Stripe.Checkout.Session)
         break
       case "checkout.session.expired":
         await handleCheckoutExpired(event.data.object as Stripe.Checkout.Session)

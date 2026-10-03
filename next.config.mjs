@@ -14,15 +14,22 @@ const GA_SCRIPT  = "https://www.googletagmanager.com";
 const GA_CONNECT = "https://*.google-analytics.com https://*.analytics.google.com https://www.googletagmanager.com";
 const GA_IMG     = "https://*.google-analytics.com https://www.googletagmanager.com";
 
+// Stripe.js on the checkout page (app/checkout): its script, the frames that
+// hold the card fields and wallet buttons, and its API. Card data only ever
+// lives inside those Stripe frames.
+const STRIPE = "https://*.stripe.com";
+const LINK   = "https://*.link.com";
+
 const csp = [
   "default-src 'self'",
-  `script-src 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval'" : ""} ${GA_SCRIPT}`,
+  `script-src 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval'" : ""} ${GA_SCRIPT} ${STRIPE}`,
   "style-src 'self' 'unsafe-inline'",
   // blob: is required for client-side image previews/resizing (URL.createObjectURL),
   // e.g. the chart-analysis upload flow.
-  `img-src 'self' data: blob: ${GA_IMG}`,
+  `img-src 'self' data: blob: ${GA_IMG} ${STRIPE} ${LINK}`,
   "font-src 'self' data:",
-  `connect-src 'self' ${GA_CONNECT}`,
+  `connect-src 'self' ${GA_CONNECT} ${STRIPE} ${LINK}`,
+  `frame-src 'self' ${STRIPE} ${LINK}`,
   "object-src 'none'",
   "frame-ancestors 'none'",
   "base-uri 'self'",

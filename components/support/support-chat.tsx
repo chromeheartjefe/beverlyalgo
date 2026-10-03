@@ -15,9 +15,11 @@ const SupportChatPanel = dynamic(() => loadPanel().then((m) => m.SupportChatPane
 // Pages whose own UI owns this corner: the AI Trading Bot page is a chat with
 // its message box right there, and the Academy (lessons keep their Check
 // button bottom right) and the Glossary (its term sheet) are learning spaces
-// without it. Help stays reachable from the sidebar.
+// without it. Help stays reachable from the sidebar. The checkout keeps the
+// corner clear of anything floating over the pay button; it shows the support
+// address in the page.
 const HIDDEN_ON = new Set(["/dashboard/trading-bot"])
-const HIDDEN_UNDER = ["/dashboard/academy", "/dashboard/glossary"]
+const HIDDEN_UNDER = ["/dashboard/academy", "/dashboard/glossary", "/checkout"]
 
 const isHidden = (pathname: string) =>
   HIDDEN_ON.has(pathname) || HIDDEN_UNDER.some((p) => pathname === p || pathname.startsWith(`${p}/`))

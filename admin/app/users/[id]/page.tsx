@@ -62,6 +62,7 @@ function describe(e: TimelineRow): { label: string; detail: string; color: "gray
     case "email_changed":       return { label: "Email changed", detail: `${m.from} → ${m.to}`, color: "amber" }
     case "email_verified":      return { label: "Email verified", detail: "", color: "green" }
     case "indicator_requested": return { label: "Indicator requested", detail: `@${m.username}`, color: "purple" }
+    case "checkout_opened":     return { label: "Opened checkout", detail: m.plan === "lifetime" ? "Lifetime" : "Monthly", color: "purple" }
     case "checkout_abandoned":  return { label: "Left checkout without paying", detail: m.plan === "lifetime" ? "Lifetime" : "Monthly", color: "amber" }
     default:                    return { label: e.kind, detail: e.meta ?? "", color: "gray" }
   }

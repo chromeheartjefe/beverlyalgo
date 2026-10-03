@@ -15,5 +15,5 @@ export function withCallback(href: string, callbackUrl: string): string {
   return callbackUrl === DEFAULT ? href : `${href}?callbackUrl=${encodeURIComponent(callbackUrl)}`
 }
 
-/** Came from a plan button on the pricing section */
-export const isPlanCallback = (callbackUrl: string) => callbackUrl.endsWith("#pricing")
+/** Came from a plan button on the pricing section (on to the pricing section, or straight to checkout) */
+export const isPlanCallback = (callbackUrl: string) => callbackUrl.endsWith("#pricing") || callbackUrl.startsWith("/checkout")

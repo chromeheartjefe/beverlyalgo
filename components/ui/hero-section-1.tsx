@@ -1,7 +1,7 @@
 "use client"
 
 import { AnimatePresence, motion, type Variants } from "framer-motion"
-import { ArrowRight, Gift, Menu, Users, X } from "lucide-react"
+import { ArrowRight, Gift, Menu, Users, X, Zap } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
 import { useSession } from "next-auth/react"
@@ -13,6 +13,7 @@ import { Banner } from "@/components/ui/banner"
 import { DecorBoundary } from "@/components/ui/decor-boundary"
 import { LiquidMetalButton } from "@/components/ui/liquid-metal-button"
 import { StardustButton } from "@/components/ui/stardust-button"
+import { useFreeAnalysis } from "@/lib/use-free-analysis"
 import { cn } from "@/lib/utils"
 
 const menuItems = [
@@ -63,8 +64,22 @@ const Logo = () => (
 function HeroHeader() {
   const [menuOpen, setMenuOpen] = useState(false)
   const [isScrolled, setIsScrolled] = useState(false)
-  const { status } = useSession()
+  const { data: session, status } = useSession()
   const isAuthed = status === "authenticated"
+  const isPro = isAuthed && (session?.user as { plan?: string } | undefined)?.plan === "pro"
+  const { state: freeState } = useFreeAnalysis()
+
+  // The banner follows the visitor: the free offer for anyone who can still
+  // take it (and while the account is loading), a nudge to Pro once it is
+  // used up or unavailable, and a shortcut for Pro members.
+  const banner = isPro
+    ? { icon: Zap, short: "Unlimited AI chart analysis", long: "You're on Pro. Your AI chart analysis is unlimited.", href: "/dashboard/chart-analysis", cta: "Analyze a chart", ctaShort: "Open" }
+    : freeState === "used"
+      ? { icon: Zap, short: "Free analysis used", long: "You've used your free analysis. Go Pro for unlimited AI chart analysis.", href: "#pricing", cta: "See plans", ctaShort: "Go Pro" }
+      : freeState === "blocked"
+        ? { icon: Zap, short: "Unlimited AI chart analysis", long: "Go Pro for unlimited AI chart analysis.", href: "#pricing", cta: "See plans", ctaShort: "Go Pro" }
+        : { icon: Gift, short: "First AI chart analysis free", long: "Your first AI chart analysis is free. No card required.", href: isAuthed ? "/dashboard/chart-analysis" : "/sign-up", cta: "Try it free", ctaShort: "Try it" }
+  const BannerIcon = banner.icon
 
   useEffect(() => {
     const handleScroll = () => setIsScrolled(window.scrollY > 50)
@@ -74,8 +89,8 @@ function HeroHeader() {
 
   return (
     <header className="fixed inset-x-0 top-0 z-50 flex flex-col">
-      {/* The free analysis offer. A new id, so it also shows for visitors who
-          closed the earlier launch banner. */}
+      {/* The free analysis offer (wording depends on the visitor, see above).
+          A new id, so it also shows for visitors who closed the earlier launch banner. */}
       <DecorBoundary name="launch-banner">
       <Banner
         id="entrix-free-analysis-banner"
@@ -92,15 +107,15 @@ function HeroHeader() {
         ]}
         className="border-b border-white/15 whitespace-nowrap pl-4 pr-11 text-xs sm:whitespace-normal sm:px-4 sm:text-sm"
       >
-        <Gift className="mr-1.5 size-3.5 shrink-0 text-emerald-300 sm:mr-2 sm:size-4" aria-hidden="true" />
-        <span className="sm:hidden">First AI chart analysis free</span>
-        <span className="hidden sm:inline">Your first AI chart analysis is free. No card required.</span>
+        <BannerIcon className="mr-1.5 size-3.5 shrink-0 text-emerald-300 sm:mr-2 sm:size-4" aria-hidden="true" />
+        <span className="sm:hidden">{banner.short}</span>
+        <span className="hidden sm:inline">{banner.long}</span>
         <Link
-          href={isAuthed ? "/dashboard/chart-analysis" : "/sign-up"}
+          href={banner.href}
           className="ml-2 inline-flex min-h-11 items-center gap-1 font-semibold underline underline-offset-2 opacity-90 hover:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/60 sm:ml-3"
         >
-          <span className="sm:hidden">Try it</span>
-          <span className="hidden sm:inline">Try it free</span>
+          <span className="sm:hidden">{banner.ctaShort}</span>
+          <span className="hidden sm:inline">{banner.cta}</span>
           <ArrowRight className="size-3.5" aria-hidden="true" />
         </Link>
       </Banner>
