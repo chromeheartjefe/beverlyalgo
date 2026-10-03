@@ -11,6 +11,18 @@ export const lesson: LessonContent = {
         "Every complete strategy answers three questions.",
         "**Setup**: when is the market in a condition worth trading? **Trigger**: what exact event makes you enter, right now? **Management**: once you're in, where are the stop and targets, and what do you do as price moves?",
       ],
+      visual: {
+        type: "scene",
+        scene: {
+          kind: "flow",
+          title: "Three questions every strategy answers",
+          nodes: [
+            { label: "Setup", sub: "is the market worth trading?", icon: "search" },
+            { label: "Trigger", sub: "what makes you enter, right now?", icon: "zap", tone: "accent" },
+            { label: "Management", sub: "stop, targets, what next?", icon: "shield", tone: "up" },
+          ],
+        },
+      },
     },
     {
       kind: "learn",
@@ -19,6 +31,27 @@ export const lesson: LessonContent = {
         "Using the model from Level 3:",
         "**Setup**: 4-hour bias bullish, price pulls back into a 1-hour bullish FVG in discount during the New York killzone. **Trigger**: a 5-minute sweep of a low, then an MSS with displacement; limit order at the new gap's CE. **Management**: stop below the sweep low; take half at 2R, move the stop to breakeven, let the rest run to the old high.",
       ],
+      visual: {
+        type: "scene",
+        scene: {
+          kind: "compare",
+          columns: [
+            {
+              title: "Setup",
+              icon: "search",
+              tone: "neutral",
+              points: ["4-hour bias bullish", "Pullback into a 1-hour FVG in discount", "New York killzone"],
+            },
+            { title: "Trigger", icon: "zap", tone: "accent", points: ["5-minute sweep of a low", "MSS with displacement", "Limit at the gap's CE"] },
+            {
+              title: "Management",
+              icon: "shield",
+              tone: "up",
+              points: ["Stop below the sweep low", "Half off at 2R, stop to breakeven", "Rest runs to the old high"],
+            },
+          ],
+        },
+      },
     },
     {
       kind: "match",

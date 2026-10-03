@@ -10,7 +10,9 @@ const candles = swingCandles([[0, 103], [5, 100.2], [9, 102.6], [14, 100.1], [18
 
 export const lesson: LessonContent = {
   id: "u5-support-and-resistance",
-  sources: ["Wyckoff, Studies in Tape Reading (1910), public domain"],
+  sources: [
+    "Classical chart analysis as commonly taught, first catalogued in Schabacker's Technical Analysis and Stock Market Profits (1932) and Edwards and Magee's Technical Analysis of Stock Trends (1948); explained here in our own words",
+  ],
   steps: [
     {
       kind: "learn",
@@ -36,6 +38,16 @@ export const lesson: LessonContent = {
         "Price rarely turns at exactly the same cent. Treat support and resistance as **zones** a little wide, drawn around the area where candles keep turning, not as razor-thin lines.",
         "Higher-timeframe levels and levels with sharp, fast reactions tend to matter most.",
       ],
+      visual: {
+        type: "scene",
+        scene: {
+          kind: "path",
+          title: "Support as a zone",
+          points: [104, 101.2, 103.5, 100.6, 103, 100.9, 103.2, 104.5],
+          levels: [{ price: 101.3, label: "Zone top", tone: "up" }, { price: 100.5, label: "Zone bottom", tone: "up" }],
+        },
+        caption: "Three turns at three slightly different prices, all inside the zone.",
+      },
     },
     {
       kind: "tap",
@@ -52,6 +64,21 @@ export const lesson: LessonContent = {
         "A level that has held several times is clearly watched. But every test also uses up some of the buy orders waiting there.",
         "So a level hit again and again, with weaker and weaker bounces, often breaks in the end. Smart Money traders add one more reason: the more obvious a level is, the more stop orders sit just beyond it, which makes it a target.",
       ],
+      visual: {
+        type: "scene",
+        scene: {
+          kind: "path",
+          title: "Every test uses up some of the orders",
+          points: [100, 106, 100.3, 104.5, 100.2, 103, 100.1, 101.6, 100, 97.5],
+          marks: [
+            { at: 1, label: "A strong bounce", tone: "up" },
+            { at: 5, label: "Weaker" },
+            { at: 7, label: "Weaker still", tone: "warn" },
+            { at: 9, label: "It breaks in the end", tone: "down", side: "below" },
+          ],
+          levels: [{ price: 100, label: "Support", tone: "neutral" }],
+        },
+      },
     },
     {
       kind: "truefalse",

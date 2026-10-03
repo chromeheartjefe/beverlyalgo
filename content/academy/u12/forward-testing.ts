@@ -11,6 +11,19 @@ export const lesson: LessonContent = {
         "A good backtest is a reason to keep going, not a reason to bet big. Next comes **forward testing**: trading the strategy in real time, on charts you can't see the end of.",
         "Start on a **demo** (paper) account, then move to **very small real size**. Only scale up once live results look like the backtest.",
       ],
+      visual: {
+        type: "scene",
+        scene: {
+          kind: "flow",
+          title: "The road to real size",
+          nodes: [
+            { label: "Backtest", icon: "search" },
+            { label: "Demo account", icon: "book" },
+            { label: "Very small real size", icon: "coins", tone: "warn" },
+            { label: "Scale up", sub: "once live looks like the backtest", icon: "trending-up", tone: "up" },
+          ],
+        },
+      },
     },
     {
       kind: "learn",
@@ -19,6 +32,20 @@ export const lesson: LessonContent = {
         "Live markets add things no backtest has: real slippage, missed fills, spreads that widen on news, technical problems, and above all **your emotions** when real money is moving.",
         "Many traders discover their strategy works and they don't: they skip setups, close winners early, or move stops. Forward testing reveals that while it is still cheap.",
       ],
+      visual: {
+        type: "scene",
+        scene: {
+          kind: "checklist",
+          title: "What no backtest has",
+          items: [
+            { text: "Real slippage", mark: "bad" },
+            { text: "Missed fills", mark: "bad" },
+            { text: "Spreads that widen on news", mark: "bad" },
+            { text: "Technical problems", mark: "bad" },
+            { text: "Your emotions when real money is moving", mark: "bad" },
+          ],
+        },
+      },
     },
     {
       kind: "choice",
@@ -47,6 +74,10 @@ export const lesson: LessonContent = {
         "Long enough to take a meaningful number of trades, often 30 to 50 at least, across different market conditions. For a strategy taking one trade a day, that is a couple of months.",
         "Compare live results with the backtest: similar win rate, average win and average loss? If they differ a lot, find out why before risking more.",
       ],
+      visual: {
+        type: "scene",
+        scene: { kind: "stat", stats: [{ value: 30, suffix: " to 50", label: "trades at least, across different market conditions", tone: "accent" }] },
+      },
     },
     {
       kind: "choice",

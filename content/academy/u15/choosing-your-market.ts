@@ -11,6 +11,19 @@ export const lesson: LessonContent = {
         "There is no best market, only the best one **for you**. Four questions decide it:",
         "**When can you trade?** Mornings in New York, evenings in Asia, weekends? **How much capital?** It decides which contract sizes work. **How much volatility can you stomach?** **What costs and rules apply where you live?**",
       ],
+      visual: {
+        type: "scene",
+        scene: {
+          kind: "checklist",
+          title: "Four questions decide it",
+          items: [
+            { text: "When can you trade?", mark: "dot" },
+            { text: "How much capital do you have?", mark: "dot" },
+            { text: "How much volatility can you stomach?", mark: "dot" },
+            { text: "What costs and rules apply where you live?", mark: "dot" },
+          ],
+        },
+      },
     },
     {
       kind: "match",
@@ -30,6 +43,18 @@ export const lesson: LessonContent = {
         "Every market has its own rhythm: when it moves, how far, and how it reacts to news. Learning that takes months of screen time on one chart.",
         "Specialise first. Many consistently profitable traders trade only one or two instruments their whole career.",
       ],
+      visual: {
+        type: "scene",
+        scene: {
+          kind: "flow",
+          title: "Specialise first",
+          nodes: [
+            { label: "One market", icon: "target", tone: "accent" },
+            { label: "Months of screen time", sub: "on one chart", icon: "hourglass", tone: "warn" },
+            { label: "You know its rhythm", sub: "when it moves, how far, how it reacts to news", icon: "eye", tone: "up" },
+          ],
+        },
+      },
     },
     {
       kind: "choice",

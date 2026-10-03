@@ -7,7 +7,10 @@ const legs = swingCandles(pts, { noise: 0.2, wick: 0.3, seed: 55 })
 
 export const lesson: LessonContent = {
   id: "u4-impulse-and-pullback",
-  sources: ["Hamilton, The Stock Market Barometer (1922), public domain"],
+  sources: [
+    "Hamilton, The Stock Market Barometer (1922), public domain: primary movements and secondary reactions",
+    "Impulse, pullback and displacement terminology as commonly taught; explained here in our own words",
+  ],
   steps: [
     {
       kind: "learn",
@@ -46,6 +49,19 @@ export const lesson: LessonContent = {
         "Buying in the middle of an impulse means chasing a move that is already stretched. Many traders instead wait for the **pullback**, and enter when it shows signs of ending, to join the next impulse at a better price.",
         "The end of a pullback becomes the new higher low: exactly the point the trend has to hold.",
       ],
+      visual: {
+        type: "scene",
+        scene: {
+          kind: "path",
+          title: "Chase the impulse, or wait for the pullback",
+          points: [100, 103, 106, 104.6, 103.8, 104.4, 107, 110],
+          marks: [
+            { at: 2, label: "Chasing: already stretched", tone: "down" },
+            { at: 4, label: "The new higher low", tone: "up", side: "below" },
+            { at: 7, label: "The next impulse" },
+          ],
+        },
+      },
     },
     {
       kind: "tap",
@@ -62,6 +78,17 @@ export const lesson: LessonContent = {
         "Watch how the legs change. Bigger impulses and shallow pullbacks: a strong trend. Shrinking impulses and deeper, longer pullbacks: a trend running out of energy.",
         "Smart Money traders call a sudden, powerful impulse **displacement**. You will see in Level 3 why it often leaves important footprints behind.",
       ],
+      visual: {
+        type: "scene",
+        scene: {
+          kind: "compare",
+          title: "Watch how the legs change",
+          columns: [
+            { title: "A strong trend", icon: "trending-up", tone: "up", points: ["Bigger impulses", "Shallow pullbacks"] },
+            { title: "Running out of energy", icon: "hourglass", tone: "warn", points: ["Shrinking impulses", "Deeper, longer pullbacks"] },
+          ],
+        },
+      },
     },
     {
       kind: "choice",

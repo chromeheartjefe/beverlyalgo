@@ -14,6 +14,18 @@ export const lesson: LessonContent = {
         "**What you trade**: currency pairs. **Majors** pair the US dollar with another big currency (EUR/USD, USD/JPY, GBP/USD, USD/CHF, AUD/USD, USD/CAD). **Crosses** leave the dollar out (EUR/GBP, GBP/JPY). **Exotics** pair a major with an emerging-market currency, with much wider spreads.",
         "**When**: 24 hours on weekdays; busiest in the London and New York sessions and their overlap.",
       ],
+      visual: {
+        type: "scene",
+        scene: {
+          kind: "compare",
+          title: "Three kinds of pair",
+          columns: [
+            { title: "Majors", icon: "coins", tone: "up", points: ["The US dollar and another big currency", "EUR/USD, USD/JPY, GBP/USD"] },
+            { title: "Crosses", icon: "repeat", tone: "accent", points: ["Leave the dollar out", "EUR/GBP, GBP/JPY"] },
+            { title: "Exotics", icon: "globe", tone: "warn", points: ["A major and an emerging-market currency", "Much wider spreads"] },
+          ],
+        },
+      },
     },
     {
       kind: "learn",
@@ -22,6 +34,21 @@ export const lesson: LessonContent = {
         "Interest rate differences between the two countries, central bank decisions and guidance, inflation and jobs data, and risk appetite. The yen and Swiss franc often strengthen when markets are scared.",
         "Day to day, the US dollar side of each major moves on US data at 8:30 am New York time.",
       ],
+      visual: {
+        type: "scene",
+        scene: {
+          kind: "compare",
+          columns: [
+            {
+              title: "What drives a pair",
+              icon: "scale",
+              tone: "accent",
+              points: ["Interest rate differences", "Central bank decisions and guidance", "Inflation and jobs data", "Risk appetite"],
+            },
+            { title: "When markets are scared", icon: "shield", tone: "warn", points: ["The yen often strengthens", "So does the Swiss franc"] },
+          ],
+        },
+      },
     },
     {
       kind: "match",
@@ -40,6 +67,17 @@ export const lesson: LessonContent = {
       body: [
         "**Leverage**: offshore brokers offer extreme leverage; use stop-based sizing regardless. **Swap**: holding past 5 pm New York time costs or earns interest. **Broker choice**: spot forex is OTC, so the broker matters a lot. In the US, check that it is registered with the CFTC and NFA; elsewhere, with your local regulator.",
       ],
+      visual: {
+        type: "scene",
+        scene: {
+          kind: "compare",
+          columns: [
+            { title: "Leverage", icon: "alert", tone: "down", points: ["Offshore brokers offer extreme leverage", "Size from your stop regardless"] },
+            { title: "Swap", icon: "moon", tone: "warn", points: ["Holding past 5 pm New York time", "Costs or earns interest"] },
+            { title: "Broker", icon: "bank", tone: "accent", points: ["Spot forex is OTC", "Check that it is regulated"] },
+          ],
+        },
+      },
     },
     {
       kind: "choice",

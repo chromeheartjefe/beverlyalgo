@@ -33,6 +33,18 @@ export const lesson: LessonContent = {
         "Your **bias** is simply the direction towards the draw. If the daily trend is up and an untaken high sits above, the bias is bullish: you look for buys and ignore sells.",
         "A bias is a working assumption, not a prediction to defend. If price takes the opposite liquidity and breaks structure against you, the bias changes.",
       ],
+      visual: {
+        type: "scene",
+        scene: {
+          kind: "flow",
+          nodes: [
+            { label: "The daily trend is up", icon: "trending-up" },
+            { label: "An untaken high sits above", sub: "the draw", icon: "flag", tone: "accent" },
+            { label: "The bias is bullish", sub: "look for buys, ignore sells", icon: "target", tone: "up" },
+          ],
+        },
+        caption: "A working assumption, not a prediction to defend.",
+      },
     },
     {
       kind: "choice",

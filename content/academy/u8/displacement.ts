@@ -38,6 +38,19 @@ export const lesson: LessonContent = {
         "SMC traders look for displacement that **breaks structure** (a BOS or MSS) and **leaves a fair value gap**. A big candle that stays inside the range and leaves no gap is just volatility.",
         "Displacement right after a liquidity sweep is the strongest version: the stops were taken, then price showed its hand.",
       ],
+      visual: {
+        type: "scene",
+        scene: {
+          kind: "checklist",
+          title: "Displacement that counts",
+          items: [
+            { text: "It breaks structure: a BOS or MSS", mark: "ok" },
+            { text: "It leaves a fair value gap", mark: "ok" },
+            { text: "Strongest right after a liquidity sweep", mark: "ok" },
+            { text: "A big candle inside the range with no gap: just volatility", mark: "bad" },
+          ],
+        },
+      },
     },
     {
       kind: "choice",

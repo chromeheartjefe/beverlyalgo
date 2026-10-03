@@ -48,6 +48,17 @@ export const lesson: LessonContent = {
         "A **propulsion block** is an order block that forms **after** price trades into an older order block. The older block supports price; the new candle there becomes a launch pad, and the next move takes off from it.",
         "Think of it as an order block sitting on top of another one. Price often only needs to reach the propulsion block, not the older block below it, before moving on.",
       ],
+      visual: {
+        type: "scene",
+        scene: {
+          kind: "flow",
+          nodes: [
+            { label: "An older order block", sub: "supports price", icon: "layers" },
+            { label: "A new candle forms there", sub: "the propulsion block", icon: "candles", tone: "accent" },
+            { label: "The next move takes off from it", icon: "trending-up", tone: "up" },
+          ],
+        },
+      },
     },
     {
       kind: "choice",

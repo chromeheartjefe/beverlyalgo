@@ -15,7 +15,10 @@ const tapCandles = candles.slice(0, 29)
 
 export const lesson: LessonContent = {
   id: "u4-change-of-character",
-  sources: ["Hamilton, The Stock Market Barometer (1922), public domain"],
+  sources: [
+    "Smart Money Concepts and ICT market structure terminology as commonly taught; explained here in our own words",
+    "Hamilton, The Stock Market Barometer (1922), public domain: the older idea of trends defined by highs and lows",
+  ],
   steps: [
     {
       kind: "learn",
@@ -24,6 +27,16 @@ export const lesson: LessonContent = {
         "A trend stays alive as long as it protects its last swing point. In an uptrend, that is the **last higher low**.",
         "When price closes below that higher low, the uptrend's structure is broken for the first time. That first break against the trend is called a **change of character (CHoCH)**.",
       ],
+      visual: {
+        type: "scene",
+        scene: {
+          kind: "path",
+          title: "An uptrend loses its last higher low",
+          points: [100, 104, 102, 107, 105, 110, 107.5, 104, 103.7, 103.5],
+          marks: [{ at: 4, label: "Higher low", tone: "up", side: "below" }, { at: 7, label: "CHoCH: a close below it", tone: "down", side: "below" }],
+          levels: [{ price: 105, label: "Last higher low", tone: "neutral" }],
+        },
+      },
     },
     {
       kind: "learn",
@@ -78,6 +91,19 @@ export const lesson: LessonContent = {
         "One CHoCH doesn't prove a new trend. Sometimes price breaks the higher low, then recovers and carries on up. Traders usually want more: a lower high that holds, then a BOS down.",
         "ICT traders use a stricter version called a **market structure shift (MSS)**: the break has to come with a strong, fast move (displacement), often right after price swept liquidity above a high. Level 3 builds whole entry models on it.",
       ],
+      visual: {
+        type: "scene",
+        scene: {
+          kind: "flow",
+          title: "What traders usually want to see",
+          nodes: [
+            { label: "CHoCH", sub: "a warning", icon: "alert", tone: "warn" },
+            { label: "A lower high that holds", icon: "flag" },
+            { label: "A BOS down", icon: "trending-down", tone: "down" },
+          ],
+        },
+        caption: "Sometimes price breaks the higher low, then recovers and carries on up.",
+      },
     },
     {
       kind: "choice",

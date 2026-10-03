@@ -11,6 +11,16 @@ export const lesson: LessonContent = {
         "A **trading plan** is a short written document you follow every day. It is written when you are calm, so that you don't have to make big decisions when you are excited or scared.",
         "If it doesn't fit on one or two pages, it is too complicated to follow live.",
       ],
+      visual: {
+        type: "scene",
+        scene: {
+          kind: "compare",
+          columns: [
+            { title: "When you write it", icon: "pen", tone: "up", points: ["You are calm", "One or two pages", "The big decisions get made here"] },
+            { title: "When you use it", icon: "flame", tone: "warn", points: ["You are excited or scared", "No big decisions left to make"] },
+          ],
+        },
+      },
     },
     {
       kind: "learn",
@@ -19,6 +29,21 @@ export const lesson: LessonContent = {
         "**Markets and hours**: what you trade and when. **Setups**: your strategy's exact setup, trigger and management. **Risk**: % per trade, daily and weekly loss limits, maximum trades per day. **Routine**: what you do before, during and after the session. **Review**: how and when you journal and review.",
         "Add **if-then rules** for situations that usually go wrong: \"If I lose two trades in a row, I take a 30-minute break.\" \"If big news is due within 15 minutes, I don't open a new trade.\"",
       ],
+      visual: {
+        type: "scene",
+        scene: {
+          kind: "checklist",
+          title: "A trading plan",
+          items: [
+            { text: "Markets and hours", mark: "dot" },
+            { text: "Setups: setup, trigger and management", mark: "dot" },
+            { text: "Risk: % per trade, loss limits, maximum trades", mark: "dot" },
+            { text: "Routine: before, during and after the session", mark: "dot" },
+            { text: "Review: how and when you journal", mark: "dot" },
+            { text: "If-then rules for what usually goes wrong", mark: "ok" },
+          ],
+        },
+      },
     },
     {
       kind: "choice",

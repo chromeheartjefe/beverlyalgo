@@ -11,6 +11,15 @@ export const lesson: LessonContent = {
         "**Investing** means buying assets you expect to grow in value over years: shares of good businesses, broad index funds, property.",
         "Investors make money because the thing they own grows: profits rise, dividends get paid, the economy expands. They mostly ignore day-to-day moves and let time do the work.",
       ],
+      visual: {
+        type: "scene",
+        scene: {
+          kind: "path",
+          title: "An investor's years",
+          points: [10, 11, 12, 11.4, 13, 14.5, 13.1, 15, 17, 16.2, 18.5, 21, 20, 23, 26],
+          marks: [{ at: 6, label: "A bad stretch", tone: "down", side: "below" }, { at: 14, label: "Time did the work", tone: "up" }],
+        },
+      },
     },
     {
       kind: "learn",
@@ -19,6 +28,19 @@ export const lesson: LessonContent = {
         "**Trading** means buying and selling over shorter periods, from minutes to weeks, to profit from the moves themselves. Traders can profit when prices rise or fall.",
         "There is no slow growth carrying you along. Every trade has a cost, and you only come out ahead if your decisions are better than those of the people on the other side, often enough to beat those costs. That advantage is called an **edge**.",
       ],
+      visual: {
+        type: "scene",
+        scene: {
+          kind: "checklist",
+          title: "What trading asks of you",
+          items: [
+            { text: "You can profit when prices rise or fall", mark: "ok" },
+            { text: "No slow growth carries you along", mark: "bad" },
+            { text: "Every trade has a cost", mark: "bad" },
+            { text: "You need an edge to come out ahead", mark: "dot" },
+          ],
+        },
+      },
     },
     {
       kind: "choice",
@@ -35,6 +57,17 @@ export const lesson: LessonContent = {
         "In a casino, every game has a built-in house edge. The more you play, the more surely you lose. That is **negative expectancy**.",
         "Trading turns into gambling when there is no tested plan, the size is too big, and losses get chased with bigger bets. The market doesn't care what you call it. Without an edge and risk control, the maths works exactly like a casino's.",
       ],
+      visual: {
+        type: "scene",
+        scene: {
+          kind: "compare",
+          columns: [
+            { title: "Investing", icon: "seed", tone: "up", points: ["Years", "Profit from growth", "Ignores daily moves"] },
+            { title: "Trading", icon: "candles", tone: "accent", points: ["Minutes to weeks", "Profit from the moves", "Needs an edge"] },
+            { title: "Gambling", icon: "dice", tone: "down", points: ["No tested plan", "Size too big", "Losses get chased"] },
+          ],
+        },
+      },
     },
     {
       kind: "learn",
@@ -44,6 +77,11 @@ export const lesson: LessonContent = {
         "Expectancy = (win rate × average win) − (loss rate × average loss).",
         "Say you win 40% of trades and make 2R on each win, and lose 1R on each of the other 60%. Expectancy = 0.4 × 2 − 0.6 × 1 = **+0.2R per trade**. You lose more often than you win and still come out ahead.",
       ],
+      visual: {
+        type: "scene",
+        scene: { kind: "rr", title: "Winning 4 trades in 10, with 2R winners", risk: 1, reward: 2, wins: 4, losses: 6 },
+        caption: "+2R over 10 trades is +0.2R per trade, with more losers than winners.",
+      },
     },
     {
       kind: "numeric",

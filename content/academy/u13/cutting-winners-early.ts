@@ -14,15 +14,35 @@ export const lesson: LessonContent = {
         "Terrance Odean's 1998 study of thousands of trading accounts found that investors sold winning positions far more readily than losing ones, and that the winners they sold went on to do better than the losers they kept.",
         "This is the **disposition effect**: we lock in small gains to feel good, and hold losses to avoid feeling bad.",
       ],
+      visual: {
+        type: "scene",
+        scene: {
+          kind: "compare",
+          title: "What Odean's study found",
+          columns: [
+            { title: "Winners", icon: "trending-up", tone: "up", points: ["Sold far more readily", "Went on to do better"] },
+            { title: "Losers", icon: "trending-down", tone: "down", points: ["Kept", "Did worse than the winners that were sold"] },
+          ],
+        },
+      },
     },
     {
       kind: "learn",
       title: "Sitting tight",
       body: [
-        "Nearly a century ago, the narrator of Reminiscences of a Stock Operator (a character based on the trader Jesse Livermore) put it like this:",
-        "\"It never was my thinking that made the big money for me. It was always my sitting. Got that? My sitting tight!\"",
+        "About a century ago, the narrator of Reminiscences of a Stock Operator (a character based on the trader Jesse Livermore) put it like this:",
+        "\"It never was my thinking that made the big money for me. It always was my sitting. Got that? My sitting tight!\"",
         "Being right about direction is common. Staying in long enough to be paid for it is rare.",
       ],
+      visual: {
+        type: "scene",
+        scene: {
+          kind: "quote",
+          text: "It never was my thinking that made the big money for me. It always was my sitting. Got that? My sitting tight!",
+          author: "Edwin Lefèvre",
+          source: "Reminiscences of a Stock Operator (1923)",
+        },
+      },
     },
     {
       kind: "numeric",
@@ -39,6 +59,19 @@ export const lesson: LessonContent = {
       body: [
         "**Set the target before entry** as an order, and let it work. **Partials**: take some off at a first target to calm the nerves, let the rest run. **Trail the stop** behind structure instead of closing manually. **Look away**: alerts at your target and stop, rather than watching every tick.",
       ],
+      visual: {
+        type: "scene",
+        scene: {
+          kind: "checklist",
+          title: "Tools to stay in a winner",
+          items: [
+            { text: "Set the target as an order before entry", mark: "ok" },
+            { text: "Take partials at a first target", mark: "ok" },
+            { text: "Trail the stop behind structure", mark: "ok" },
+            { text: "Use alerts, and look away", mark: "ok" },
+          ],
+        },
+      },
     },
     {
       kind: "truefalse",
@@ -67,7 +100,7 @@ export const lesson: LessonContent = {
         "People sell winners too early and hold losers too long.",
         "Cutting winners can turn a winning strategy into a losing one.",
         "Place targets as orders; use partials and structure-based trailing.",
-        "\"It was always my sitting.\"",
+        "\"It always was my sitting.\"",
       ],
     },
   ],

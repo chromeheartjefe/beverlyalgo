@@ -11,6 +11,19 @@ export const lesson: LessonContent = {
         "**Revenge trading** is trading to win back a loss, now. It usually comes with bigger size, worse setups and less patience. One planned −1R loss turns into −5R.",
         "It is not a strategy problem. It is an emotional one, and it is behind many blown accounts.",
       ],
+      visual: {
+        type: "scene",
+        scene: {
+          kind: "cycle",
+          center: "One planned -1R turns into -5R",
+          nodes: [
+            { label: "A loss", tone: "down" },
+            { label: "Win it back, now", tone: "warn" },
+            { label: "Bigger size, worse setup", tone: "warn" },
+            { label: "A bigger loss", tone: "down" },
+          ],
+        },
+      },
     },
     {
       kind: "choice",
@@ -32,6 +45,19 @@ export const lesson: LessonContent = {
         "**Daily loss limit**: hit it and you're done for the day. **Two-loss rule**: after two losses in a row, a mandatory break of at least 30 minutes. **Fixed size**: never increase size after a loss.",
         "Some traders physically walk away from the screen. The urge fades quickly once you're not looking at the chart.",
       ],
+      visual: {
+        type: "scene",
+        scene: {
+          kind: "checklist",
+          title: "Rules that stop you, not the trade",
+          items: [
+            { text: "Daily loss limit: hit it and you're done", mark: "ok" },
+            { text: "Two losses in a row: a break of at least 30 minutes", mark: "ok" },
+            { text: "Fixed size: never bigger after a loss", mark: "ok" },
+            { text: "Walk away from the screen", mark: "ok" },
+          ],
+        },
+      },
     },
     {
       kind: "numeric",

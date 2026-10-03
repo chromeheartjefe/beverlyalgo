@@ -13,7 +13,7 @@ const line = vwap(candles, volumes)
 
 export const lesson: LessonContent = {
   id: "u6-vwap-and-volume-tools",
-  sources: ["Investor.gov (U.S. SEC): trading volume and execution quality"],
+  sources: ["VWAP and volume profile: standard definitions, explained here in our own words"],
   steps: [
     {
       kind: "learn",
@@ -49,6 +49,17 @@ export const lesson: LessonContent = {
         "**Above VWAP**, the average buyer today is in profit, and intraday bias leans bullish. **Below VWAP**, it leans bearish.",
         "In trending days, pullbacks to VWAP often attract buyers (or sellers in a downtrend). **Anchored VWAP** starts the calculation from a chosen candle, like a big swing low or a news event, instead of the session open.",
       ],
+      visual: {
+        type: "scene",
+        scene: {
+          kind: "compare",
+          columns: [
+            { title: "Above VWAP", icon: "trending-up", tone: "up", points: ["The average buyer today is in profit", "Intraday bias leans bullish"] },
+            { title: "Below VWAP", icon: "trending-down", tone: "down", points: ["Intraday bias leans bearish"] },
+          ],
+        },
+        caption: "Anchored VWAP starts the calculation from a candle you choose, instead of the session open.",
+      },
     },
     {
       kind: "choice",
@@ -70,6 +81,24 @@ export const lesson: LessonContent = {
         "**Volume profile** turns volume sideways: it shows how much traded at each **price**, not at each time. The price with the most volume is the **point of control (POC)**; the band holding about 70% of volume is the **value area**.",
         "High-volume prices tend to act like magnets and support or resistance. Low-volume prices are often crossed quickly.",
       ],
+      visual: {
+        type: "scene",
+        scene: {
+          kind: "bars",
+          title: "Volume at each price",
+          max: 100,
+          bars: [
+            { label: "105", value: 20, display: "", tone: "neutral" },
+            { label: "104", value: 45, display: "", tone: "neutral" },
+            { label: "103", value: 80, display: "", tone: "up" },
+            { label: "102", value: 100, display: "POC", tone: "accent" },
+            { label: "101", value: 70, display: "", tone: "up" },
+            { label: "100", value: 35, display: "", tone: "neutral" },
+            { label: "99", value: 15, display: "", tone: "neutral" },
+          ],
+        },
+        caption: "An example. The busiest price is the point of control; the band holding about 70% of the volume (101 to 103 here) is the value area.",
+      },
     },
     {
       kind: "truefalse",

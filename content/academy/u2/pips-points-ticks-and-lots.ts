@@ -14,6 +14,18 @@ export const lesson: LessonContent = {
         "Forex moves are counted in **pips**. For most pairs a pip is the fourth decimal place: **0.0001**. For pairs with the Japanese yen it is the second: **0.01**.",
         "Most brokers show one extra decimal, a fraction of a pip called a **pipette**. EUR/USD at 1.08503 has 3 pipettes on top of 1.0850.",
       ],
+      visual: {
+        type: "scene",
+        scene: {
+          kind: "ticks",
+          title: "One pip, and a few pipettes",
+          rows: [
+            { market: "EUR/USD", from: "1.0850", to: "1.0851", unit: "1 pip = 0.0001" },
+            { market: "A yen pair", from: "150.00", to: "150.01", unit: "1 pip = 0.01" },
+            { market: "EUR/USD, extra decimal", from: "1.08500", to: "1.08503", unit: "3 pipettes" },
+          ],
+        },
+      },
     },
     {
       kind: "numeric",
@@ -31,6 +43,18 @@ export const lesson: LessonContent = {
         "Forex size is measured in **lots**. A standard lot is **100,000** units of the first currency, a mini lot 10,000, and a micro lot 1,000.",
         "For pairs priced in US dollars, like EUR/USD, one pip on a standard lot is worth about **$10**. On a mini lot it is $1, and on a micro lot $0.10.",
       ],
+      visual: {
+        type: "scene",
+        scene: {
+          kind: "bars",
+          title: "What one pip is worth on EUR/USD",
+          bars: [
+            { label: "Standard lot: 100,000", value: 10, display: "about $10", tone: "warn" },
+            { label: "Mini lot: 10,000", value: 1, display: "$1", tone: "accent" },
+            { label: "Micro lot: 1,000", value: 0.1, display: "$0.10", tone: "accent" },
+          ],
+        },
+      },
     },
     {
       kind: "numeric",
@@ -48,6 +72,21 @@ export const lesson: LessonContent = {
         "Futures move in **ticks**, the smallest step the price can take, and traders also talk in **points**.",
         "**NQ** ticks in 0.25 points, worth $5 a tick or $20 a point. **ES** also ticks in 0.25 points, worth $12.50 a tick or $50 a point. **Gold (GC)** ticks in $0.10, worth $10 a tick on its 100-ounce contract.",
       ],
+      visual: {
+        type: "scene",
+        scene: {
+          kind: "grid",
+          title: "Futures: what a move is worth",
+          corner: "Contract",
+          cols: ["Tick size", "Per tick", "Per point"],
+          rows: [
+            { label: "NQ", cells: ["0.25", "$5", "$20"] },
+            { label: "ES", cells: ["0.25", "$12.50", "$50"] },
+            { label: "Gold (GC)", cells: ["$0.10", "$10", "$100"] },
+          ],
+        },
+        caption: "Gold's point here is a $1.00 move on the 100-ounce contract: ten ticks.",
+      },
     },
     {
       kind: "numeric",
@@ -77,6 +116,18 @@ export const lesson: LessonContent = {
         "Stocks and crypto simply move in dollars and cents, and indices in points. Whatever you trade, always know one thing: **how much one unit of movement is worth at your size**.",
         "Without it you can't set a stop or size a position properly. Unit 11 turns this into a precise position sizing method.",
       ],
+      visual: {
+        type: "scene",
+        scene: {
+          kind: "flow",
+          title: "The one thing to know before any trade",
+          nodes: [
+            { label: "What one unit of movement is worth", sub: "at your size", icon: "calculator", tone: "accent" },
+            { label: "Set your stop", icon: "shield" },
+            { label: "Size your position", icon: "scale" },
+          ],
+        },
+      },
     },
     {
       kind: "recap",

@@ -78,6 +78,20 @@ export const lesson: LessonContent = {
         "If your higher-timeframe bias is bullish, Power of 3 tells you **when** to look for a buy: after a manipulation below the open, ideally a sweep of the Asian low in the London killzone, followed by an MSS on a lower timeframe.",
         "If the drop below the open just keeps going, the bias was wrong, and your stop protects you.",
       ],
+      visual: {
+        type: "scene",
+        scene: {
+          kind: "flow",
+          title: "When to look for a buy",
+          nodes: [
+            { label: "A bullish higher-timeframe bias", icon: "trending-up" },
+            { label: "A drop below the open", sub: "the manipulation: ideally a sweep of the Asian low", icon: "trending-down", tone: "warn" },
+            { label: "An MSS", sub: "on a lower timeframe", icon: "zap", tone: "accent" },
+            { label: "Look for the buy", icon: "target", tone: "up" },
+          ],
+        },
+        caption: "If the drop below the open just keeps going, the bias was wrong, and your stop protects you.",
+      },
     },
     {
       kind: "recap",

@@ -40,6 +40,19 @@ export const lesson: LessonContent = {
         "Price sweeps an old low, then displaces up through the bearish order block at the swing high. That block becomes a bullish breaker, and the same displacement leaves a bullish fair value gap on top of it.",
         "Entry goes in the overlap, the stop below the sweep low, and the target at the next buy-side liquidity.",
       ],
+      visual: {
+        type: "scene",
+        scene: {
+          kind: "flow",
+          nodes: [
+            { label: "A sweep of an old low", icon: "zap", tone: "warn" },
+            { label: "A strong move up", sub: "displacement through the bearish order block", icon: "trending-up" },
+            { label: "A breaker with an FVG on top", icon: "layers", tone: "accent" },
+            { label: "Entry in the overlap", sub: "stop below the sweep low", icon: "target", tone: "up" },
+          ],
+        },
+        caption: "The target is the next buy-side liquidity.",
+      },
     },
     {
       kind: "tap",

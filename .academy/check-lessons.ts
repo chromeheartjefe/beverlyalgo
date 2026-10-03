@@ -6,7 +6,7 @@ import { B, BREAKER, D, DAY, R, REVERSAL, REVERSAL_BEAR, REVERSAL_DEEP, REVERSAL
 import { equityPath, maxDrawdown, TRADES } from "../content/academy/l4/equity"
 import { rsi } from "../lib/academy/indicators"
 import { findFvgs, isDown } from "../lib/academy/smc"
-import { type Candle, type ChartSpec, isQuestion, type Step } from "../lib/academy/types"
+import { type Candle, type ChartSpec, isQuestion, type SceneSpec, type Step } from "../lib/academy/types"
 
 let problems = 0
 const fail = (id: string, msg: string) => {
@@ -23,12 +23,94 @@ function chartsOf(step: Step): ChartSpec[] {
   return out
 }
 
+/** What is wrong with an animated scene's data, if anything (the scene components trust it) */
+function sceneProblems(s: SceneSpec): string[] {
+  const out: string[] = []
+  const finite = (...values: number[]) => values.every(Number.isFinite)
+  switch (s.kind) {
+    case "bars":
+      if (!s.bars.length) out.push("no bars")
+      for (const b of s.bars) {
+        if (!finite(b.value, b.to ?? 0) || b.value < 0) out.push(`bar "${b.label}" has a bad value`)
+        if (s.max !== undefined && Math.max(b.value, b.to ?? 0) > s.max + 1e-9) out.push(`bar "${b.label}" is longer than max`)
+      }
+      break
+    case "compare":
+      if (s.columns.length < 2 || s.columns.length > 3) out.push("compare needs 2 or 3 columns")
+      if (s.columns.some((c) => !c.points.length || c.points.length > 5)) out.push("a compare column needs 1 to 5 points")
+      break
+    case "flow":
+      if (s.nodes.length < 2 || s.nodes.length > 6) out.push("flow needs 2 to 6 nodes")
+      break
+    case "cycle":
+      if (s.nodes.length < 3 || s.nodes.length > 6) out.push("cycle needs 3 to 6 nodes")
+      break
+    case "line":
+      for (const series of s.series) {
+        if (series.points.length < 2 || !finite(...series.points)) out.push(`line "${series.label}" needs 2+ finite points`)
+        if (series.points.length !== s.series[0].points.length) out.push("line series have different lengths")
+      }
+      if (s.xLabels && s.xLabels.length > s.series[0].points.length) out.push("more x labels than points")
+      break
+    case "checklist":
+      if (!s.items.length || s.items.length > 8) out.push("checklist needs 1 to 8 items")
+      break
+    case "stat":
+      if (!s.stats.length || s.stats.length > 3) out.push("stat needs 1 to 3 numbers")
+      if (!finite(...s.stats.map((x) => x.value))) out.push("stat value not finite")
+      break
+    case "timeline":
+      if (s.events.length < 2 || s.events.length > 5) out.push("timeline needs 2 to 5 events")
+      break
+    case "grid":
+      if (!s.cols.length || s.cols.length > 5 || !s.rows.length || s.rows.length > 5) out.push("grid needs 1 to 5 columns and rows")
+      for (const row of s.rows) {
+        if (row.cells.length !== s.cols.length) out.push(`grid row "${row.label}" has ${row.cells.length} cells for ${s.cols.length} columns`)
+        if (row.tones && row.tones.length !== row.cells.length) out.push(`grid row "${row.label}" tones don't match its cells`)
+      }
+      break
+    case "donut":
+      if (s.slices.length < 2 || s.slices.some((x) => !finite(x.value) || x.value <= 0)) out.push("donut needs 2+ positive slices")
+      break
+    case "path":
+      if (s.points.length < 2 || !finite(...s.points)) out.push("path needs 2+ finite points")
+      for (const m of s.marks ?? []) if (!Number.isInteger(m.at) || m.at < 0 || m.at >= s.points.length) out.push(`path mark "${m.label}" is off the path`)
+      if (!finite(...(s.levels ?? []).map((l) => l.price))) out.push("path level not finite")
+      break
+    case "rr":
+      if (!(s.risk > 0) || !(s.reward > 0)) out.push("rr needs positive risk and reward")
+      break
+    case "quote":
+      if (!s.text.trim() || !s.author.trim()) out.push("quote needs text and an author")
+      break
+    case "ticks":
+      for (const row of s.rows) if (row.from === row.to) out.push(`tick row "${row.market}" doesn't change`)
+      break
+    case "candles":
+      if (!s.groups.length || s.groups.length > 4) out.push("candles needs 1 to 4 groups")
+      for (const g of s.groups) {
+        if (!g.candles.length || g.candles.length > 6) out.push(`candle group "${g.label}" needs 1 to 6 candles`)
+        g.candles.forEach(([o, h, l, c], i) => {
+          if (!finite(o, h, l, c)) out.push(`candle group "${g.label}" candle ${i} not finite`)
+          else if (h < Math.max(o, c) - 1e-9 || l > Math.min(o, c) + 1e-9) out.push(`candle group "${g.label}" candle ${i} high/low inside body`)
+        })
+      }
+      break
+  }
+  return out
+}
+
+let scenes = 0
 for (const [id, lesson] of Object.entries(LESSON_CONTENT)) {
   const ids = new Set<string>()
   if (JSON.stringify(lesson).includes("—")) fail(id, "contains an em-dash")
   if (lesson.steps[lesson.steps.length - 1].kind !== "recap") fail(id, "does not end with a recap")
   let questions = 0
   for (const step of lesson.steps) {
+    if ("visual" in step && step.visual?.type === "scene") {
+      scenes++
+      for (const problem of sceneProblems(step.visual.scene)) fail(id, `scene in "${"title" in step ? step.title : step.id}": ${problem}`)
+    }
     for (const c of chartsOf(step)) {
       const n = c.candles.length
       if (c.volumes && c.volumes.length !== n) fail(id, `volumes ${c.volumes.length} != candles ${n}`)
@@ -57,7 +139,7 @@ for (const [id, lesson] of Object.entries(LESSON_CONTENT)) {
   }
   if (questions < 3) fail(id, `only ${questions} questions`)
 }
-ok(`generic checks on ${Object.keys(LESSON_CONTENT).length} lessons`)
+ok(`generic checks on ${Object.keys(LESSON_CONTENT).length} lessons, ${scenes} animated scenes`)
 
 // ─── Specific answers ───────────────────────────────────────────────────────
 const tapOf = (lessonId: string, qid: string) => {
@@ -282,6 +364,46 @@ for (const [lessonId, nth] of [["u6-why-indicators-lag", 0], ["u6-moving-average
   check(`L4 10% risk falls more than half from its peak (${(maxDrawdown(ten) * 100).toFixed(1)}%)`, maxDrawdown(ten) > 0.5)
   const news = tapOf("u14-trading-around-news", "news-candle").chart.candles
   check("L4 news candle has the morning's high and closes down", argBy(news, 0, news.length - 1, hi, true) === 10 && news[10][3] < news[10][0])
+}
+
+// Facts corrected in the 2026-10-03 review, pinned so they can't drift back
+{
+  /** Chance of at least `run` losses in a row somewhere in `trades` trades, losing each with probability `q` */
+  const streak = (trades: number, q: number, run: number) => {
+    let state = new Array<number>(run).fill(0)
+    state[0] = 1
+    let seen = 0
+    for (let i = 0; i < trades; i++) {
+      const next = new Array<number>(run).fill(0)
+      state.forEach((p, k) => {
+        next[0] += p * (1 - q)
+        if (k + 1 === run) seen += p * q
+        else next[k + 1] += p * q
+      })
+      state = next
+    }
+    return seen
+  }
+  const eight = streak(100, 0.6, 8)
+  check(`L4 8 losses in a row within 100 trades at a 40% win rate is about a coin flip (${(eight * 100).toFixed(1)}%)`, eight > 0.45 && eight < 0.55)
+  check(`L4 the same streak over 300 trades is very likely (${(streak(300, 0.6, 8) * 100).toFixed(1)}%)`, streak(300, 0.6, 8) > 0.8)
+
+  const text = (id: string) => JSON.stringify(LESSON_CONTENT[id])
+  check("L4 Livermore quote reads 'It always was my sitting'", text("u13-cutting-winners-early").includes("It always was my sitting") && !text("u13-cutting-winners-early").includes("It was always my sitting"))
+  check("L2 gaps lesson no longer says CME Bitcoin futures close at weekends", !text("u3-gaps").includes("CME closes at weekends"))
+  check("L5 stocks lesson says the pattern day trader rule was replaced", text("u15-stocks").includes("replaced by new intraday margin standards"))
+
+  // The strong low is the latest swing low that launched a break of the high before it
+  const strong = LESSON_CONTENT["u4-internal-vs-swing-structure"].steps.find((x) => x.kind === "learn" && x.title === "Strong and weak highs and lows")
+  if (strong?.kind === "learn" && strong.visual?.type === "scene" && strong.visual.scene.kind === "path") {
+    const { points, marks = [] } = strong.visual.scene
+    const low = marks.find((m) => m.label === "Strong low")
+    const weak = marks.find((m) => m.label === "Weak high")
+    check(
+      "L2 strong low scene: the marked low is the last one before the newest high, and that high broke the old one",
+      !!low && !!weak && weak.at === points.indexOf(Math.max(...points)) && low.at === weak.at - 1 && points[weak.at] > Math.max(...points.slice(0, low.at)),
+    )
+  } else fail("u4-internal-vs-swing-structure", "strong low scene not found")
 }
 
 const written = ALL_LESSONS.filter((r) => LESSON_CONTENT[r.lesson.id]).length

@@ -15,7 +15,10 @@ const LTF_CHOCH = ltf.findIndex((c, i) => i > 21 && c[3] > LTF_LEVEL)
 
 export const lesson: LessonContent = {
   id: "u4-multi-timeframe-structure",
-  sources: ["Hamilton, The Stock Market Barometer (1922), public domain"],
+  sources: [
+    "Hamilton, The Stock Market Barometer (1922), public domain: three movements at once",
+    "Top-down analysis as commonly taught; explained here in our own words",
+  ],
   steps: [
     {
       kind: "learn",
@@ -81,6 +84,17 @@ export const lesson: LessonContent = {
         "3. Entry timeframe: wait for structure to turn back in the HTF direction.",
         "Level 3 adds where to look for those pullbacks (liquidity, imbalances, order blocks) and exactly how to enter.",
       ],
+      visual: {
+        type: "scene",
+        scene: {
+          kind: "flow",
+          nodes: [
+            { label: "Daily or 4-hour", sub: "the trend and the big swing highs and lows", icon: "calendar", tone: "accent" },
+            { label: "One step down", sub: "wait for a pullback into a sensible area", icon: "hourglass", tone: "warn" },
+            { label: "Entry timeframe", sub: "structure turns back in the HTF direction", icon: "target", tone: "up" },
+          ],
+        },
+      },
     },
     {
       kind: "recap",

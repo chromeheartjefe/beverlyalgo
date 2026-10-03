@@ -42,6 +42,20 @@ export const lesson: LessonContent = {
         "CME futures like NQ and ES pause every weekday from 5 pm to 6 pm New York time, and close from Friday 5 pm to Sunday 6 pm. Price can reopen at a different level.",
         "The gap between the 5 pm close and the 6 pm reopen is the **new day opening gap (NDOG)**. The gap between Friday's close and Sunday's open is the **new week opening gap (NWOG)**. ICT traders mark both as levels price often comes back to.",
       ],
+      visual: {
+        type: "scene",
+        scene: {
+          kind: "grid",
+          title: "Two opening gaps in CME futures",
+          corner: "New York time",
+          cols: ["From", "To"],
+          rows: [
+            { label: "NDOG", cells: ["The 5 pm close", "The 6 pm reopen"], tones: ["neutral", "accent"] },
+            { label: "NWOG", cells: ["Friday's close", "Sunday's open"], tones: ["neutral", "accent"] },
+          ],
+        },
+        caption: "New day and new week opening gaps. ICT traders mark both as levels price often comes back to.",
+      },
     },
     {
       kind: "match",

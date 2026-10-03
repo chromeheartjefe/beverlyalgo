@@ -11,6 +11,19 @@ export const lesson: LessonContent = {
         "Day to day, you're too close to judge. Once a week, outside market hours, sit down with your journal for a **weekly review**.",
         "The Trade Calendar in your dashboard is built for this: the week's days, their results and trades in one view.",
       ],
+      visual: {
+        type: "scene",
+        scene: {
+          kind: "cycle",
+          center: "Once a week, outside market hours",
+          nodes: [
+            { label: "Trade the plan" },
+            { label: "Journal every trade" },
+            { label: "Weekly review", tone: "up" },
+            { label: "One change", tone: "warn" },
+          ],
+        },
+      },
     },
     {
       kind: "learn",
@@ -19,6 +32,19 @@ export const lesson: LessonContent = {
         "1. **Numbers**: trades taken, win rate, total R, average win and loss. 2. **Rules**: how many trades broke the plan, and what did they cost? 3. **Best and worst**: look at the screenshots of your best and worst trade. 4. **One change**: pick a single thing to improve next week.",
         "Only one. Changing five things at once means you'll never know what helped.",
       ],
+      visual: {
+        type: "scene",
+        scene: {
+          kind: "flow",
+          title: "Four steps",
+          nodes: [
+            { label: "1. Numbers", sub: "trades, win rate, total R", icon: "calculator" },
+            { label: "2. Rules", sub: "what did breaking them cost?", icon: "list" },
+            { label: "3. Best and worst", sub: "look at the screenshots", icon: "eye" },
+            { label: "4. One change", sub: "a single thing to improve", icon: "target", tone: "up" },
+          ],
+        },
+      },
     },
     {
       kind: "choice",

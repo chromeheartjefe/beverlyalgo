@@ -16,7 +16,9 @@ const N2: [number, number] = [18, hs[18][2]]
 
 export const lesson: LessonContent = {
   id: "u5-classic-reversal-patterns",
-  sources: ["Wyckoff, Studies in Tape Reading (1910), public domain"],
+  sources: [
+    "Classical chart analysis as commonly taught, first catalogued in Schabacker's Technical Analysis and Stock Market Profits (1932) and Edwards and Magee's Technical Analysis of Stock Trends (1948); explained here in our own words",
+  ],
   steps: [
     {
       kind: "learn",
@@ -76,6 +78,17 @@ export const lesson: LessonContent = {
         "Classic chartists project a target by measuring the pattern's height, from the head down to the neckline, and subtracting it from the neckline break.",
         "Treat it as a rough guide, not a promise. Many patterns overshoot it, and many never reach it.",
       ],
+      visual: {
+        type: "scene",
+        scene: {
+          kind: "path",
+          title: "Projecting a head and shoulders target",
+          points: [100, 104, 102, 108, 102, 104.5, 102, 100.3, 100.2],
+          marks: [{ at: 3, label: "Head", tone: "accent" }, { at: 7, label: "Neckline broken", tone: "down", side: "below" }],
+          levels: [{ price: 102, label: "Neckline", tone: "neutral" }, { price: 96, label: "Target", tone: "down" }],
+        },
+        caption: "The head is 6 above the neckline, so the target sits 6 below the break. A rough guide, not a promise.",
+      },
     },
     {
       kind: "numeric",

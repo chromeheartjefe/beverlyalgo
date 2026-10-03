@@ -13,7 +13,7 @@ const CROSS = fast.findIndex((v, i) => i > 30 && v !== null && slow[i] !== null 
 
 export const lesson: LessonContent = {
   id: "u6-moving-averages",
-  sources: ["J. Welles Wilder Jr., New Concepts in Technical Trading Systems (1978): indicator formulas"],
+  sources: ["Simple and exponential moving averages: standard formulas, explained here in our own words"],
   steps: [
     {
       kind: "learn",

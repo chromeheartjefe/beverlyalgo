@@ -15,7 +15,9 @@ const midRange: Candle[] = candlesFromCloses(
 
 export const lesson: LessonContent = {
   id: "u3-candles-in-context",
-  sources: ["Investor.gov (U.S. SEC): reading price charts"],
+  sources: [
+    "Candlestick pattern names as commonly taught, introduced to Western traders by Steve Nison's Japanese Candlestick Charting Techniques (1991); explained here in our own words",
+  ],
   steps: [
     {
       kind: "learn",
@@ -24,6 +26,19 @@ export const lesson: LessonContent = {
         "A candle pattern is a word. Its meaning depends on the sentence around it.",
         "Patterns matter most when they form **at a level** that already matters (support, resistance, a zone), **after an extended move**, on a **meaningful timeframe**, ideally with **strong volume**.",
       ],
+      visual: {
+        type: "scene",
+        scene: {
+          kind: "checklist",
+          title: "A pattern matters most",
+          items: [
+            { text: "At a level that already matters", mark: "ok" },
+            { text: "After an extended move", mark: "ok" },
+            { text: "On a meaningful timeframe", mark: "ok" },
+            { text: "Ideally with strong volume", mark: "ok" },
+          ],
+        },
+      },
     },
     {
       kind: "learn",
@@ -80,6 +95,22 @@ export const lesson: LessonContent = {
         "Many traders wait for **confirmation**: the next candle closing in the pattern's direction, for example above the high of a bullish engulfing.",
         "The trade-off is real. Confirmation filters out some false signals, but it costs you a later entry and a worse price.",
       ],
+      visual: {
+        type: "scene",
+        scene: {
+          kind: "compare",
+          title: "The trade-off is real",
+          columns: [
+            { title: "Enter on the pattern", icon: "zap", tone: "warn", points: ["An earlier entry", "A better price", "More false signals"] },
+            {
+              title: "Wait for confirmation",
+              icon: "hourglass",
+              tone: "accent",
+              points: ["The next candle closes in the pattern's direction", "Filters out some false signals", "A later entry, a worse price"],
+            },
+          ],
+        },
+      },
     },
     {
       kind: "choice",
@@ -108,6 +139,21 @@ export const lesson: LessonContent = {
         "In Level 3 you will see that Smart Money traders barely use pattern names at all. They ask: did price just sweep a pool of stops? Is it reacting at an imbalance or an order block?",
         "Candles are the language. Location is the meaning. That is the bridge from this unit to everything that comes later.",
       ],
+      visual: {
+        type: "scene",
+        scene: {
+          kind: "compare",
+          columns: [
+            { title: "Candles", icon: "candles", tone: "accent", points: ["The language"] },
+            {
+              title: "Location",
+              icon: "target",
+              tone: "up",
+              points: ["The meaning", "Did price just sweep a pool of stops?", "Is it at an imbalance or an order block?"],
+            },
+          ],
+        },
+      },
     },
     {
       kind: "recap",

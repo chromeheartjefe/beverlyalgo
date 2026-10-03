@@ -10,7 +10,7 @@ const candles = swingCandles(
 
 export const lesson: LessonContent = {
   id: "u5-supply-and-demand-zones",
-  sources: ["Wyckoff, Studies in Tape Reading (1910), public domain"],
+  sources: ["Supply and demand zone trading as commonly taught; explained here in our own words"],
   steps: [
     {
       kind: "learn",
@@ -36,6 +36,20 @@ export const lesson: LessonContent = {
         "The idea: large buyers couldn't fill everything during the base, so some of their orders are still waiting there. When price returns, those leftover orders can push it away again.",
         "A **fresh** zone, never revisited, is usually considered stronger than one that has already been tested a few times.",
       ],
+      visual: {
+        type: "scene",
+        scene: {
+          kind: "flow",
+          title: "The idea behind a demand zone",
+          nodes: [
+            { label: "The base", sub: "large buyers can't fill everything", icon: "layers" },
+            { label: "Price leaves", sub: "some orders are still waiting", icon: "trending-up" },
+            { label: "Price returns", icon: "repeat", tone: "warn" },
+            { label: "Leftover orders can push it away again", icon: "zap", tone: "up" },
+          ],
+        },
+        caption: "A fresh zone, never revisited, is usually considered stronger.",
+      },
     },
     {
       kind: "tap",
@@ -65,6 +79,22 @@ export const lesson: LessonContent = {
         "Supply and demand trading is the direct ancestor of the Smart Money **order block**: the last opposite candle before a strong move. Same idea, sharper definition.",
         "Level 3 adds what classic supply and demand misses: whether the move took liquidity first, and whether it left a fair value gap behind.",
       ],
+      visual: {
+        type: "scene",
+        scene: {
+          kind: "compare",
+          columns: [
+            { title: "Supply and demand", icon: "layers", tone: "accent", points: ["The direct ancestor"] },
+            {
+              title: "Order block",
+              icon: "target",
+              tone: "up",
+              points: ["The last opposite candle before a strong move", "Same idea, sharper definition"],
+            },
+            { title: "Level 3 adds", icon: "search", tone: "warn", points: ["Did the move take liquidity first?", "Did it leave a fair value gap?"] },
+          ],
+        },
+      },
     },
     {
       kind: "truefalse",

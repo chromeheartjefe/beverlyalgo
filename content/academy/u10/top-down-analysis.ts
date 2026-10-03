@@ -17,6 +17,17 @@ export const lesson: LessonContent = {
         "ICT entry models all follow the same top-down routine, building on Unit 4:",
         "**Daily or 4-hour**: decide the bias and the draw on liquidity. **1-hour or 15-minute**: find a point of interest in discount (for longs) where price could turn. **5-minute or 1-minute**: wait inside that area for the trigger, usually a sweep and an MSS, and enter.",
       ],
+      visual: {
+        type: "scene",
+        scene: {
+          kind: "flow",
+          nodes: [
+            { label: "Daily or 4-hour", sub: "the bias and the draw on liquidity", icon: "calendar", tone: "accent" },
+            { label: "1-hour or 15-minute", sub: "a point of interest where price could turn", icon: "search", tone: "warn" },
+            { label: "5-minute or 1-minute", sub: "the trigger: usually a sweep and an MSS", icon: "target", tone: "up" },
+          ],
+        },
+      },
     },
     {
       kind: "learn",

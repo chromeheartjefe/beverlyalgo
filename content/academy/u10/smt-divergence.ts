@@ -19,6 +19,17 @@ export const lesson: LessonContent = {
         "Some markets usually move together: **NQ and ES** (Nasdaq and S&P futures), **EUR/USD and GBP/USD**. Some move opposite: the **dollar index (DXY)** against EUR/USD.",
         "**SMT divergence** (smart money technique) is when correlated markets **disagree at a key level**: one makes a lower low, the other doesn't. It echoes Dow theory's confirmation rule from Unit 4.",
       ],
+      visual: {
+        type: "scene",
+        scene: {
+          kind: "compare",
+          columns: [
+            { title: "Usually move together", icon: "repeat", tone: "up", points: ["NQ and ES", "EUR/USD and GBP/USD"] },
+            { title: "Usually move opposite", icon: "scale", tone: "warn", points: ["The dollar index (DXY)", "Against EUR/USD"] },
+          ],
+        },
+        caption: "SMT divergence: correlated markets disagree at a key level. One makes a lower low, the other doesn't.",
+      },
     },
     {
       kind: "learn",
@@ -87,6 +98,19 @@ export const lesson: LessonContent = {
       body: [
         "SMT is a **confirmation**, not an entry. It adds weight to a sweep at your point of interest. You still wait for the MSS and the entry gap.",
       ],
+      visual: {
+        type: "scene",
+        scene: {
+          kind: "flow",
+          title: "A confirmation, not an entry",
+          nodes: [
+            { label: "A sweep at your point of interest", icon: "zap", tone: "warn" },
+            { label: "SMT divergence", sub: "adds weight", icon: "scale", tone: "accent" },
+            { label: "Wait for the MSS", icon: "hourglass" },
+            { label: "The entry gap", icon: "target", tone: "up" },
+          ],
+        },
+      },
     },
     {
       kind: "recap",

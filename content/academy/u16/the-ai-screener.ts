@@ -11,6 +11,15 @@ export const lesson: LessonContent = {
         "The **AI Screener** scans live market movers and ranks a shortlist: **five crypto** and **five stocks** that stand out right now. It is free for every account.",
         "Each pick gets a direction (**Bullish**, **Bearish** or **Watch**) and a **potential score** from 0 to 100. The scan refreshes roughly every hour.",
       ],
+      visual: {
+        type: "scene",
+        scene: {
+          kind: "stat",
+          title: "The shortlist, refreshed roughly every hour",
+          stats: [{ value: 5, label: "crypto picks", tone: "accent" }, { value: 5, label: "stock picks", tone: "accent" }],
+        },
+        caption: "Each pick gets a direction and a potential score from 0 to 100.",
+      },
     },
     {
       kind: "learn",
@@ -19,6 +28,16 @@ export const lesson: LessonContent = {
         "On purpose, the Screener gives **no entry, stop or target**. It tells you where to look, not what to do.",
         "Pick the one or two names that fit your market and style, open their charts, and do the work: structure, levels, liquidity. Or run a Chart Analysis on them.",
       ],
+      visual: {
+        type: "scene",
+        scene: {
+          kind: "compare",
+          columns: [
+            { title: "What it gives you", icon: "eye", tone: "up", points: ["Bullish, Bearish or Watch", "A potential score", "Where to look"] },
+            { title: "Left out on purpose", icon: "ban", tone: "warn", points: ["No entry", "No stop", "No target", "What to do is your work"] },
+          ],
+        },
+      },
     },
     {
       kind: "choice",
@@ -47,6 +66,18 @@ export const lesson: LessonContent = {
         "Check it before your session for ideas, especially if you trade crypto or US stocks. Movers often have news behind them, so check the economic calendar and any earnings before you trade one.",
         "Remember Level 3: big movers often leave fair value gaps and swept liquidity behind. That is where your own analysis starts.",
       ],
+      visual: {
+        type: "scene",
+        scene: {
+          kind: "flow",
+          nodes: [
+            { label: "Before your session", sub: "check the Screener for ideas", icon: "search" },
+            { label: "Check for news", sub: "economic calendar and earnings", icon: "news", tone: "warn" },
+            { label: "Open the chart", sub: "fair value gaps, swept liquidity", icon: "candles", tone: "accent" },
+            { label: "Your own analysis", icon: "brain", tone: "up" },
+          ],
+        },
+      },
     },
     {
       kind: "choice",

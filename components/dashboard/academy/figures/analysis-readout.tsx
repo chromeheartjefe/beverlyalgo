@@ -7,13 +7,15 @@ import { EASE_OUT } from "@/components/ui/motion"
 
 // Lesson figure: an example Chart Analysis readout, laid out like the real
 // results card, with illustrative numbers. Labels point at each part.
+// Keep the numbers possible: the product measures Risk : Reward from the entry
+// to TP1 and never returns a trade under 1:1.5 (lib/chart-analysis/v2.ts).
 
 const ROWS = [
   { l: "Limit Entry", v: "103.65", tint: "text-gray-100", Icon: Target },
-  { l: "TP1", v: "105.10", tint: "text-emerald-400", Icon: TrendingUp },
-  { l: "TP2", v: "106.40", tint: "text-emerald-400", Icon: TrendingUp },
+  { l: "TP1", v: "106.40", tint: "text-emerald-400", Icon: TrendingUp },
+  { l: "TP2", v: "107.20", tint: "text-emerald-400", Icon: TrendingUp },
   { l: "Stop Loss", v: "102.30", tint: "text-red-400", Icon: ShieldAlert },
-  { l: "Risk : Reward", v: "1:2.0", tint: "text-emerald-300", Icon: Target },
+  { l: "Risk : Reward", v: "1:2", tint: "text-emerald-300", Icon: Target },
 ]
 
 export default function AnalysisReadoutFigure() {

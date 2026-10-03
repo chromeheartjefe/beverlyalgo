@@ -8,7 +8,7 @@ export const SMC: GlossaryTerm[] = [
     category: "smc",
     level: "intermediate",
     short: "A framework that reads charts through liquidity, imbalances and the footprints of large traders.",
-    detail: ["It is one of the most popular ways retail traders read charts today. Treat it as a framework to test, not proven truth: there is little formal research on it."],
+    detail: ["It is widely taught to retail traders today. Treat it as a framework to test, not proven truth: there is little formal research on it."],
     related: ["ict", "liquidity", "order-block", "fair-value-gap"],
     lessonId: "u7-what-liquidity-means-in-smc",
   },

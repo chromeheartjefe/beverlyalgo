@@ -56,6 +56,20 @@ export const lesson: LessonContent = {
         "ICT applies the same idea to long wicks: the 50% of a big wick is often revisited and respected.",
         "Many traders use CE in their rules: \"enter at the top of the gap, stop out if a candle closes beyond CE\", or \"only enter at CE\". Pick one, write it down, and test it.",
       ],
+      visual: {
+        type: "scene",
+        scene: {
+          kind: "candles",
+          groups: [
+            {
+              label: "The 50% of a big wick",
+              note: "Often revisited and respected",
+              candles: [[100, 101, 90, 99.5], [99.5, 100.5, 97, 98], [98, 98.5, 94.75, 97.2]],
+              lines: [{ price: 94.75, label: "Midpoint of the wick", tone: "accent" }],
+            },
+          ],
+        },
+      },
     },
     {
       kind: "choice",

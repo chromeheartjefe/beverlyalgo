@@ -10,6 +10,14 @@ export const lesson: LessonContent = {
       body: [
         "Here is one way to turn everything in this course into a daily routine with your EntrixAlgo tools. Adapt the times to your market and session.",
       ],
+      visual: {
+        type: "scene",
+        scene: {
+          kind: "cycle",
+          center: "Every trading day",
+          nodes: [{ label: "Before the session", tone: "accent" }, { label: "During the session", tone: "warn" }, { label: "After the session", tone: "up" }],
+        },
+      },
     },
     {
       kind: "learn",
@@ -17,6 +25,19 @@ export const lesson: LessonContent = {
       body: [
         "Check the **economic calendar** for high-impact news. Glance at the **AI Screener** if you trade crypto or stocks. Mark the higher-timeframe bias, draw on liquidity and key levels on your own chart. Decide what would prove your bias wrong.",
       ],
+      visual: {
+        type: "scene",
+        scene: {
+          kind: "checklist",
+          items: [
+            { text: "Economic calendar: any high-impact news?", mark: "ok" },
+            { text: "AI Screener, if you trade crypto or stocks", mark: "ok" },
+            { text: "Mark the higher-timeframe bias", mark: "ok" },
+            { text: "Draw on liquidity and key levels", mark: "ok" },
+            { text: "Decide what would prove your bias wrong", mark: "ok" },
+          ],
+        },
+      },
     },
     {
       kind: "learn",
@@ -24,6 +45,18 @@ export const lesson: LessonContent = {
       body: [
         "Trade only your killzone and only your written setups. When one appears, use **Chart Analysis** as a second opinion if you like, then size it from the stop with the **Risk Calculator**. Respect your daily loss limit and maximum trades.",
       ],
+      visual: {
+        type: "scene",
+        scene: {
+          kind: "flow",
+          nodes: [
+            { label: "Your killzone", sub: "your written setups only", icon: "clock" },
+            { label: "Chart Analysis", sub: "a second opinion, if you like", icon: "search", tone: "accent" },
+            { label: "Risk Calculator", sub: "size from the stop", icon: "calculator", tone: "up" },
+            { label: "Your limits", sub: "daily loss and maximum trades", icon: "shield", tone: "warn" },
+          ],
+        },
+      },
     },
     {
       kind: "learn",
@@ -31,6 +64,21 @@ export const lesson: LessonContent = {
       body: [
         "Log every trade in the **Trade Journal** the same day. Spend five minutes on **Practice** in the Academy to keep the concepts fresh. Once a week, open the **Trade Calendar** for your review and pick one thing to improve. Ask the **AI Trading Bot** about anything that confused you.",
       ],
+      visual: {
+        type: "scene",
+        scene: {
+          kind: "compare",
+          columns: [
+            {
+              title: "After every session",
+              icon: "pen",
+              tone: "accent",
+              points: ["Log every trade in the Trade Journal", "Five minutes of Practice", "Ask the AI Trading Bot what confused you"],
+            },
+            { title: "Once a week", icon: "calendar", tone: "up", points: ["Open the Trade Calendar for your review", "Pick one thing to improve"] },
+          ],
+        },
+      },
     },
     {
       kind: "match",
@@ -71,6 +119,17 @@ export const lesson: LessonContent = {
         "You've reached the end of the lessons. The final exam is waiting on the Academy page: pass it to earn your Entrix Academy certificate.",
         "After that, the real work starts: write your plan, test it honestly, risk small, and keep practising.",
       ],
+      visual: {
+        type: "scene",
+        scene: {
+          kind: "flow",
+          nodes: [
+            { label: "The final exam", sub: "on the Academy page", icon: "pen", tone: "accent" },
+            { label: "Your certificate", icon: "star", tone: "up" },
+            { label: "The real work", sub: "plan, test, risk small, keep practising", icon: "seed", tone: "warn" },
+          ],
+        },
+      },
     },
     {
       kind: "recap",

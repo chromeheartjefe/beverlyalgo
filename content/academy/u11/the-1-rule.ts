@@ -15,6 +15,17 @@ export const lesson: LessonContent = {
         "The most common rule in professional trading: risk only a small, fixed percentage of your account on each trade, usually **0.5% to 2%**, with **1%** as the classic default.",
         "On a $10,000 account, 1% is $100. Your stop and position size are set so that if the stop is hit, you lose about $100. Never more.",
       ],
+      visual: {
+        type: "scene",
+        scene: {
+          kind: "bars",
+          title: "The 1% rule on a $10,000 account",
+          bars: [
+            { label: "The account", value: 10000, display: "$10,000", tone: "accent" },
+            { label: "Risk on one trade", value: 100, display: "$100", tone: "up" },
+          ],
+        },
+      },
     },
     {
       kind: "numeric",

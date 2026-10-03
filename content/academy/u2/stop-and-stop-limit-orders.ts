@@ -19,6 +19,21 @@ export const lesson: LessonContent = {
         "A **stop order** (or stop-market order) sleeps until price reaches your stop price. Then it wakes up and becomes a market order.",
         "A **sell stop** sits below the current price. It is how a stop-loss on a long trade works. A **buy stop** sits above the current price: a stop-loss for a short, or an entry when price breaks out higher.",
       ],
+      visual: {
+        type: "scene",
+        scene: {
+          kind: "compare",
+          columns: [
+            { title: "Sell stop", icon: "trending-down", tone: "down", points: ["Sits below the current price", "The stop-loss on a long"] },
+            {
+              title: "Buy stop",
+              icon: "trending-up",
+              tone: "up",
+              points: ["Sits above the current price", "The stop-loss on a short", "Or an entry on a breakout"],
+            },
+          ],
+        },
+      },
     },
     {
       kind: "learn",
@@ -57,6 +72,16 @@ export const lesson: LessonContent = {
         "Once triggered, a stop is a market order, so it fills at the next available price. In a fast move or a **gap** (price jumps over your level, for example overnight), the fill can be well past your stop.",
         "That still beats no stop. A stop is a seatbelt, not a guarantee.",
       ],
+      visual: {
+        type: "scene",
+        scene: {
+          kind: "path",
+          title: "A gap through a stop",
+          points: [100, 100.4, 99.8, 100.1, 99.3, 99.6, 97.4, 97.6, 97.5],
+          marks: [{ at: 5, label: "Still above the stop" }, { at: 6, label: "Jumps past it: filled down here", tone: "down", side: "below" }],
+          levels: [{ price: 98.8, label: "Your stop", tone: "down" }],
+        },
+      },
     },
     {
       kind: "truefalse",
@@ -72,6 +97,16 @@ export const lesson: LessonContent = {
         "A **stop-limit** order has two prices. When the stop price is hit, it places a limit order at your limit price instead of a market order.",
         "That protects you from a terrible fill, but if price races straight through your limit, the order **doesn't fill at all** and you are still in the trade. That makes stop-limits risky as stop-losses.",
       ],
+      visual: {
+        type: "scene",
+        scene: {
+          kind: "compare",
+          columns: [
+            { title: "Stop order", icon: "zap", tone: "accent", points: ["Becomes a market order", "Always gets you out", "The price can be bad"] },
+            { title: "Stop-limit", icon: "target", tone: "warn", points: ["Becomes a limit order", "No terrible fill", "May not fill at all"] },
+          ],
+        },
+      },
     },
     {
       kind: "choice",

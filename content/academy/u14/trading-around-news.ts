@@ -63,6 +63,19 @@ export const lesson: LessonContent = {
       body: [
         "**Be flat**: close or avoid positions a few minutes before high-impact news. **Reduce size** if you must hold through it. **Wait**: let the first 5 to 15 minutes play out, then trade the structure that forms (often a sweep and an MSS). **Avoid stops right at obvious levels** during news, where slippage is worst.",
       ],
+      visual: {
+        type: "scene",
+        scene: {
+          kind: "timeline",
+          title: "Around a high-impact release",
+          events: [
+            { time: "A few minutes before", label: "Be flat, or reduce size", tone: "accent" },
+            { time: "The release", label: "Stops slip most at obvious levels", tone: "down" },
+            { time: "First 5 to 15 minutes", label: "Wait and let it play out", tone: "warn" },
+            { time: "After", label: "Trade the structure that forms", tone: "up" },
+          ],
+        },
+      },
     },
     {
       kind: "choice",

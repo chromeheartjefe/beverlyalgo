@@ -47,6 +47,21 @@ export const lesson: LessonContent = {
         "ICT traders often describe price as moving from one pool to the other: sweep the sell-side, then run to the buy-side (or the reverse).",
         "In the chart, price first dropped below the equal lows, taking the sell-side liquidity there, and later rallied all the way through the old high, taking the buy-side.",
       ],
+      visual: {
+        type: "scene",
+        scene: {
+          kind: "path",
+          title: "From one pool to the other",
+          points: [104.5, 102, 100.4, 101.4, 100.4, 99.6, 101.6, 103.4, 105.6, 105.8],
+          marks: [
+            { at: 0, label: "The old high" },
+            { at: 5, label: "Sell-side taken", tone: "down", side: "below" },
+            { at: 9, label: "Buy-side taken", tone: "up" },
+          ],
+          levels: [{ price: 104.5, label: "Buy-side", tone: "up" }, { price: 100.4, label: "Sell-side", tone: "down" }],
+        },
+        caption: "Price drops below the equal lows first, then rallies through the old high.",
+      },
     },
     {
       kind: "tap",

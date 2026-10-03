@@ -8,15 +8,18 @@ import { Easing, interpolate } from "remotion"
 // Shared Remotion setup for lesson animations: a looping, silent Player that
 // fills the lesson column. With reduced motion it shows one finished frame
 // with controls instead of autoplaying.
-export function RemotionFigure({
+export function RemotionFigure<Props extends Record<string, unknown> = Record<string, never>>({
   component,
+  inputProps,
   durationInFrames,
   width,
   height,
   fps = 30,
   stillFrame,
 }: {
-  component: ComponentType
+  component: ComponentType<Props>
+  /** Data for scenes that are drawn from a lesson's content */
+  inputProps?: Props
   durationInFrames: number
   width: number
   height: number
@@ -28,7 +31,9 @@ export function RemotionFigure({
   return (
     <div className="w-full overflow-hidden border border-white/10">
       <Player
-        component={component}
+        // The Player ties the props type to the component's; ours is checked above
+        component={component as ComponentType<Record<string, unknown>>}
+        inputProps={inputProps}
         durationInFrames={durationInFrames}
         compositionWidth={width}
         compositionHeight={height}

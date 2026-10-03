@@ -44,6 +44,16 @@ export const lesson: LessonContent = {
         "Because so many orders sit at the exact number, price often turns a little **before** it (take-profits fill early), or runs a little **beyond** it (stops just past the number get triggered) before reversing.",
         "Experienced traders avoid putting their own stop exactly at, or just past, an obvious round number.",
       ],
+      visual: {
+        type: "scene",
+        scene: {
+          kind: "path",
+          points: [96, 98.2, 99.6, 98.4, 97.8, 99.2, 100.5, 99.4, 97.6],
+          marks: [{ at: 2, label: "Turns just before it" }, { at: 6, label: "Runs just beyond, then reverses", tone: "warn" }],
+          levels: [{ price: 100, label: "Round number", tone: "accent" }],
+        },
+        caption: "Take-profits fill early, and stops just past the number get triggered.",
+      },
     },
     {
       kind: "choice",

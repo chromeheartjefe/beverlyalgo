@@ -67,6 +67,18 @@ export const lesson: LessonContent = {
         "The same logic applies to any high or low that lots of people watch: the **previous day's high and low**, the **previous week's high and low**, and the high and low of the **Asian session**.",
         "You will use those session and day levels constantly in Unit 9.",
       ],
+      visual: {
+        type: "scene",
+        scene: {
+          kind: "checklist",
+          title: "Highs and lows that lots of people watch",
+          items: [
+            { text: "The previous day's high and low", mark: "dot" },
+            { text: "The previous week's high and low", mark: "dot" },
+            { text: "The Asian session's high and low", mark: "dot" },
+          ],
+        },
+      },
     },
     {
       kind: "choice",

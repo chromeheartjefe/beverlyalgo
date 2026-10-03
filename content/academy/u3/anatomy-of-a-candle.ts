@@ -11,7 +11,7 @@ const wicks: Candle[] = candlesFromCloses(pathCloses([[0, 100], [13, 101.5]], { 
 
 export const lesson: LessonContent = {
   id: "u3-anatomy-of-a-candle",
-  sources: ["Investor.gov (U.S. SEC): reading price charts"],
+  sources: ["Candlestick conventions (open, high, low, close, body and wick): standard definitions, explained here in our own words"],
   steps: [
     {
       kind: "learn",
@@ -37,6 +37,18 @@ export const lesson: LessonContent = {
         "A candle is a summary of a battle. **A long upper wick** means buyers pushed price up, but sellers drove it back down before the close: higher prices were rejected.",
         "**A long lower wick** means lower prices were rejected. **A big body with small wicks** means one side was in control all period. **A tiny body** means neither side won.",
       ],
+      visual: {
+        type: "scene",
+        scene: {
+          kind: "candles",
+          groups: [
+            { label: "Long upper wick", note: "Higher prices rejected", candles: [[100, 110, 99, 101.5]] },
+            { label: "Long lower wick", note: "Lower prices rejected", candles: [[100, 101, 90, 98.5]] },
+            { label: "Big body", note: "One side in control", candles: [[100, 110.5, 99.5, 110]] },
+            { label: "Tiny body", note: "Neither side won", candles: [[100, 104, 96, 100.4]] },
+          ],
+        },
+      },
     },
     {
       kind: "tap",

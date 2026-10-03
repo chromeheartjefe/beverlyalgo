@@ -33,6 +33,16 @@ export const lesson: LessonContent = {
         "More traders active means more liquidity: tighter spreads and smoother fills. Fewer traders means thinner books, wider spreads and sudden jumps.",
         "Many pairs drift in a narrow range during the Asian session, then move hard when London opens and again when New York opens. Smart Money traders build whole models around these windows, called **killzones**. You will study them in Level 3.",
       ],
+      visual: {
+        type: "scene",
+        scene: {
+          kind: "compare",
+          columns: [
+            { title: "Busy session", icon: "sun", tone: "up", points: ["More traders active", "Tighter spreads", "Smoother fills"] },
+            { title: "Quiet session", icon: "moon", tone: "warn", points: ["Thinner books", "Wider spreads", "Sudden jumps"] },
+          ],
+        },
+      },
     },
     {
       kind: "choice",
@@ -46,9 +56,22 @@ export const lesson: LessonContent = {
       kind: "learn",
       title: "Stocks: a main session plus extended hours",
       body: [
-        "US stocks have a regular session from **9:30 am to 4:00 pm** New York time. Many brokers also offer pre-market trading from as early as 4:00 am and after-hours trading until 8:00 pm.",
+        "US stocks have a regular session from **9:30 am to 4:00 pm** New York time. Many brokers also offer pre-market trading from as early as 4:00 am and after-hours trading until 8:00 pm. Some offer overnight trading too, and the big exchanges have announced plans for an overnight session of their own.",
         "Extended hours have far fewer participants. Spreads are wider, prices can jump on small orders, and big news (like earnings) often hits during these hours.",
       ],
+      visual: {
+        type: "scene",
+        scene: {
+          kind: "timeline",
+          title: "US stock hours, New York time",
+          events: [
+            { time: "4:00 am", label: "Pre-market can start", tone: "neutral" },
+            { time: "9:30 am", label: "Regular session opens", tone: "up" },
+            { time: "4:00 pm", label: "Regular session closes", tone: "down" },
+            { time: "8:00 pm", label: "After-hours ends", tone: "neutral" },
+          ],
+        },
+      },
     },
     {
       kind: "truefalse",
@@ -64,6 +87,26 @@ export const lesson: LessonContent = {
         "CME futures like NQ, ES and gold trade almost around the clock: from Sunday evening to Friday afternoon, with a short daily break around 5 pm New York time. The busiest hours still line up with the New York stock session.",
         "Crypto never closes, but it has rhythms too. Activity usually picks up when US and European traders are awake, and weekends are often quieter and thinner.",
       ],
+      visual: {
+        type: "scene",
+        scene: {
+          kind: "compare",
+          columns: [
+            {
+              title: "CME futures",
+              icon: "candles",
+              tone: "accent",
+              points: ["Sunday evening to Friday afternoon", "Short daily break around 5 pm", "Busiest in New York stock hours"],
+            },
+            {
+              title: "Crypto",
+              icon: "bitcoin",
+              tone: "warn",
+              points: ["Never closes", "Busier when the US and Europe are awake", "Weekends often quieter"],
+            },
+          ],
+        },
+      },
     },
     {
       kind: "choice",

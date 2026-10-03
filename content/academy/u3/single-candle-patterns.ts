@@ -31,7 +31,9 @@ const downtrend: Candle[] = candlesFromCloses(
 
 export const lesson: LessonContent = {
   id: "u3-single-candle-patterns",
-  sources: ["Investor.gov (U.S. SEC): reading price charts"],
+  sources: [
+    "Candlestick pattern names as commonly taught, introduced to Western traders by Steve Nison's Japanese Candlestick Charting Techniques (1991); explained here in our own words",
+  ],
   steps: [
     {
       kind: "learn",
@@ -64,6 +66,17 @@ export const lesson: LessonContent = {
         "A **spinning top** has a small body with wicks on both sides. Also indecision, just slightly less extreme.",
         "After a strong move, indecision can be an early sign that the move is running out of steam.",
       ],
+      visual: {
+        type: "scene",
+        scene: {
+          kind: "candles",
+          title: "Indecision",
+          groups: [
+            { label: "Doji", note: "Opens and closes at almost the same price", candles: [[100, 104, 96, 100]] },
+            { label: "Spinning top", note: "A small body, wicks on both sides", candles: [[100, 104.5, 95.5, 101.5]] },
+          ],
+        },
+      },
     },
     {
       kind: "learn",
@@ -72,6 +85,18 @@ export const lesson: LessonContent = {
         "A **hammer** has a small body near the top and a long lower wick, at least twice the body. It shows sellers pushed hard, and buyers took it all back. It matters most after a decline.",
         "A **shooting star** is the mirror image: a small body near the bottom and a long upper wick, after a rally. Buyers tried higher and were rejected.",
       ],
+      visual: {
+        type: "scene",
+        scene: {
+          kind: "candles",
+          title: "Rejection",
+          groups: [
+            { label: "Hammer", note: "After a decline: buyers took it all back", tone: "up", candles: [[100, 101.2, 92, 101]] },
+            { label: "Shooting star", note: "After a rally: buyers were rejected", tone: "down", candles: [[100, 108, 98.8, 99]] },
+          ],
+        },
+        caption: "The long wick is at least twice the body.",
+      },
     },
     {
       kind: "learn",
@@ -79,6 +104,17 @@ export const lesson: LessonContent = {
       body: [
         "A **marubozu** is a big body with little or no wick. It opened at one extreme and closed at the other: one side was in charge from start to finish.",
       ],
+      visual: {
+        type: "scene",
+        scene: {
+          kind: "candles",
+          title: "Control",
+          groups: [
+            { label: "Bullish marubozu", note: "Opened at the low, closed at the high", tone: "up", candles: [[100, 110, 100, 110]] },
+            { label: "Bearish marubozu", note: "Opened at the high, closed at the low", tone: "down", candles: [[110, 110, 100, 100]] },
+          ],
+        },
+      },
     },
     {
       kind: "match",

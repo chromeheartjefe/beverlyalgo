@@ -53,6 +53,21 @@ export const lesson: LessonContent = {
         "A **wick** through the level, with the candle **closing back** on the original side. Then a strong move the other way, ideally a **displacement** that breaks structure (an MSS).",
         "The sweep candle often has a long wick: everything below the old low was rejected within one candle.",
       ],
+      visual: {
+        type: "scene",
+        scene: {
+          kind: "candles",
+          groups: [
+            {
+              label: "A sweep",
+              note: "A wick through the level, a close back, then a strong move the other way",
+              tone: "up",
+              candles: [[102, 102.4, 100.6, 101], [101, 101.3, 98.6, 100.8], [100.8, 104, 100.6, 103.8]],
+              lines: [{ price: 100, label: "Old low" }],
+            },
+          ],
+        },
+      },
     },
     {
       kind: "learn",
@@ -60,6 +75,21 @@ export const lesson: LessonContent = {
       body: [
         "Candles **close** beyond the level and keep closing there: price is **accepted** on the new side. Follow-through comes fast, and if price comes back to the broken level, it holds as resistance (role reversal).",
       ],
+      visual: {
+        type: "scene",
+        scene: {
+          kind: "candles",
+          groups: [
+            {
+              label: "A real breakdown",
+              note: "Closes beyond the level, keeps closing there, and the retest holds",
+              tone: "down",
+              candles: [[102, 102.3, 100.4, 100.8], [100.8, 101, 98.8, 99], [99, 99.4, 97.6, 97.9], [97.9, 99.9, 97.7, 99.6], [99.6, 99.95, 97, 97.2]],
+              lines: [{ price: 100, label: "Old low" }],
+            },
+          ],
+        },
+      },
     },
     {
       kind: "choice",

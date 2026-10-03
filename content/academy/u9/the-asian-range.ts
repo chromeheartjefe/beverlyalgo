@@ -34,6 +34,18 @@ export const lesson: LessonContent = {
         "A common pattern: London **sweeps one side** of the Asian range, often the side against the day's real direction, then reverses. New York then pushes the day's main move.",
         "In this chart, London dropped below the Asian low, took the sell stops, and the day went on to rally hard.",
       ],
+      visual: {
+        type: "scene",
+        scene: {
+          kind: "timeline",
+          title: "A common pattern",
+          events: [
+            { time: "Asia", label: "The range forms", tone: "neutral" },
+            { time: "London", label: "Sweeps one side, then reverses", tone: "warn" },
+            { time: "New York", label: "Pushes the day's main move", tone: "up" },
+          ],
+        },
+      },
     },
     {
       kind: "tap",

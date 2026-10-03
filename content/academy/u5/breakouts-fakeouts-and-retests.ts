@@ -18,7 +18,10 @@ const chart: ChartSpec = {
 
 export const lesson: LessonContent = {
   id: "u5-breakouts-fakeouts-and-retests",
-  sources: ["Wyckoff, Studies in Tape Reading (1910), public domain"],
+  sources: [
+    "Classical chart analysis as commonly taught, first catalogued in Schabacker's Technical Analysis and Stock Market Profits (1932) and Edwards and Magee's Technical Analysis of Stock Trends (1948); explained here in our own words",
+    "Smart Money Concepts terminology (liquidity sweep) as commonly taught; explained here in our own words",
+  ],
   steps: [
     {
       kind: "learn",
@@ -27,6 +30,19 @@ export const lesson: LessonContent = {
         "A **breakout** is price leaving a range or pattern, ideally with a strong candle that **closes** beyond the level, on rising volume.",
         "Breakouts attract a crowd: breakout traders buy, and short sellers' stops above the range turn into more buying. That burst of orders is what pushes price away.",
       ],
+      visual: {
+        type: "scene",
+        scene: {
+          kind: "flow",
+          title: "Why a breakout runs",
+          nodes: [
+            { label: "A close beyond the level", icon: "door" },
+            { label: "Breakout traders buy", icon: "users", tone: "accent" },
+            { label: "Short sellers' stops trigger", sub: "more buying", icon: "zap", tone: "warn" },
+            { label: "Price is pushed away", icon: "trending-up", tone: "up" },
+          ],
+        },
+      },
     },
     {
       kind: "learn",
@@ -53,6 +69,17 @@ export const lesson: LessonContent = {
         "**On the close**: wait for a candle to close beyond the level. Fewer fakeouts, slightly worse price.",
         "**On the retest**: wait for price to come back and hold the broken level (role reversal). Best price and clearest stop, but some breakouts never come back.",
       ],
+      visual: {
+        type: "scene",
+        scene: {
+          kind: "compare",
+          columns: [
+            { title: "On the break", icon: "zap", tone: "warn", points: ["You never miss a move", "Caught by every fakeout"] },
+            { title: "On the close", icon: "check", tone: "accent", points: ["Fewer fakeouts", "A slightly worse price"] },
+            { title: "On the retest", icon: "repeat", tone: "up", points: ["Best price, clearest stop", "Some breakouts never come back"] },
+          ],
+        },
+      },
     },
     {
       kind: "choice",

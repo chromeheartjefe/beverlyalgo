@@ -11,6 +11,17 @@ export const lesson: LessonContent = {
         "Researchers Brad Barber and Terrance Odean studied tens of thousands of US household brokerage accounts in the 1990s. The households that traded the most earned an annual return of about **11.4%**, while the market returned about **17.9%** over the same period.",
         "Their conclusion fit their paper's title: trading is hazardous to your wealth. The main culprits were costs and overconfidence.",
       ],
+      visual: {
+        type: "scene",
+        scene: {
+          kind: "bars",
+          title: "Annual return, US households in the 1990s",
+          suffix: "%",
+          max: 20,
+          bars: [{ label: "Households that traded the most", value: 11.4, tone: "down" }, { label: "The market", value: 17.9, tone: "up" }],
+        },
+        caption: "From Barber and Odean's study of household brokerage accounts.",
+      },
     },
     {
       kind: "learn",
@@ -19,6 +30,20 @@ export const lesson: LessonContent = {
         "A winning streak feels like skill, even when it is luck. Traders then raise size, loosen their rules and trade more often, right before the streak ends.",
         "Overtrading shows up as taking B and C setups, trading outside your hours, and opening trades out of boredom.",
       ],
+      visual: {
+        type: "scene",
+        scene: {
+          kind: "cycle",
+          center: "Luck that feels like skill",
+          nodes: [
+            { label: "A winning streak", tone: "up" },
+            { label: "It feels like skill", tone: "warn" },
+            { label: "Bigger size, looser rules", tone: "warn" },
+            { label: "More trades", tone: "warn" },
+            { label: "The streak ends", tone: "down" },
+          ],
+        },
+      },
     },
     {
       kind: "choice",
@@ -46,6 +71,19 @@ export const lesson: LessonContent = {
       body: [
         "Cap your trades per day. Grade every setup A, B or C in your journal and check which grades actually make money; many traders find only their A setups do. Keep size fixed through winning and losing streaks alike.",
       ],
+      visual: {
+        type: "scene",
+        scene: {
+          kind: "checklist",
+          title: "Defences",
+          items: [
+            { text: "Cap your trades per day", mark: "ok" },
+            { text: "Grade every setup A, B or C in your journal", mark: "ok" },
+            { text: "Check which grades actually make money", mark: "ok" },
+            { text: "Keep size fixed through every streak", mark: "ok" },
+          ],
+        },
+      },
     },
     {
       kind: "choice",

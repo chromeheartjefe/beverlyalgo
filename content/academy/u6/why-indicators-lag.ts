@@ -21,6 +21,18 @@ export const lesson: LessonContent = {
         "Every indicator is a formula applied to past prices (and sometimes volume). A moving average is an average of the last N closes. RSI compares recent gains with recent losses.",
         "That means an indicator can only react to what price has already done. It always arrives **after** the move it describes. That delay is called **lag**.",
       ],
+      visual: {
+        type: "scene",
+        scene: {
+          kind: "flow",
+          nodes: [
+            { label: "Past prices", sub: "and sometimes volume", icon: "candles" },
+            { label: "A formula", icon: "calculator", tone: "accent" },
+            { label: "The indicator", icon: "chart" },
+            { label: "Arrives after the move", sub: "that delay is lag", icon: "hourglass", tone: "warn" },
+          ],
+        },
+      },
     },
     {
       kind: "learn",
@@ -57,6 +69,23 @@ export const lesson: LessonContent = {
         "You can reduce lag by using fewer candles in the formula. A 5-period average turns much sooner than a 50-period one. The cost is noise: it also turns on every small wiggle, giving more false signals.",
         "Every indicator setting is a trade-off between speed and reliability. There is no setting that is both.",
       ],
+      visual: {
+        type: "scene",
+        scene: {
+          kind: "compare",
+          title: "Speed against reliability",
+          columns: [
+            {
+              title: "5-period average",
+              icon: "zap",
+              tone: "warn",
+              points: ["Turns much sooner", "Turns on every small wiggle", "More false signals"],
+            },
+            { title: "50-period average", icon: "hourglass", tone: "accent", points: ["Turns much later", "Less noise"] },
+          ],
+        },
+        caption: "There is no setting that is both.",
+      },
     },
     {
       kind: "choice",
@@ -85,6 +114,21 @@ export const lesson: LessonContent = {
         "Use indicators to **describe** the market, not to predict it: is momentum strong or fading? Is volatility high or low? Is price stretched far from its average?",
         "Structure and levels decide where you trade. Indicators can add confirmation and context. That is how the rest of this unit treats them.",
       ],
+      visual: {
+        type: "scene",
+        scene: {
+          kind: "compare",
+          columns: [
+            {
+              title: "Indicators describe",
+              icon: "eye",
+              tone: "accent",
+              points: ["Is momentum strong or fading?", "Is volatility high or low?", "Is price stretched from its average?"],
+            },
+            { title: "Structure and levels decide", icon: "target", tone: "up", points: ["Where you trade"] },
+          ],
+        },
+      },
     },
     {
       kind: "recap",

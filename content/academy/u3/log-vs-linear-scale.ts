@@ -11,7 +11,7 @@ const growth: Candle[] = closes.map((close, i) => {
 
 export const lesson: LessonContent = {
   id: "u3-log-vs-linear-scale",
-  sources: ["Investor.gov (U.S. SEC): reading price charts"],
+  sources: ["Linear and logarithmic price scales: standard definitions, explained here in our own words"],
   steps: [
     {
       kind: "learn",
@@ -57,6 +57,26 @@ export const lesson: LessonContent = {
         "Use log scale for **long-term charts** and for assets that made **huge percentage moves**, like Bitcoin over the years. Trendlines drawn on long-term charts can look very different on the two scales.",
         "On intraday charts, where price only moves a few percent, the two scales look almost identical, so it rarely matters.",
       ],
+      visual: {
+        type: "scene",
+        scene: {
+          kind: "compare",
+          columns: [
+            {
+              title: "Use log scale",
+              icon: "trending-up",
+              tone: "up",
+              points: ["Long-term charts", "Huge percentage moves", "Like Bitcoin over the years"],
+            },
+            {
+              title: "It rarely matters",
+              icon: "clock",
+              tone: "neutral",
+              points: ["Intraday charts", "Price only moves a few percent", "The two scales look almost identical"],
+            },
+          ],
+        },
+      },
     },
     {
       kind: "choice",

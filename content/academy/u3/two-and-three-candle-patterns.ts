@@ -32,7 +32,9 @@ const rally: Candle[] = candlesFromCloses(
 
 export const lesson: LessonContent = {
   id: "u3-two-and-three-candle-patterns",
-  sources: ["Investor.gov (U.S. SEC): reading price charts"],
+  sources: [
+    "Candlestick pattern names as commonly taught, introduced to Western traders by Steve Nison's Japanese Candlestick Charting Techniques (1991); explained here in our own words",
+  ],
   steps: [
     {
       kind: "learn",
@@ -62,6 +64,26 @@ export const lesson: LessonContent = {
         "A **bullish engulfing** is a green candle whose body completely covers the previous red body. After a decline, it shows buyers overwhelming sellers in a single period.",
         "A **bearish engulfing** is the mirror: a red body that swallows the previous green one, usually after a rally.",
       ],
+      visual: {
+        type: "scene",
+        scene: {
+          kind: "candles",
+          groups: [
+            {
+              label: "Bullish engulfing",
+              note: "The green body covers the red one, after a decline",
+              tone: "up",
+              candles: [[106, 106.5, 103.5, 104], [104, 104.3, 101.6, 102], [101.6, 105.4, 101.2, 105]],
+            },
+            {
+              label: "Bearish engulfing",
+              note: "The red body swallows the green one, after a rally",
+              tone: "down",
+              candles: [[100, 102.5, 99.6, 102], [102, 104.4, 101.7, 104], [104.4, 104.8, 100.6, 101]],
+            },
+          ],
+        },
+      },
     },
     {
       kind: "tap",
@@ -78,6 +100,21 @@ export const lesson: LessonContent = {
         "An **inside bar** is a candle whose entire range, high to low, fits inside the previous candle's range.",
         "It shows the market pausing and compressing. Traders watch for the breakout from the mother candle's high or low.",
       ],
+      visual: {
+        type: "scene",
+        scene: {
+          kind: "candles",
+          groups: [
+            {
+              label: "Inside bar",
+              note: "The whole range fits inside the candle before it",
+              candles: [[100, 106, 98, 105], [104, 104.6, 101, 102]],
+              lines: [{ price: 106, label: "Mother candle's high", tone: "accent" }, { price: 98, label: "Mother candle's low", tone: "accent" }],
+            },
+          ],
+        },
+        caption: "Traders watch for the breakout from either line.",
+      },
     },
     {
       kind: "choice",
@@ -99,6 +136,27 @@ export const lesson: LessonContent = {
         "A **morning star** has three candles: a strong red one, a small-bodied candle that shows the selling stalling, then a strong green one that closes well into the first candle's body. The **evening star** is the bearish mirror at a top.",
         "**Tweezer tops and bottoms** are two candles with (nearly) the same high or the same low. Smart Money traders pay close attention to those equal highs and lows, for reasons you will learn in Level 3.",
       ],
+      visual: {
+        type: "scene",
+        scene: {
+          kind: "candles",
+          groups: [
+            {
+              label: "Morning star",
+              note: "Selling stalls, then a strong green candle",
+              tone: "up",
+              candles: [[108, 108.5, 102.5, 103], [102.4, 103.2, 101.2, 102], [102.6, 107, 102.2, 106.5]],
+            },
+            {
+              label: "Evening star",
+              note: "The bearish mirror, at a top",
+              tone: "down",
+              candles: [[100, 105.5, 99.5, 105], [105.6, 106.8, 104.8, 106], [105.4, 105.8, 101, 101.5]],
+            },
+            { label: "Tweezer bottom", note: "Two candles, the same low", candles: [[104, 104.5, 100, 100.8], [100.8, 104.2, 100, 103.6]] },
+          ],
+        },
+      },
     },
     {
       kind: "match",

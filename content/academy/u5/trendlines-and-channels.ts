@@ -18,7 +18,9 @@ const plain: ChartSpec = { candles, decimals: 2 }
 
 export const lesson: LessonContent = {
   id: "u5-trendlines-and-channels",
-  sources: ["Wyckoff, Studies in Tape Reading (1910), public domain"],
+  sources: [
+    "Classical chart analysis as commonly taught, first catalogued in Schabacker's Technical Analysis and Stock Market Profits (1932) and Edwards and Magee's Technical Analysis of Stock Trends (1948); explained here in our own words",
+  ],
   steps: [
     {
       kind: "learn",
@@ -69,6 +71,18 @@ export const lesson: LessonContent = {
         "**Use real swing points**, not random wicks. **Don't force it**: if you have to ignore half the candles to make a line fit, there is no line. And remember that a steeper line breaks sooner.",
         "A trendline break is a warning, not a reversal on its own. Structure (a CHoCH) is what confirms a trend has turned.",
       ],
+      visual: {
+        type: "scene",
+        scene: {
+          kind: "checklist",
+          items: [
+            { text: "Use real swing points, not random wicks", mark: "ok" },
+            { text: "Forcing a line that ignores half the candles", mark: "bad" },
+            { text: "A steeper line breaks sooner", mark: "dot" },
+            { text: "A break is a warning: structure confirms the turn", mark: "dot" },
+          ],
+        },
+      },
     },
     {
       kind: "truefalse",

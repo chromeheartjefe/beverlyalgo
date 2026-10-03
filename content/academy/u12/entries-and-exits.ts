@@ -11,6 +11,17 @@ export const lesson: LessonContent = {
         "**Limit entry**: wait for price to come to your level (a gap, a CE, an order block). Best price, but some trades never fill. **Market entry on confirmation**: enter when the trigger candle closes. Never miss the move, but a worse price. **Stop entry**: enter as price breaks a level. Catches momentum, but suffers on fakeouts.",
         "None is \"right\". Pick the one your strategy was tested with, and stick to it.",
       ],
+      visual: {
+        type: "scene",
+        scene: {
+          kind: "compare",
+          columns: [
+            { title: "Limit", icon: "target", tone: "up", points: ["Price comes to your level", "Best price", "Some trades never fill"] },
+            { title: "Market", icon: "check", tone: "accent", points: ["When the trigger candle closes", "Never miss the move", "A worse price"] },
+            { title: "Stop entry", icon: "zap", tone: "warn", points: ["As price breaks a level", "Catches momentum", "Suffers on fakeouts"] },
+          ],
+        },
+      },
     },
     {
       kind: "learn",
@@ -18,6 +29,20 @@ export const lesson: LessonContent = {
       body: [
         "**Fixed target** at liquidity or a level. **Partials**: take some profit at a first target, let the rest run. **Breakeven**: move the stop to entry after a certain gain. **Trailing stop**: move the stop behind new swing points or by an ATR multiple. **Time stop**: close a trade that hasn't worked by a set time, like the end of the killzone.",
       ],
+      visual: {
+        type: "scene",
+        scene: {
+          kind: "checklist",
+          title: "Ways out of a trade",
+          items: [
+            { text: "Fixed target at liquidity or a level", mark: "dot" },
+            { text: "Partials: take some, let the rest run", mark: "dot" },
+            { text: "Breakeven: stop to entry after a gain", mark: "dot" },
+            { text: "Trailing stop behind swings, or by ATR", mark: "dot" },
+            { text: "Time stop: close what hasn't worked by a set time", mark: "dot" },
+          ],
+        },
+      },
     },
     {
       kind: "numeric",
@@ -35,6 +60,20 @@ export const lesson: LessonContent = {
         "Moving your stop to breakeven feels safe. But if you move it too early, normal pullbacks stop you out at 0R from trades that would have reached their target.",
         "Test it. Many strategies do better moving to breakeven only after 1.5R to 2R, or after a new break of structure in their favour.",
       ],
+      visual: {
+        type: "scene",
+        scene: {
+          kind: "path",
+          title: "Breakeven moved too early",
+          points: [100, 100.6, 101.2, 100.7, 100, 100.5, 101.6, 102.8, 102.2, 103.5, 104.2],
+          marks: [
+            { at: 2, label: "Stop moved to entry", tone: "warn" },
+            { at: 4, label: "Stopped out at 0R", tone: "down", side: "below" },
+            { at: 10, label: "Target hit without you", tone: "up" },
+          ],
+          levels: [{ price: 104.2, label: "Target", tone: "up" }, { price: 100, label: "Entry", tone: "neutral" }],
+        },
+      },
     },
     {
       kind: "choice",

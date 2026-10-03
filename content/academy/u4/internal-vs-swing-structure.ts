@@ -11,7 +11,7 @@ const candles = swingCandles([[0, 100], [6, 105], [9, 103.3], [11, 104.2], [16, 
 
 export const lesson: LessonContent = {
   id: "u4-internal-vs-swing-structure",
-  sources: ["Hamilton, The Stock Market Barometer (1922), public domain"],
+  sources: ["Smart Money Concepts and ICT market structure terminology as commonly taught; explained here in our own words"],
   steps: [
     {
       kind: "learn",
@@ -43,6 +43,21 @@ export const lesson: LessonContent = {
         "Internal breaks happen all the time and often mean little on their own. A CHoCH on internal structure can be just the end of a pullback, not the end of the trend.",
         "Swing breaks carry the weight. Many traders take direction from swing structure and use internal structure only to time entries.",
       ],
+      visual: {
+        type: "scene",
+        scene: {
+          kind: "compare",
+          columns: [
+            {
+              title: "Internal structure",
+              icon: "search",
+              tone: "warn",
+              points: ["Breaks happen all the time", "Often mean little on their own", "Used to time entries"],
+            },
+            { title: "Swing structure", icon: "flag", tone: "up", points: ["Breaks carry the weight", "Gives the direction"] },
+          ],
+        },
+      },
     },
     {
       kind: "learn",
@@ -51,6 +66,16 @@ export const lesson: LessonContent = {
         "In an uptrend, the swing low that launched the move which broke structure is a **strong low**. Buyers proved themselves there, and the trend is only in trouble if it breaks.",
         "The newest high, the one that hasn't been broken yet, is a **weak high**. It is the next level the trend is expected to take out, and it often attracts price like a magnet.",
       ],
+      visual: {
+        type: "scene",
+        scene: {
+          kind: "path",
+          title: "In an uptrend",
+          points: [100, 104, 101.5, 108, 105.5, 111, 109.5],
+          marks: [{ at: 3, label: "Old swing high" }, { at: 4, label: "Strong low", tone: "up", side: "below" }, { at: 5, label: "Weak high", tone: "warn" }],
+        },
+        caption: "The strong low launched the move that broke the old swing high. The weak high is the newest one, not broken yet.",
+      },
     },
     {
       kind: "tap",

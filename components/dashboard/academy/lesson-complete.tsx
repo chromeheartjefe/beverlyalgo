@@ -9,10 +9,12 @@ import { mutate } from "swr"
 
 import { LevelUp } from "@/components/dashboard/academy/level-up"
 import { EASE_OUT } from "@/components/ui/motion"
+import { PAPER_TRADING } from "@/config/features"
 import type { CompletionResult } from "@/lib/academy/server"
 import { academyKey } from "@/lib/academy/use-academy"
 import { localDay, rankFor } from "@/lib/academy/xp"
 import { requestJson, userMessage } from "@/lib/api-client"
+import { missionsForLesson } from "@/lib/sim/missions"
 
 export interface LessonFinish {
   correct: number
@@ -68,6 +70,8 @@ export function LessonComplete({
   const accuracy = finish.total > 0 ? Math.round((finish.correct / finish.total) * 100) : 100
   const perfect = finish.total > 0 && finish.correct === finish.total
   const rank = saved ? rankFor(saved.state.xp) : null
+  // Paper Trading missions that put this lesson into practice
+  const practice = PAPER_TRADING ? missionsForLesson(lessonId) : []
 
   return (
     <div className="flex h-full min-h-0 flex-col overflow-y-auto">
@@ -188,6 +192,17 @@ export function LessonComplete({
             >
               Next: {next.title}
               <ArrowRight className="size-4" />
+            </Link>
+          )}
+          {practice.length > 0 && (
+            <Link
+              href="/dashboard/paper-trading"
+              className="inline-flex flex-col items-center justify-center rounded-xl border border-amber-300/30 bg-amber-300/[0.07] px-6 py-3 text-sm font-semibold text-amber-100 transition-colors hover:bg-amber-300/[0.12]"
+            >
+              Practise this in Paper Trading
+              <span className="mt-0.5 text-xs font-medium text-amber-100/70">
+                Mission: {practice.map((m) => m.title).join(", ")}
+              </span>
             </Link>
           )}
           <Link

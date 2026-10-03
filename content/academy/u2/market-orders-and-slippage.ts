@@ -20,6 +20,19 @@ export const lesson: LessonContent = {
         "**Slippage** is the difference between the price you expected and the price you actually got.",
         "In a deep, calm market a small market order slips little or not at all. A big order, a thin market or a fast move can slip a lot. Slippage can occasionally work in your favour, but over many trades it is a cost.",
       ],
+      visual: {
+        type: "scene",
+        scene: {
+          kind: "flow",
+          title: "Example: a market buy",
+          nodes: [
+            { label: "You expect 100.00", icon: "eye" },
+            { label: "Not enough size there", icon: "layers", tone: "warn" },
+            { label: "Filled at 100.06", icon: "check", tone: "warn" },
+            { label: "Slippage: 0.06", icon: "coins", tone: "down" },
+          ],
+        },
+      },
     },
     {
       kind: "numeric",
@@ -43,6 +56,19 @@ export const lesson: LessonContent = {
         "Expect the most slippage:",
         "Right as **big news** hits (rate decisions, jobs reports, earnings). At the **open** of a session. In **thin markets** and quiet hours. When **many stops** trigger at once and everyone rushes for the same exit.",
       ],
+      visual: {
+        type: "scene",
+        scene: {
+          kind: "checklist",
+          title: "Expect the most slippage",
+          items: [
+            { text: "Right as big news hits", mark: "bad" },
+            { text: "At the open of a session", mark: "bad" },
+            { text: "In thin markets and quiet hours", mark: "bad" },
+            { text: "When many stops trigger at once", mark: "bad" },
+          ],
+        },
+      },
     },
     {
       kind: "choice",
@@ -64,6 +90,16 @@ export const lesson: LessonContent = {
         "Market orders are right when getting in or out **now** matters more than the exact price. The classic case: getting out of a trade that is going against you.",
         "For small size in a liquid market, slippage is usually tiny. For big size, thin markets or news, consider a limit order instead. That is the next lesson.",
       ],
+      visual: {
+        type: "scene",
+        scene: {
+          kind: "compare",
+          columns: [
+            { title: "Market order", icon: "zap", tone: "accent", points: ["Getting in or out now matters most", "Small size in a liquid market"] },
+            { title: "Consider a limit", icon: "target", tone: "up", points: ["Big size", "Thin markets", "Around news"] },
+          ],
+        },
+      },
     },
     {
       kind: "recap",

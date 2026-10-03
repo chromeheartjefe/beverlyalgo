@@ -50,6 +50,19 @@ export const lesson: LessonContent = {
         "After the flip, a retrace back into the inverted gap often holds. In this chart, the later pullback dipped into the old bearish gap and bounced: it had become support.",
         "Notice that this also happened right after a liquidity sweep and an MSS. IFVGs, like everything in this level, work best when several pieces agree.",
       ],
+      visual: {
+        type: "scene",
+        scene: {
+          kind: "flow",
+          nodes: [
+            { label: "An old bearish gap", icon: "layers", tone: "down" },
+            { label: "It flips", icon: "repeat", tone: "warn" },
+            { label: "A pullback dips into it", icon: "trending-down" },
+            { label: "It holds as support", icon: "shield", tone: "up" },
+          ],
+        },
+        caption: "A retrace into the inverted gap often holds. It works best when several pieces agree.",
+      },
     },
     {
       kind: "choice",

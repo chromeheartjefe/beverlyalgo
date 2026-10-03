@@ -25,6 +25,19 @@ export const lesson: LessonContent = {
         "ICT's **Silver Bullet** is a time-based version of the core model. It only looks for setups inside three one-hour windows, New York time: **3 to 4 am**, **10 to 11 am** and **2 to 3 pm**.",
         "Inside the window, wait for a fair value gap that forms in the direction of the draw on liquidity (usually after a sweep), enter on the retrace into it, and target the nearest liquidity.",
       ],
+      visual: {
+        type: "scene",
+        scene: {
+          kind: "timeline",
+          title: "Silver Bullet windows, New York time",
+          events: [
+            { time: "3 to 4 am", label: "First window", tone: "accent" },
+            { time: "10 to 11 am", label: "Second window", tone: "accent" },
+            { time: "2 to 3 pm", label: "Third window", tone: "accent" },
+          ],
+        },
+        caption: "Inside a window: a fair value gap in the direction of the draw, an entry on the retrace, a target at the nearest liquidity.",
+      },
     },
     {
       kind: "learn",

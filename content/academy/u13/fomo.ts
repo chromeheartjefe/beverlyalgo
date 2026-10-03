@@ -11,6 +11,19 @@ export const lesson: LessonContent = {
         "**FOMO** is the panic of watching a move happen without you. It makes traders jump in late, chase price far from any level, skip their rules and use oversized positions.",
         "Chasing almost always means a poor entry: the stop is far away, or too tight to survive, and the move is already stretched.",
       ],
+      visual: {
+        type: "scene",
+        scene: {
+          kind: "path",
+          title: "A chased entry",
+          points: [10, 10.5, 10.2, 11.5, 13, 14.8, 16.5, 17.6, 18.2, 17.1, 15.6, 14.9],
+          marks: [
+            { at: 2, label: "The level: no trade taken", side: "below" },
+            { at: 8, label: "Jumps in late, far from any level", tone: "down" },
+            { at: 11, label: "The stretched move pulls back", tone: "warn", side: "below" },
+          ],
+        },
+      },
     },
     {
       kind: "choice",
@@ -32,6 +45,20 @@ export const lesson: LessonContent = {
         "**Rules first**: no setup, no trade, however strong the move looks. **Alerts**: set price alerts at your levels and stop staring at the chart. **A missed-trade log**: write down moves you missed and check later whether they met your rules. Most didn't.",
         "Remember the numbers: the markets offer setups every single day. A missed trade costs nothing. A chased trade often costs 1R or more.",
       ],
+      visual: {
+        type: "scene",
+        scene: {
+          kind: "checklist",
+          title: "Defences",
+          items: [
+            { text: "No setup, no trade", mark: "ok" },
+            { text: "Price alerts at your levels", mark: "ok" },
+            { text: "A log of missed trades, checked against your rules", mark: "ok" },
+            { text: "A missed trade costs nothing", mark: "dot" },
+            { text: "A chased trade often costs 1R or more", mark: "bad" },
+          ],
+        },
+      },
     },
     {
       kind: "truefalse",

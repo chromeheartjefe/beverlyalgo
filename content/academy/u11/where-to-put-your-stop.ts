@@ -31,6 +31,17 @@ export const lesson: LessonContent = {
         "**Structure**: beyond the swing point or sweep that your setup depends on. **Volatility**: 1.5 to 2 ATR from entry, so normal noise doesn't hit it. **Both**: beyond structure, with at least about 1 ATR of room.",
         "A stop based on a dollar amount you'd \"like\" to lose, with no link to the chart, is the one method that doesn't work.",
       ],
+      visual: {
+        type: "scene",
+        scene: {
+          kind: "compare",
+          columns: [
+            { title: "Structure", icon: "flag", tone: "accent", points: ["Beyond the swing point or sweep the setup depends on"] },
+            { title: "Volatility", icon: "candles", tone: "warn", points: ["1.5 to 2 ATR from entry", "Normal noise doesn't hit it"] },
+            { title: "Both", icon: "shield", tone: "up", points: ["Beyond structure", "With about 1 ATR of room"] },
+          ],
+        },
+      },
     },
     {
       kind: "choice",
@@ -52,6 +63,17 @@ export const lesson: LessonContent = {
         "Once a trade is on, a stop may move **towards** profit (to breakeven, or trailing), never further away. Moving it away \"to give it room\" is how 1% losses become 5% losses.",
         "If you keep wanting a wider stop, the stop was in the wrong place to begin with. Fix it on the next trade, with a smaller size.",
       ],
+      visual: {
+        type: "scene",
+        scene: {
+          kind: "compare",
+          title: "Moving a stop once the trade is on",
+          columns: [
+            { title: "Allowed", icon: "check", tone: "up", points: ["Towards profit", "To breakeven", "Trailing behind price"] },
+            { title: "Never", icon: "ban", tone: "down", points: ["Further away", "To give it room", "1% losses become 5% losses"] },
+          ],
+        },
+      },
     },
     {
       kind: "truefalse",

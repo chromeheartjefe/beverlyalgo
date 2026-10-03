@@ -50,6 +50,21 @@ export const lesson: LessonContent = {
         "Outside the killzones, markets often chop in small ranges, which is where many traders lose money to spreads and false signals. Restricting setups to killzones cuts that noise.",
         "It also helps your life: you only need to be at the screen for a couple of hours, not all day.",
       ],
+      visual: {
+        type: "scene",
+        scene: {
+          kind: "compare",
+          columns: [
+            {
+              title: "Outside the killzones",
+              icon: "ban",
+              tone: "down",
+              points: ["Markets often chop in small ranges", "Money lost to spreads and false signals"],
+            },
+            { title: "Inside them", icon: "clock", tone: "up", points: ["That noise is cut", "A couple of hours at the screen, not all day"] },
+          ],
+        },
+      },
     },
     {
       kind: "truefalse",

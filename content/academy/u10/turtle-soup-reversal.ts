@@ -53,6 +53,20 @@ export const lesson: LessonContent = {
         "Turtle soup works best at highs and lows that **everyone** sees: the previous day's high or low, the previous week's, equal highs and lows, and the edges of the Asian range during the London or New York killzone.",
         "It works worst against a strong higher-timeframe trend. Fading a real breakout is expensive.",
       ],
+      visual: {
+        type: "scene",
+        scene: {
+          kind: "checklist",
+          title: "Highs and lows that everyone sees",
+          items: [
+            { text: "The previous day's high or low", mark: "ok" },
+            { text: "The previous week's high or low", mark: "ok" },
+            { text: "Equal highs and lows", mark: "ok" },
+            { text: "The edges of the Asian range, in a killzone", mark: "ok" },
+            { text: "Worst against a strong higher-timeframe trend", mark: "bad" },
+          ],
+        },
+      },
     },
     {
       kind: "truefalse",

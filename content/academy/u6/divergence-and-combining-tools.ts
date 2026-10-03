@@ -64,6 +64,26 @@ export const lesson: LessonContent = {
         "Divergence shows a move is losing momentum. It can last a long time, with several divergences in a row while the trend keeps going.",
         "Treat it as a reason to be careful (tighten stops, skip new entries in the old direction), and wait for structure, like a CHoCH, before betting on a reversal.",
       ],
+      visual: {
+        type: "scene",
+        scene: {
+          kind: "compare",
+          columns: [
+            {
+              title: "What it tells you",
+              icon: "alert",
+              tone: "warn",
+              points: ["A move is losing momentum", "It can last a long time", "Several in a row while the trend keeps going"],
+            },
+            {
+              title: "What to do",
+              icon: "shield",
+              tone: "up",
+              points: ["Tighten stops", "Skip new entries in the old direction", "Wait for structure, like a CHoCH"],
+            },
+          ],
+        },
+      },
     },
     {
       kind: "truefalse",
@@ -79,6 +99,21 @@ export const lesson: LessonContent = {
         "RSI, Stochastic, CCI and Williams %R are all **momentum** oscillators built from the same prices. Four of them agreeing is really one opinion repeated four times.",
         "Combine tools that measure **different things**: one for trend (a moving average), one for momentum (RSI or MACD), one for volatility (ATR), and volume or VWAP. Then let structure and levels make the decision.",
       ],
+      visual: {
+        type: "scene",
+        scene: {
+          kind: "compare",
+          columns: [
+            { title: "One opinion, four times", icon: "repeat", tone: "down", points: ["RSI", "Stochastic", "CCI", "Williams %R"] },
+            {
+              title: "Different things",
+              icon: "layers",
+              tone: "up",
+              points: ["Trend: a moving average", "Momentum: RSI or MACD", "Volatility: ATR", "Volume or VWAP"],
+            },
+          ],
+        },
+      },
     },
     {
       kind: "choice",

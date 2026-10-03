@@ -14,6 +14,19 @@ export const lesson: LessonContent = {
         "Order blocks don't always hold. When price **breaks straight through** one with displacement, the block has failed, and the traders who acted on it are now trapped.",
         "ICT calls the failed block a **breaker block**. It flips: a failed bearish order block becomes bullish support, and a failed bullish one becomes bearish resistance.",
       ],
+      visual: {
+        type: "scene",
+        scene: {
+          kind: "flow",
+          nodes: [
+            { label: "An order block", icon: "layers" },
+            { label: "Price breaks straight through", sub: "with displacement", icon: "zap", tone: "down" },
+            { label: "The block has failed", sub: "its traders are trapped", icon: "lock", tone: "warn" },
+            { label: "It flips: a breaker block", icon: "repeat", tone: "accent" },
+          ],
+        },
+        caption: "A failed bearish order block becomes bullish support. A failed bullish one becomes bearish resistance.",
+      },
     },
     {
       kind: "learn",
@@ -53,6 +66,26 @@ export const lesson: LessonContent = {
         "A **mitigation block** forms the same way, with one difference: **no liquidity sweep**. Price fails to make a new low (it makes a higher low instead), then breaks above the swing high through the failed block.",
         "The sweep makes the breaker the stronger of the two: stops were taken before the reversal.",
       ],
+      visual: {
+        type: "scene",
+        scene: {
+          kind: "compare",
+          columns: [
+            {
+              title: "Breaker block",
+              icon: "zap",
+              tone: "up",
+              points: ["A liquidity sweep first", "Stops were taken before the reversal", "The stronger of the two"],
+            },
+            {
+              title: "Mitigation block",
+              icon: "repeat",
+              tone: "warn",
+              points: ["No liquidity sweep", "A higher low instead of a new low", "Then a break through the failed block"],
+            },
+          ],
+        },
+      },
     },
     {
       kind: "choice",

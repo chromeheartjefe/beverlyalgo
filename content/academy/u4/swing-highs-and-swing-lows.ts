@@ -10,7 +10,9 @@ const swings = swingCandles([[0, 100], [5, 103.5], [9, 101.2], [14, 105], [18, 1
 
 export const lesson: LessonContent = {
   id: "u4-swing-highs-and-swing-lows",
-  sources: ["Hamilton, The Stock Market Barometer (1922), public domain"],
+  sources: [
+    "Swing point rules (two candles on each side) as commonly taught, after the fractals in Bill Williams's Trading Chaos (1995); explained here in our own words",
+  ],
   steps: [
     {
       kind: "learn",
@@ -43,6 +45,27 @@ export const lesson: LessonContent = {
         "A **swing high** is a candle whose high is higher than the highs of the candles on both sides of it. A **swing low** is a candle whose low is lower than the lows on both sides.",
         "A common rule uses two candles on each side: five candles in total, with the middle one the highest (or lowest). Some traders use more candles to find only the bigger swings.",
       ],
+      visual: {
+        type: "scene",
+        scene: {
+          kind: "candles",
+          title: "Two candles on each side",
+          groups: [
+            {
+              label: "Swing high",
+              note: "The middle high is higher than the highs on both sides",
+              tone: "down",
+              candles: [[100, 102, 99.5, 101.5], [101.5, 103.5, 101, 103], [103, 106, 102.5, 104], [104, 104.5, 101.8, 102.2], [102.2, 103, 100.5, 101]],
+            },
+            {
+              label: "Swing low",
+              note: "The middle low is lower than the lows on both sides",
+              tone: "up",
+              candles: [[106, 106.5, 104, 104.5], [104.5, 105, 102.5, 103], [103, 103.6, 100, 102], [102, 104.2, 101.5, 104], [104, 105.8, 103.4, 105.5]],
+            },
+          ],
+        },
+      },
     },
     {
       kind: "numeric",
@@ -60,6 +83,18 @@ export const lesson: LessonContent = {
         "A swing high can only be confirmed once the candles after it have formed. In the moment, the latest high might still be part of a move that keeps going.",
         "That delay is unavoidable. It is why traders talk about the swing structure of the past and react to it, instead of guessing every top as it happens.",
       ],
+      visual: {
+        type: "scene",
+        scene: {
+          kind: "flow",
+          nodes: [
+            { label: "A new high forms", icon: "trending-up" },
+            { label: "It might still keep going", icon: "hourglass", tone: "warn" },
+            { label: "The candles after it form", icon: "candles" },
+            { label: "Now it is a confirmed swing high", icon: "check", tone: "up" },
+          ],
+        },
+      },
     },
     {
       kind: "tap",

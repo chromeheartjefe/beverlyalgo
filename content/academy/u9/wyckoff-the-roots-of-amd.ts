@@ -24,6 +24,19 @@ export const lesson: LessonContent = {
         "**Richard Wyckoff** (1873 to 1934) traded and taught in the early 1900s. He described markets as if one large operator, the **Composite Man**, were accumulating positions quietly, shaking out weak hands, then marking price up.",
         "Swap \"Composite Man\" for \"smart money\" and you have the core of SMC. ICT's Power of 3 is the same story told on a single candle.",
       ],
+      visual: {
+        type: "scene",
+        scene: {
+          kind: "flow",
+          title: "Wyckoff's Composite Man",
+          nodes: [
+            { label: "Accumulates quietly", icon: "layers" },
+            { label: "Shakes out weak hands", icon: "zap", tone: "warn" },
+            { label: "Marks price up", icon: "trending-up", tone: "up" },
+          ],
+        },
+        caption: "Richard Wyckoff, 1873 to 1934. Swap Composite Man for smart money and you have the core of SMC.",
+      },
     },
     {
       kind: "learn",
@@ -76,6 +89,22 @@ export const lesson: LessonContent = {
         "One naming trap: in **Wyckoff**, distribution is a topping range where large players sell before a markdown. In ICT's **AMD**, distribution means the expansion phase, the real move of the day, which can be up or down.",
         "Same word, different meaning. Always check which framework you are reading.",
       ],
+      visual: {
+        type: "scene",
+        scene: {
+          kind: "compare",
+          title: "Same word, different meaning",
+          columns: [
+            { title: "In Wyckoff", icon: "book", tone: "warn", points: ["A topping range", "Large players sell before a markdown"] },
+            {
+              title: "In ICT's AMD",
+              icon: "zap",
+              tone: "accent",
+              points: ["The expansion phase", "The real move of the day", "It can be up or down"],
+            },
+          ],
+        },
+      },
     },
     {
       kind: "truefalse",

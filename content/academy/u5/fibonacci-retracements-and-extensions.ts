@@ -53,6 +53,27 @@ export const lesson: LessonContent = {
         "There is no proof that nature makes markets obey 61.8%. Fibonacci levels work mostly because so many traders watch them, and because they line up with a sensible idea: healthy pullbacks give back a third to two thirds of the move.",
         "They are strongest when they line up with something else: a support zone, an old swing point, or (in Level 3) a fair value gap or order block. ICT's **optimal trade entry** uses the area between roughly 62% and 79%.",
       ],
+      visual: {
+        type: "scene",
+        scene: {
+          kind: "compare",
+          columns: [
+            {
+              title: "Why they work",
+              icon: "users",
+              tone: "accent",
+              points: ["So many traders watch them", "Healthy pullbacks give back a third to two thirds"],
+            },
+            {
+              title: "Strongest lined up with",
+              icon: "layers",
+              tone: "up",
+              points: ["A support zone", "An old swing point", "A fair value gap or order block"],
+            },
+          ],
+        },
+        caption: "There is no proof that markets obey 61.8%.",
+      },
     },
     {
       kind: "learn",
@@ -61,6 +82,20 @@ export const lesson: LessonContent = {
         "**Fibonacci extensions** project beyond the old high to estimate targets for the next leg. The common ones are **127.2%** and **161.8%** of the previous swing.",
         "Like the measured move, they are rough guides for taking profit, not destinations.",
       ],
+      visual: {
+        type: "scene",
+        scene: {
+          kind: "bars",
+          title: "Extensions of the previous swing",
+          max: 161.8,
+          bars: [
+            { label: "The previous swing", value: 100, display: "100%", tone: "neutral" },
+            { label: "First extension", value: 127.2, display: "127.2%", tone: "accent" },
+            { label: "Second extension", value: 161.8, display: "161.8%", tone: "up" },
+          ],
+        },
+        caption: "Rough guides for taking profit, not destinations.",
+      },
     },
     {
       kind: "choice",

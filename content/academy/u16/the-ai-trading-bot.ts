@@ -11,6 +11,21 @@ export const lesson: LessonContent = {
         "The **AI Trading Bot** is a chat assistant for trading questions: strategy, risk management, order types and psychology. It is a Pro feature.",
         "It is a great companion to this course: ask it to explain a concept again in different words, or to walk through an example with your own numbers.",
       ],
+      visual: {
+        type: "scene",
+        scene: {
+          kind: "compare",
+          columns: [
+            { title: "Ask it about", icon: "message", tone: "accent", points: ["Strategy", "Risk management", "Order types", "Psychology"] },
+            {
+              title: "Alongside this course",
+              icon: "book",
+              tone: "up",
+              points: ["A concept explained again in different words", "An example with your own numbers"],
+            },
+          ],
+        },
+      },
     },
     {
       kind: "learn",
@@ -18,6 +33,20 @@ export const lesson: LessonContent = {
       body: [
         "**Explain**: \"Explain consequent encroachment like I'm new to trading.\" **Calculate**: \"Size a position: $15,000 account, 1% risk, 30-point stop on MNQ.\" **Quiz**: \"Ask me five questions about fair value gaps.\" **Review**: paste your trading plan and ask what's missing or vague.",
       ],
+      visual: {
+        type: "scene",
+        scene: {
+          kind: "cycle",
+          title: "Four good ways to use it",
+          center: "Ask the AI Trading Bot to",
+          nodes: [
+            { label: "Explain a concept", tone: "accent" },
+            { label: "Calculate a position size", tone: "up" },
+            { label: "Quiz you", tone: "warn" },
+            { label: "Review your plan", tone: "accent" },
+          ],
+        },
+      },
     },
     {
       kind: "choice",
@@ -45,6 +74,20 @@ export const lesson: LessonContent = {
       body: [
         "AI assistants can be wrong, especially with specific numbers, rules or very recent events. Double-check anything you'll act on: contract specs with the exchange, rules with your broker, calculations by hand or with the Risk Calculator.",
       ],
+      visual: {
+        type: "scene",
+        scene: {
+          kind: "grid",
+          title: "Double-check anything you'll act on",
+          corner: "",
+          cols: ["Check it with"],
+          rows: [
+            { label: "Contract specs", cells: ["The exchange"], tones: ["accent"] },
+            { label: "Rules", cells: ["Your broker"], tones: ["accent"] },
+            { label: "Calculations", cells: ["By hand, or the Risk Calculator"], tones: ["up"] },
+          ],
+        },
+      },
     },
     {
       kind: "choice",

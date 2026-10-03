@@ -31,6 +31,26 @@ export const lesson: LessonContent = {
         "A fair value gap is the precise three-candle gap between candle 1's wick and candle 3's wick. A liquidity void is the broader stretch covered by the big candle bodies themselves.",
         "Many traders use the void's **midpoint** as a key level: a retrace often reacts around the middle of a large displacement candle.",
       ],
+      visual: {
+        type: "scene",
+        scene: {
+          kind: "compare",
+          columns: [
+            {
+              title: "Fair value gap",
+              icon: "target",
+              tone: "accent",
+              points: ["The precise three-candle gap", "Between candle 1's wick and candle 3's wick"],
+            },
+            {
+              title: "Liquidity void",
+              icon: "layers",
+              tone: "warn",
+              points: ["The broader stretch", "Covered by the big candle bodies", "Its midpoint is a key level"],
+            },
+          ],
+        },
+      },
     },
     {
       kind: "numeric",

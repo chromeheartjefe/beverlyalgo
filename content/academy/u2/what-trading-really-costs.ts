@@ -14,6 +14,20 @@ export const lesson: LessonContent = {
         "Trading costs come in several layers:",
         "The **spread** you cross on every entry and exit. **Commissions** charged per trade or per contract. **Slippage** on market and stop orders. **Financing costs** for holding leveraged positions overnight. Plus platform, data and withdrawal fees at some brokers.",
       ],
+      visual: {
+        type: "scene",
+        scene: {
+          kind: "checklist",
+          title: "The layers of cost",
+          items: [
+            { text: "Spread, on every entry and exit", mark: "dot" },
+            { text: "Commission, per trade or per contract", mark: "dot" },
+            { text: "Slippage, on market and stop orders", mark: "dot" },
+            { text: "Financing, for leveraged positions held overnight", mark: "dot" },
+            { text: "Platform, data and withdrawal fees at some brokers", mark: "dot" },
+          ],
+        },
+      },
     },
     {
       kind: "learn",
@@ -22,6 +36,26 @@ export const lesson: LessonContent = {
         "In forex and CFDs, positions still open at the daily rollover (5 pm New York time) are charged or credited **swap**, based on the interest rate difference between the two currencies. Many brokers charge three days' swap on Wednesday to cover the weekend.",
         "Crypto **perpetual futures** use **funding**: regular payments between longs and shorts, often every 8 hours, that keep the contract's price close to the spot price.",
       ],
+      visual: {
+        type: "scene",
+        scene: {
+          kind: "compare",
+          columns: [
+            {
+              title: "Forex and CFDs: swap",
+              icon: "moon",
+              tone: "accent",
+              points: ["At the 5 pm New York rollover", "From the interest rate difference", "Often three days' worth on Wednesday"],
+            },
+            {
+              title: "Crypto perpetuals: funding",
+              icon: "bitcoin",
+              tone: "warn",
+              points: ["Paid between longs and shorts", "Often every 8 hours", "Keeps the price near spot"],
+            },
+          ],
+        },
+      },
     },
     {
       kind: "choice",
@@ -43,6 +77,19 @@ export const lesson: LessonContent = {
         "One commission looks tiny. Multiplied by every trade, every day, it becomes a big number.",
         "The more often you trade, the larger the share of your results that goes to costs.",
       ],
+      visual: {
+        type: "scene",
+        scene: {
+          kind: "flow",
+          title: "How a tiny cost grows",
+          nodes: [
+            { label: "One small commission", icon: "coins" },
+            { label: "On every trade", icon: "repeat", tone: "warn" },
+            { label: "Every day", icon: "calendar", tone: "warn" },
+            { label: "A big number", icon: "wallet", tone: "down" },
+          ],
+        },
+      },
     },
     {
       kind: "numeric",

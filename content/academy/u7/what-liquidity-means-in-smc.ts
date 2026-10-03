@@ -11,9 +11,22 @@ export const lesson: LessonContent = {
       kind: "learn",
       title: "Welcome to Level 3",
       body: [
-        "This level teaches **Smart Money Concepts (SMC)** and the ideas popularised by the trader known as **ICT** (Inner Circle Trader). It is how a huge share of retail traders read charts in 2026.",
+        "This level teaches **Smart Money Concepts (SMC)** and the ideas popularised by the trader known as **ICT** (Inner Circle Trader). It is widely taught to retail traders today.",
         "Treat it the way this course treats everything: as a framework to understand and test, not as proven truth. There is little formal research on it. Your own honest backtests are the evidence that counts.",
       ],
+      visual: {
+        type: "scene",
+        scene: {
+          kind: "flow",
+          title: "How to treat Smart Money Concepts",
+          nodes: [
+            { label: "A framework", sub: "not proven truth", icon: "book", tone: "accent" },
+            { label: "Understand it", icon: "brain" },
+            { label: "Test it", sub: "honest backtests", icon: "search", tone: "warn" },
+            { label: "Your evidence", sub: "the kind that counts", icon: "check", tone: "up" },
+          ],
+        },
+      },
     },
     {
       kind: "learn",
@@ -44,6 +57,16 @@ export const lesson: LessonContent = {
         "Traders who are **long** usually put stop-losses just **below** a recent low. Traders who are **short** put them just **above** a recent high. Breakout traders add buy stops above highs and sell stops below lows.",
         "So every obvious high has a pool of buy orders sitting above it, and every obvious low a pool of sell orders below it. The more obvious the level, the bigger the pool.",
       ],
+      visual: {
+        type: "scene",
+        scene: {
+          kind: "path",
+          title: "Orders sit beyond obvious highs and lows",
+          points: [101, 104, 101.5, 103.2, 99.5, 102, 101],
+          marks: [{ at: 1, label: "Buy orders above the high", tone: "up" }, { at: 4, label: "Sell orders below the low", tone: "down", side: "below" }],
+        },
+        caption: "The more obvious the level, the bigger the pool.",
+      },
     },
     {
       kind: "truefalse",
@@ -59,6 +82,21 @@ export const lesson: LessonContent = {
         "SMC talks about \"smart money\" as if a single big player were moving price to trap retail traders. Reality is less personal: many large participants, algorithms and market makers simply go where the orders are, because that is where big size can be traded.",
         "You don't need to believe in a villain to use the idea. You only need to notice that obvious stop clusters often get taken before the real move.",
       ],
+      visual: {
+        type: "scene",
+        scene: {
+          kind: "compare",
+          columns: [
+            { title: "The story", icon: "user", tone: "warn", points: ["A single big player", "Moving price to trap retail traders"] },
+            {
+              title: "The reality",
+              icon: "users",
+              tone: "up",
+              points: ["Many large participants, algorithms and market makers", "They go where the orders are", "That is where big size can trade"],
+            },
+          ],
+        },
+      },
     },
     {
       kind: "choice",

@@ -55,8 +55,22 @@ export const lesson: LessonContent = {
       title: "Stacking it with zones",
       body: [
         "Premium and discount are a filter, not a signal. A bullish FVG or order block that sits **in discount** is stronger than the same zone in premium.",
-        "In our chart, the fair value gap, its midpoint and the retrace all sat below equilibrium. Several reasons in one place.",
+        "In our chart, most of the fair value gap, its midpoint and the retrace all sat below equilibrium. Several reasons in one place.",
       ],
+      visual: {
+        type: "scene",
+        scene: {
+          kind: "path",
+          points: [100, 104, 110, 107, 103.5, 107, 108.5],
+          marks: [{ at: 4, label: "A bullish zone in discount", tone: "up", side: "below" }],
+          levels: [
+            { price: 110, label: "Range high", tone: "neutral" },
+            { price: 105, label: "Equilibrium", tone: "accent" },
+            { price: 100, label: "Range low", tone: "neutral" },
+          ],
+        },
+        caption: "Premium and discount are a filter, not a signal.",
+      },
     },
     {
       kind: "choice",

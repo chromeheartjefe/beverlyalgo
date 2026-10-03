@@ -11,7 +11,9 @@ const candles = swingCandles([[0, 99.5], [4, 102], [7, 100.4], [10, 101.95], [16
 
 export const lesson: LessonContent = {
   id: "u5-role-reversal",
-  sources: ["Wyckoff, Studies in Tape Reading (1910), public domain"],
+  sources: [
+    "Classical chart analysis as commonly taught, first catalogued in Schabacker's Technical Analysis and Stock Market Profits (1932) and Edwards and Magee's Technical Analysis of Stock Trends (1948); explained here in our own words",
+  ],
   steps: [
     {
       kind: "learn",
@@ -40,6 +42,18 @@ export const lesson: LessonContent = {
         "Think about who is around when price comes back to the broken level. Sellers who shorted at resistance are now losing, and many buy back to get out near break-even. Buyers who missed the breakout are glad of a second chance at the same price.",
         "Both groups buy at the old resistance, so it turns into support.",
       ],
+      visual: {
+        type: "scene",
+        scene: {
+          kind: "compare",
+          title: "Price comes back to the broken level",
+          columns: [
+            { title: "Sellers who shorted there", icon: "trending-down", tone: "down", points: ["Now losing", "Buy back to get out near break-even"] },
+            { title: "Buyers who missed it", icon: "trending-up", tone: "up", points: ["Glad of a second chance", "Buy at the same price"] },
+          ],
+        },
+        caption: "Both groups buy at the old resistance, so it turns into support.",
+      },
     },
     {
       kind: "tap",

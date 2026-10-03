@@ -15,6 +15,28 @@ export const lesson: LessonContent = {
         "Regulators license firms, set rules and go after fraud. In the United States, the **SEC** oversees stocks and the **CFTC** oversees futures and forex, with the **NFA** and **FINRA** registering the firms and people who serve customers.",
         "Other countries have their own: the FCA in the UK, ASIC in Australia, and national regulators across the EU coordinated by ESMA.",
       ],
+      visual: {
+        type: "scene",
+        scene: {
+          kind: "compare",
+          title: "Regulators",
+          columns: [
+            {
+              title: "United States",
+              icon: "bank",
+              tone: "accent",
+              points: ["SEC: stocks", "CFTC: futures and forex", "NFA and FINRA register firms"],
+            },
+            { title: "United Kingdom", icon: "bank", tone: "accent", points: ["FCA"] },
+            {
+              title: "Australia, EU",
+              icon: "bank",
+              tone: "accent",
+              points: ["ASIC in Australia", "National regulators in the EU, coordinated by ESMA"],
+            },
+          ],
+        },
+      },
       callout: {
         tone: "tip",
         text: "Before you send money, look the firm up on its regulator's register: FINRA BrokerCheck or NFA BASIC in the US, the FCA register in the UK, ASIC in Australia.",
@@ -37,6 +59,21 @@ export const lesson: LessonContent = {
         "**Guaranteed returns** or \"risk-free\" profits. **Pressure to act now.** An unregistered firm, often offshore. Payment asked in crypto or gift cards. A friendly \"account manager\" who found you on social media. Withdrawals that are suddenly blocked or slow.",
         "No real trader can guarantee returns. Markets don't allow it.",
       ],
+      visual: {
+        type: "scene",
+        scene: {
+          kind: "checklist",
+          title: "Red flags regulators keep warning about",
+          items: [
+            { text: "Guaranteed or \"risk-free\" returns", mark: "bad" },
+            { text: "Pressure to act now", mark: "bad" },
+            { text: "An unregistered firm, often offshore", mark: "bad" },
+            { text: "Payment asked in crypto or gift cards", mark: "bad" },
+            { text: "An \"account manager\" from social media", mark: "bad" },
+            { text: "Withdrawals suddenly blocked or slow", mark: "bad" },
+          ],
+        },
+      },
     },
     {
       kind: "choice",
@@ -58,6 +95,20 @@ export const lesson: LessonContent = {
         "A fast-growing fraud starts with a friendly message from a stranger, sometimes a romance. After weeks of chatting they share a \"secret\" trading platform. The app shows big, fake profits.",
         "When you try to withdraw, you are told to pay a \"tax\" or \"release fee\" first. The money is gone, and so is the platform. US regulators have warned about this pattern repeatedly.",
       ],
+      visual: {
+        type: "scene",
+        scene: {
+          kind: "flow",
+          title: "How the fake-platform scam runs",
+          nodes: [
+            { label: "A friendly message", sub: "from a stranger", icon: "message" },
+            { label: "Weeks of chatting", icon: "heart" },
+            { label: "A \"secret\" platform", icon: "phone", tone: "warn" },
+            { label: "Big profits on screen", sub: "all fake", icon: "trending-up", tone: "warn" },
+            { label: "A fee to withdraw", sub: "then the money is gone", icon: "ban", tone: "down" },
+          ],
+        },
+      },
     },
     {
       kind: "truefalse",
@@ -74,6 +125,17 @@ export const lesson: LessonContent = {
         "Social media is full of winning trade screenshots. Screenshots are easy to fake or cherry-pick: you see the winners, never the losers or the account size.",
         "Judge any educator, signal group or tool, including EntrixAlgo, by its process and its full track record, never by a highlight reel. Be extra careful with anyone selling a course and promising you'll quit your job.",
       ],
+      visual: {
+        type: "scene",
+        scene: {
+          kind: "compare",
+          title: "A winning screenshot",
+          columns: [
+            { title: "What it shows", icon: "eye", tone: "up", points: ["The winners"] },
+            { title: "What it hides", icon: "lock", tone: "down", points: ["The losers", "The account size", "The full track record"] },
+          ],
+        },
+      },
     },
     {
       kind: "choice",

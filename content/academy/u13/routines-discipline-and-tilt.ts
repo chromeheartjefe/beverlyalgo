@@ -10,6 +10,16 @@ export const lesson: LessonContent = {
       body: [
         "Willpower runs out, especially after a loss or a long day. Disciplined traders don't rely on it. They build **routines** that make the right action the easy one.",
       ],
+      visual: {
+        type: "scene",
+        scene: {
+          kind: "compare",
+          columns: [
+            { title: "Willpower", icon: "flame", tone: "warn", points: ["Runs out", "Fastest after a loss or a long day"] },
+            { title: "Routine", icon: "repeat", tone: "up", points: ["Makes the right action the easy one"] },
+          ],
+        },
+      },
     },
     {
       kind: "learn",
@@ -17,6 +27,22 @@ export const lesson: LessonContent = {
       body: [
         "**Before**: check the news calendar, mark higher-timeframe levels and liquidity, decide your bias and what would make you wrong. **During**: trade only your killzone and only your setups, with a checklist before each entry. **After**: journal every trade, note your state of mind, close the platform.",
       ],
+      visual: {
+        type: "scene",
+        scene: {
+          kind: "compare",
+          columns: [
+            {
+              title: "Before",
+              icon: "sun",
+              tone: "neutral",
+              points: ["Check the news calendar", "Mark levels and liquidity", "Decide bias, and what proves it wrong"],
+            },
+            { title: "During", icon: "candles", tone: "accent", points: ["Only your killzone", "Only your setups", "A checklist before each entry"] },
+            { title: "After", icon: "moon", tone: "up", points: ["Journal every trade", "Note your state of mind", "Close the platform"] },
+          ],
+        },
+      },
     },
     {
       kind: "match",
@@ -36,6 +62,20 @@ export const lesson: LessonContent = {
         "**Tilt** is a poker word for the state where emotions have taken over decisions. Signs: trading faster, bigger or more often, feeling angry or desperate, ignoring your plan, wanting to win back losses.",
         "Once you notice tilt, the only good trade is no trade. Close the platform. Sleep, exercise and food matter more to decision-making than most traders admit.",
       ],
+      visual: {
+        type: "scene",
+        scene: {
+          kind: "checklist",
+          title: "Signs of tilt",
+          items: [
+            { text: "Trading faster, bigger or more often", mark: "bad" },
+            { text: "Feeling angry or desperate", mark: "bad" },
+            { text: "Ignoring your plan", mark: "bad" },
+            { text: "Wanting to win back losses", mark: "bad" },
+            { text: "The only good trade now is no trade", mark: "ok" },
+          ],
+        },
+      },
     },
     {
       kind: "choice",

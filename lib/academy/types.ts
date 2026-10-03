@@ -90,11 +90,57 @@ export type FigureId =
   | "killzones"
   | "analysis-readout"
 
+/** Icons a scene can show, by name (components/dashboard/academy/figures/scenes) */
+export type SceneIcon =
+  | "user" | "users" | "building" | "bank" | "globe" | "chart" | "candles" | "clock" | "calendar" | "book" | "pen"
+  | "target" | "shield" | "alert" | "check" | "x" | "trending-up" | "trending-down" | "coins" | "wallet" | "scale"
+  | "dice" | "seed" | "zap" | "bot" | "search" | "flame" | "eye" | "lock" | "brain" | "heart" | "news" | "percent"
+  | "layers" | "repeat" | "flag" | "phone" | "message" | "gift" | "ban" | "hourglass" | "calculator" | "list" | "bitcoin"
+  | "gold" | "oil" | "cpu" | "hand" | "door" | "arrow-right" | "filter" | "moon" | "sun" | "star"
+
+/**
+ * Animated explainer scenes, drawn with Remotion from plain data. A lesson
+ * only supplies the content; layout and motion live in the scene components.
+ * Keep every label short: the scene is 720 pixels wide and scales down on phones.
+ */
+export type SceneSpec =
+  // Horizontal bars growing one after another. `to` draws a range (from value to `to`).
+  | { kind: "bars"; title?: string; max?: number; suffix?: string; bars: { label: string; value: number; to?: number; display?: string; tone?: Tone }[] }
+  // Two or three columns side by side, each with a heading and short points
+  | { kind: "compare"; title?: string; columns: { title: string; icon?: SceneIcon; tone?: Tone; points: string[] }[] }
+  // Boxes joined by arrows, lit up in order: a process or a chain of cause and effect
+  | { kind: "flow"; title?: string; nodes: { label: string; sub?: string; icon?: SceneIcon; tone?: Tone }[] }
+  // The same, as a loop that keeps going round
+  | { kind: "cycle"; title?: string; center?: string; nodes: { label: string; tone?: Tone }[] }
+  // One or more lines drawn left to right over shared x positions
+  | { kind: "line"; title?: string; series: { label: string; tone?: Tone; points: number[] }[]; xLabels?: string[]; prefix?: string; suffix?: string; baseline?: number; decimals?: number }
+  // A list that ticks itself off: good practice (ok), warning signs (bad) or plain items
+  | { kind: "checklist"; title?: string; items: { text: string; mark?: "ok" | "bad" | "dot" }[] }
+  // One to three big numbers counting up
+  | { kind: "stat"; title?: string; stats: { value: number; prefix?: string; suffix?: string; decimals?: number; label: string; tone?: Tone }[] }
+  // Events along a time axis, with a marker sweeping across
+  | { kind: "timeline"; title?: string; events: { time: string; label: string; tone?: Tone }[] }
+  // A small table whose cells colour in: positive green, negative red (or by `tones`)
+  | { kind: "grid"; title?: string; corner?: string; cols: string[]; rows: { label: string; cells: (string | number)[]; tones?: Tone[] }[]; signed?: boolean; suffix?: string }
+  // A ring split into shares
+  | { kind: "donut"; title?: string; center?: string; slices: { label: string; value: number; tone?: Tone }[]; suffix?: string }
+  // A price path drawn over time with labelled moments on it (an entry, a stop, a spike)
+  | { kind: "path"; title?: string; points: number[]; marks?: { at: number; label: string; tone?: Tone; side?: "above" | "below" }[]; levels?: { price: number; label: string; tone?: Tone }[] }
+  // Risk against reward as blocks of R, with the result of a run of trades
+  | { kind: "rr"; title?: string; risk: number; reward: number; wins?: number; losses?: number }
+  // A short quotation (only ones already verified in the lesson text)
+  | { kind: "quote"; text: string; author: string; source?: string }
+  // A price changing by its smallest step, with the moving digits lit
+  | { kind: "ticks"; title?: string; rows: { market: string; from: string; to: string; unit: string }[] }
+  // Candles forming one after another, in labelled groups, each group on its own price scale: candle shapes and patterns
+  | { kind: "candles"; title?: string; groups: { label: string; note?: string; tone?: Tone; candles: Candle[]; lines?: { price: number; label?: string; tone?: Tone }[] }[] }
+
 export type Visual =
   | { type: "chart"; chart: ChartSpec }
   // Several charts stacked, e.g. two correlated markets for SMT divergence
   | { type: "charts"; charts: ChartSpec[] }
   | { type: "figure"; id: FigureId; caption?: string }
+  | { type: "scene"; scene: SceneSpec; caption?: string }
 
 export type CalloutTone = "tip" | "warn" | "note"
 

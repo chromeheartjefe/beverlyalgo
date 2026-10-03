@@ -16,6 +16,26 @@ export const lesson: LessonContent = {
         "ICT splits liquidity into two kinds. **External range liquidity (ERL)** sits at the edges of the current range: beyond the swing highs and lows, where the stops are.",
         "**Internal range liquidity (IRL)** sits inside the range: mostly **fair value gaps**, the imbalances price left behind (next unit).",
       ],
+      visual: {
+        type: "scene",
+        scene: {
+          kind: "compare",
+          columns: [
+            {
+              title: "External (ERL)",
+              icon: "door",
+              tone: "warn",
+              points: ["At the edges of the range", "Beyond the swing highs and lows", "Where the stops are"],
+            },
+            {
+              title: "Internal (IRL)",
+              icon: "layers",
+              tone: "accent",
+              points: ["Inside the range", "Mostly fair value gaps", "The imbalances price left behind"],
+            },
+          ],
+        },
+      },
     },
     {
       kind: "learn",

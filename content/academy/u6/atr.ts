@@ -40,6 +40,20 @@ export const lesson: LessonContent = {
         "Each candle's **true range** is the largest of three distances: high − low, high − previous close, and previous close − low (as positive numbers). That way, gaps count too.",
         "ATR is a smoothed average of the true range, usually over 14 candles.",
       ],
+      visual: {
+        type: "scene",
+        scene: {
+          kind: "bars",
+          title: "True range: the largest of three distances",
+          max: 4,
+          bars: [
+            { label: "High minus low", value: 2, display: "2", tone: "neutral" },
+            { label: "High minus previous close", value: 4, display: "4", tone: "up" },
+            { label: "Previous close minus low", value: 2, display: "2", tone: "neutral" },
+          ],
+        },
+        caption: "Example: the previous close was 100, then a candle gapped up with a high of 104 and a low of 102. Its true range is 4.",
+      },
     },
     {
       kind: "numeric",
@@ -56,6 +70,21 @@ export const lesson: LessonContent = {
         "ATR's most practical use is sizing stops. A stop tighter than the market's normal noise gets hit by random wiggles. Many traders place stops **1.5 to 2 ATR** beyond their entry or beyond the structure they are trading.",
         "Because ATR adapts, the same rule gives wider stops in volatile markets and tighter ones in calm markets. Unit 11 uses this for position sizing.",
       ],
+      visual: {
+        type: "scene",
+        scene: {
+          kind: "compare",
+          columns: [
+            { title: "Tighter than the noise", icon: "alert", tone: "down", points: ["Hit by random wiggles"] },
+            {
+              title: "1.5 to 2 ATR",
+              icon: "shield",
+              tone: "up",
+              points: ["Beyond your entry or the structure", "Wider in volatile markets", "Tighter in calm ones"],
+            },
+          ],
+        },
+      },
     },
     {
       kind: "numeric",

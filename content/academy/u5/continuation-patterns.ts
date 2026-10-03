@@ -13,7 +13,9 @@ const tri = swingCandles([[0, 100], [4, 104], [7, 101.2], [11, 104], [14, 102.2]
 
 export const lesson: LessonContent = {
   id: "u5-continuation-patterns",
-  sources: ["Wyckoff, Studies in Tape Reading (1910), public domain"],
+  sources: [
+    "Classical chart analysis as commonly taught, first catalogued in Schabacker's Technical Analysis and Stock Market Profits (1932) and Edwards and Magee's Technical Analysis of Stock Trends (1948); explained here in our own words",
+  ],
   steps: [
     {
       kind: "learn",
@@ -21,6 +23,14 @@ export const lesson: LessonContent = {
       body: [
         "Trends rest before they continue. Some of those rests take recognisable shapes. They are called **continuation patterns** because, more often than not, the trend resumes afterwards.",
       ],
+      visual: {
+        type: "scene",
+        scene: {
+          kind: "path",
+          points: [100, 103, 106, 105.2, 105.9, 105.1, 105.8, 108.5, 111],
+          marks: [{ at: 4, label: "The trend rests", tone: "warn", side: "below" }, { at: 8, label: "More often than not, it resumes", tone: "up" }],
+        },
+      },
     },
     {
       kind: "learn",
@@ -89,6 +99,21 @@ export const lesson: LessonContent = {
       body: [
         "A **rising wedge** has both lines sloping up but converging: price keeps making new highs with less and less energy. It often breaks down, even in an uptrend. A **falling wedge** is the mirror and often breaks up.",
       ],
+      visual: {
+        type: "scene",
+        scene: {
+          kind: "compare",
+          columns: [
+            {
+              title: "Rising wedge",
+              icon: "trending-up",
+              tone: "down",
+              points: ["Both lines slope up and converge", "New highs with less and less energy", "Often breaks down"],
+            },
+            { title: "Falling wedge", icon: "trending-down", tone: "up", points: ["The mirror image", "Often breaks up"] },
+          ],
+        },
+      },
     },
     {
       kind: "truefalse",

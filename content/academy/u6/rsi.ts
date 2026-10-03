@@ -37,6 +37,21 @@ export const lesson: LessonContent = {
         "RS = average gain ÷ average loss over the period. RSI = 100 − 100 ÷ (1 + RS).",
         "If average gains equal average losses, RS = 1 and RSI = 50. The bigger the gains compared with the losses, the closer RSI gets to 100.",
       ],
+      visual: {
+        type: "scene",
+        scene: {
+          kind: "grid",
+          title: "RSI = 100 - 100 / (1 + RS)",
+          corner: "",
+          cols: ["RS", "RSI"],
+          rows: [
+            { label: "Gains 3 times losses", cells: [3, 75], tones: ["neutral", "up"] },
+            { label: "Gains equal losses", cells: [1, 50], tones: ["neutral", "neutral"] },
+            { label: "Losses 3 times gains", cells: [0.33, 25], tones: ["neutral", "down"] },
+          ],
+        },
+        caption: "RS is the average gain divided by the average loss over the period.",
+      },
     },
     {
       kind: "numeric",
@@ -53,6 +68,22 @@ export const lesson: LessonContent = {
         "RSI above **70** is called **overbought**, below **30** **oversold**. Beginners sell every 70 and buy every 30, and get run over.",
         "In a strong trend RSI can stay above 70 for a long time, as it did during the rally in the chart above. Overbought just means momentum is strong. Many traders use the **50 line** instead: above 50, bulls have the momentum; below, bears do.",
       ],
+      visual: {
+        type: "scene",
+        scene: {
+          kind: "compare",
+          columns: [
+            {
+              title: "Above 70",
+              icon: "trending-up",
+              tone: "up",
+              points: ["Called overbought", "It means momentum is strong", "It can stay there in a strong trend"],
+            },
+            { title: "The 50 line", icon: "scale", tone: "accent", points: ["Above 50: bulls have the momentum", "Below 50: bears do"] },
+            { title: "Below 30", icon: "trending-down", tone: "down", points: ["Called oversold", "Not a buy signal on its own"] },
+          ],
+        },
+      },
     },
     {
       kind: "truefalse",

@@ -23,6 +23,21 @@ export const lesson: LessonContent = {
         "**Liquidity** is how much you can buy or sell without moving the price much.",
         "A **deep** book has large size at every level, close together. Orders get filled near the price you see. A **thin** book has little size and gaps between levels, so even a modest order pushes the price around.",
       ],
+      visual: {
+        type: "scene",
+        scene: {
+          kind: "compare",
+          columns: [
+            {
+              title: "Deep book",
+              icon: "layers",
+              tone: "up",
+              points: ["Large size at every level", "Levels close together", "Fills near the price you see"],
+            },
+            { title: "Thin book", icon: "alert", tone: "warn", points: ["Little size", "Gaps between levels", "A modest order moves the price"] },
+          ],
+        },
+      },
     },
     {
       kind: "numeric",
@@ -59,6 +74,16 @@ export const lesson: LessonContent = {
         "The visible book is only part of the story. Big traders hide their size, showing a little at a time (so-called iceberg orders).",
         "And a huge pool of orders isn't in the book at all yet: **stop orders**. Traders' stop-losses and breakout orders cluster just above old highs and just below old lows, waiting to be triggered.",
       ],
+      visual: {
+        type: "scene",
+        scene: {
+          kind: "path",
+          title: "Where stop orders wait",
+          points: [50, 56, 53, 60, 57, 62, 55, 58, 51, 54, 48, 52, 49, 55, 58],
+          marks: [{ at: 5, label: "Old high" }, { at: 10, label: "Old low", side: "below" }],
+          levels: [{ price: 64, label: "Stops cluster just above", tone: "warn" }, { price: 46, label: "Stops cluster just below", tone: "warn" }],
+        },
+      },
       callout: {
         tone: "tip",
         text: "Those clusters of stops are what Smart Money traders call liquidity pools. Large players need lots of orders to trade against, so price is often drawn to them. That idea is the core of Level 3.",

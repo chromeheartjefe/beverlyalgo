@@ -11,6 +11,14 @@ export const lesson: LessonContent = {
         "Flip a fair coin 20 times and you'll rarely get exactly 10 heads. Trading results are the same: short runs are noisy.",
         "A strategy that truly wins 50% of the time has about a **13% chance** of winning 7 or fewer of its next 20 trades. A good strategy can look broken over a few weeks, and a bad one can look brilliant.",
       ],
+      visual: {
+        type: "scene",
+        scene: {
+          kind: "stat",
+          title: "A strategy that truly wins half the time",
+          stats: [{ value: 13, suffix: "%", label: "chance it wins 7 or fewer of its next 20 trades", tone: "warn" }],
+        },
+      },
     },
     {
       kind: "truefalse",
@@ -25,6 +33,18 @@ export const lesson: LessonContent = {
       body: [
         "There is no magic number, but as a rule of thumb: under 30 trades, results are mostly noise. Around 50 to 100, you start to see the real shape of a strategy. More is better, especially for strategies with a low win rate and big winners.",
       ],
+      visual: {
+        type: "scene",
+        scene: {
+          kind: "timeline",
+          title: "How many trades?",
+          events: [
+            { time: "Under 30", label: "Mostly noise", tone: "down" },
+            { time: "50 to 100", label: "The real shape starts to show", tone: "warn" },
+            { time: "More", label: "Better still, above all with a low win rate", tone: "up" },
+          ],
+        },
+      },
     },
     {
       kind: "choice",
@@ -46,6 +66,20 @@ export const lesson: LessonContent = {
         "Change a strategy when the evidence is strong: a large sample that is clearly worse than the backtest, after costs, with correct execution. Or when the market itself has clearly changed, such as a big shift in volatility.",
         "When you change, change **one thing**, and test it again. Constant switching is one of the most common reasons traders never improve.",
       ],
+      visual: {
+        type: "scene",
+        scene: {
+          kind: "checklist",
+          title: "Good reasons to change a strategy",
+          items: [
+            { text: "A large sample, clearly worse than the backtest", mark: "ok" },
+            { text: "After costs, with correct execution", mark: "ok" },
+            { text: "Or the market itself has clearly changed", mark: "ok" },
+            { text: "Then change one thing, and test again", mark: "dot" },
+            { text: "Not: constant switching", mark: "bad" },
+          ],
+        },
+      },
     },
     {
       kind: "choice",

@@ -51,6 +51,21 @@ export const lesson: LessonContent = {
         "Lose 10%: need +11%. Lose 20%: need +25%. Lose 30%: need +43%. Lose 50%: need +100%. Lose 75%: need +300%.",
         "Formula: **gain needed = loss ÷ (1 − loss)**.",
       ],
+      visual: {
+        type: "scene",
+        scene: {
+          kind: "bars",
+          title: "Gain needed to recover a loss",
+          max: 300,
+          bars: [
+            { label: "Lose 10%", value: 11, display: "+11%", tone: "up" },
+            { label: "Lose 20%", value: 25, display: "+25%", tone: "up" },
+            { label: "Lose 30%", value: 43, display: "+43%", tone: "warn" },
+            { label: "Lose 50%", value: 100, display: "+100%", tone: "warn" },
+            { label: "Lose 75%", value: 300, display: "+300%", tone: "down" },
+          ],
+        },
+      },
     },
     {
       kind: "numeric",

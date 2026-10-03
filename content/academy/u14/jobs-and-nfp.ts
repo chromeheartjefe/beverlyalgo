@@ -11,6 +11,18 @@ export const lesson: LessonContent = {
         "The US **Employment Situation** report, usually released on the **first Friday of the month at 8:30 am** New York time, is one of the biggest market events of all.",
         "Its headline is **non-farm payrolls (NFP)**: how many jobs the economy added outside farming. It also includes the **unemployment rate** and **average hourly earnings** (wage growth).",
       ],
+      visual: {
+        type: "scene",
+        scene: {
+          kind: "compare",
+          title: "One report, three numbers",
+          columns: [
+            { title: "Non-farm payrolls", icon: "users", tone: "accent", points: ["The headline", "Jobs added outside farming"] },
+            { title: "Unemployment rate", icon: "percent", tone: "warn", points: ["In the same report"] },
+            { title: "Hourly earnings", icon: "wallet", tone: "up", points: ["Average hourly earnings", "That is wage growth"] },
+          ],
+        },
+      },
     },
     {
       kind: "match",
@@ -30,6 +42,19 @@ export const lesson: LessonContent = {
         "A strong report usually means a strong economy and potentially higher rates: often good for the dollar. Wage growth matters too, because fast-rising wages can feed inflation.",
         "Earlier months are also **revised**. A strong headline with big downward revisions can produce a confusing reaction, and the first spike often reverses.",
       ],
+      visual: {
+        type: "scene",
+        scene: {
+          kind: "flow",
+          title: "Why the first reaction can mislead",
+          nodes: [
+            { label: "Strong headline", icon: "trending-up", tone: "up" },
+            { label: "Earlier months revised down", icon: "repeat", tone: "warn" },
+            { label: "A confusing reaction", icon: "alert", tone: "warn" },
+            { label: "The first spike often reverses", icon: "trending-down", tone: "down" },
+          ],
+        },
+      },
     },
     {
       kind: "choice",
@@ -37,7 +62,7 @@ export const lesson: LessonContent = {
       prompt: "When is the US jobs report usually released?",
       options: ["The first Friday of the month at 8:30 am New York time", "Every Monday at noon", "The last day of each quarter", "Sunday evening"],
       answer: 0,
-      explain: "First Friday, 8:30 am, right at the start of the New York killzone.",
+      explain: "First Friday, 8:30 am, inside the New York killzone.",
     },
     {
       kind: "truefalse",

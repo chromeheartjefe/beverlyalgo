@@ -2,7 +2,7 @@ import type { LessonContent } from "@/lib/academy/types"
 
 export const lesson: LessonContent = {
   id: "u3-line-bar-and-candle-charts",
-  sources: ["Investor.gov (U.S. SEC): reading price charts"],
+  sources: ["Chart types (line, bar and candlestick): standard definitions, explained here in our own words"],
   steps: [
     {
       kind: "learn",
@@ -20,6 +20,26 @@ export const lesson: LessonContent = {
         "A **line chart** joins only the closing prices. It is great for seeing the big picture, but it hides everything that happened inside each period: the spikes, the rejections, the real highs and lows.",
         "A **bar chart** draws each period as a vertical line from high to low, with a small tick on the left for the open and on the right for the close. It holds all four prices, but it takes practice to read quickly.",
       ],
+      visual: {
+        type: "scene",
+        scene: {
+          kind: "compare",
+          columns: [
+            {
+              title: "Line chart",
+              icon: "chart",
+              tone: "accent",
+              points: ["Joins only the closing prices", "Great for the big picture", "Hides the spikes and rejections"],
+            },
+            {
+              title: "Bar chart",
+              icon: "candles",
+              tone: "up",
+              points: ["A vertical line from high to low", "Left tick: the open", "Right tick: the close", "All four prices"],
+            },
+          ],
+        },
+      },
     },
     {
       kind: "learn",
@@ -28,6 +48,17 @@ export const lesson: LessonContent = {
         "**Candlesticks** go back to Japanese rice traders in the 1700s. They show the same four prices as a bar, but the area between open and close becomes a coloured **body**: usually green when price closed higher, red when it closed lower.",
         "That colour lets you see who won each period at a glance. It is why most traders use candles, and why the rest of this course does too.",
       ],
+      visual: {
+        type: "scene",
+        scene: {
+          kind: "candles",
+          title: "The body: the area between open and close",
+          groups: [
+            { label: "Closed higher", note: "Usually a green body", tone: "up", candles: [[100, 106, 98, 105]] },
+            { label: "Closed lower", note: "Usually a red body", tone: "down", candles: [[105, 107, 99, 100]] },
+          ],
+        },
+      },
     },
     {
       kind: "truefalse",

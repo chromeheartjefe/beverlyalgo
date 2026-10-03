@@ -14,6 +14,18 @@ export const lesson: LessonContent = {
         "In 1979, psychologists Daniel Kahneman and Amos Tversky published **prospect theory**. One of its key findings: people feel a loss far more strongly than a gain of the same size. Later work estimated losses weigh roughly **twice** as much.",
         "Kahneman later won a Nobel prize for this work. For traders, it explains a lot of self-destructive behaviour.",
       ],
+      visual: {
+        type: "scene",
+        scene: {
+          kind: "bars",
+          title: "How strongly it is felt",
+          max: 2,
+          bars: [
+            { label: "A gain", value: 1, display: "1x", tone: "up" },
+            { label: "A loss of the same size", value: 2, display: "roughly 2x", tone: "down" },
+          ],
+        },
+      },
     },
     {
       kind: "choice",
@@ -35,6 +47,18 @@ export const lesson: LessonContent = {
         "**Holding losers**: closing a losing trade makes the loss real, so we wait and hope. **Moving stops**: the stop is about to make the loss real, so it gets moved. **Cutting winners**: a profit could turn into a loss, so we grab it early.",
         "The result is exactly backwards: small wins and big losses.",
       ],
+      visual: {
+        type: "scene",
+        scene: {
+          kind: "compare",
+          columns: [
+            { title: "Holding losers", icon: "hourglass", tone: "down", points: ["Closing makes the loss real", "So we wait and hope"] },
+            { title: "Moving stops", icon: "flag", tone: "down", points: ["The stop would make it real", "So it gets moved"] },
+            { title: "Cutting winners", icon: "trending-up", tone: "warn", points: ["A profit could turn into a loss", "So we grab it early"] },
+          ],
+        },
+        caption: "The result is backwards: small wins and big losses.",
+      },
     },
     {
       kind: "truefalse",
@@ -50,6 +74,20 @@ export const lesson: LessonContent = {
         "You can't switch off loss aversion, but you can design around it. Set the stop **before** entering and never move it away. Use bracket orders so the stop and target are placed automatically. Size small enough that a loss doesn't sting much.",
         "And think in R: a −1R loss is just one planned outcome among many.",
       ],
+      visual: {
+        type: "scene",
+        scene: {
+          kind: "checklist",
+          title: "Design around it",
+          items: [
+            { text: "Set the stop before entering", mark: "ok" },
+            { text: "Never move it away", mark: "ok" },
+            { text: "Use bracket orders", mark: "ok" },
+            { text: "Size small enough that a loss doesn't sting much", mark: "ok" },
+            { text: "Think in R: -1R is one planned outcome among many", mark: "ok" },
+          ],
+        },
+      },
     },
     {
       kind: "choice",

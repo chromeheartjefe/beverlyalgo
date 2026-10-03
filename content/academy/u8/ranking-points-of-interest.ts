@@ -11,6 +11,18 @@ export const lesson: LessonContent = {
         "Once you know FVGs, order blocks, breakers and rejection blocks, you will see dozens on every chart. Every zone you might trade from is called a **point of interest (POI)**. Most of them don't matter.",
         "Professionals don't trade every zone. They rank them and only act at the best.",
       ],
+      visual: {
+        type: "scene",
+        scene: {
+          kind: "flow",
+          title: "From dozens of zones to a few",
+          nodes: [
+            { label: "Dozens of zones", sub: "on every chart", icon: "layers", tone: "warn" },
+            { label: "Rank them", icon: "filter", tone: "accent" },
+            { label: "Act only at the best", icon: "target", tone: "up" },
+          ],
+        },
+      },
     },
     {
       kind: "learn",
@@ -19,6 +31,21 @@ export const lesson: LessonContent = {
         "**Higher timeframe**: a 4-hour FVG beats a 1-minute one. **With the bias**: bullish zones in a higher-timeframe uptrend. **Liquidity taken first**: a sweep before the zone formed, or inducement taken before price reaches it. **Displacement**: the move away was strong and broke structure. **Fresh**: not touched since it formed. **Right side of the range**: bullish zones in discount, bearish zones in premium (Unit 9).",
         "The more boxes a zone ticks, the more seriously you take it.",
       ],
+      visual: {
+        type: "scene",
+        scene: {
+          kind: "checklist",
+          title: "A strong point of interest",
+          items: [
+            { text: "Higher timeframe", mark: "ok" },
+            { text: "With the higher-timeframe bias", mark: "ok" },
+            { text: "Liquidity taken first", mark: "ok" },
+            { text: "Displacement away from it", mark: "ok" },
+            { text: "Fresh: not touched since it formed", mark: "ok" },
+            { text: "On the right side of the range", mark: "ok" },
+          ],
+        },
+      },
     },
     {
       kind: "match",

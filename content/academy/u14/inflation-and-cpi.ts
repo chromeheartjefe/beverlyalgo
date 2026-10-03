@@ -11,6 +11,26 @@ export const lesson: LessonContent = {
         "The **Consumer Price Index (CPI)**, published monthly by the US Bureau of Labor Statistics at 8:30 am New York time, tracks the price of a basket of goods and services. Its change over a year is the headline inflation rate.",
         "**Core CPI** leaves out food and energy, which jump around, to show the underlying trend. Markets often care more about core.",
       ],
+      visual: {
+        type: "scene",
+        scene: {
+          kind: "compare",
+          columns: [
+            {
+              title: "Headline CPI",
+              icon: "coins",
+              tone: "accent",
+              points: ["A basket of goods and services", "Its change over a year is the inflation rate"],
+            },
+            {
+              title: "Core CPI",
+              icon: "filter",
+              tone: "up",
+              points: ["Leaves out food and energy", "Shows the underlying trend", "Markets often care more about it"],
+            },
+          ],
+        },
+      },
     },
     {
       kind: "numeric",
@@ -28,6 +48,20 @@ export const lesson: LessonContent = {
         "Inflation drives interest rates. A **hot** CPI (above forecast) makes rate hikes, or fewer cuts, more likely: the dollar tends to rise while stocks and gold tend to fall. A **cool** reading tends to do the opposite.",
         "CPI days are among the most volatile of the month, especially in the first minutes after 8:30 am.",
       ],
+      visual: {
+        type: "scene",
+        scene: {
+          kind: "flow",
+          title: "When CPI comes in hot",
+          nodes: [
+            { label: "Hot CPI", sub: "above forecast", icon: "flame", tone: "warn" },
+            { label: "Rate hikes more likely", sub: "or fewer cuts", icon: "percent" },
+            { label: "Dollar tends to rise", icon: "trending-up", tone: "up" },
+            { label: "Stocks and gold tend to fall", icon: "trending-down", tone: "down" },
+          ],
+        },
+        caption: "A cool reading tends to do the opposite.",
+      },
     },
     {
       kind: "choice",

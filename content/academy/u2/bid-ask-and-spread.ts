@@ -15,6 +15,16 @@ export const lesson: LessonContent = {
         "The **bid** is the highest price a buyer is willing to pay right now. The **ask** (also called the offer) is the lowest price a seller is willing to accept right now.",
         "When you buy straight away, you pay the ask. When you sell straight away, you get the bid.",
       ],
+      visual: {
+        type: "scene",
+        scene: {
+          kind: "compare",
+          columns: [
+            { title: "Bid", icon: "users", tone: "up", points: ["The highest price a buyer will pay", "You sell at the bid"] },
+            { title: "Ask", icon: "users", tone: "down", points: ["The lowest price a seller will accept", "You buy at the ask"] },
+          ],
+        },
+      },
     },
     {
       kind: "choice",
@@ -65,6 +75,21 @@ export const lesson: LessonContent = {
         "**Time of day:** spreads tighten in the busiest sessions and widen in quiet ones, especially around the daily forex rollover at 5 pm New York time.",
         "**News:** right before and after big announcements, market makers pull back and spreads can jump to many times their normal size.",
       ],
+      visual: {
+        type: "scene",
+        scene: {
+          kind: "compare",
+          columns: [
+            { title: "Tight spreads", icon: "check", tone: "up", points: ["Busy markets: EUR/USD, ES, Bitcoin", "The busiest sessions"] },
+            {
+              title: "Wide spreads",
+              icon: "alert",
+              tone: "warn",
+              points: ["Small stocks, exotic pairs, new tokens", "Quiet hours and the 5 pm rollover", "Around big news"],
+            },
+          ],
+        },
+      },
     },
     {
       kind: "choice",

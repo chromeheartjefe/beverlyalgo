@@ -11,6 +11,23 @@ export const lesson: LessonContent = {
         "You now know the pieces. A **model** is your fixed recipe for combining them, written so precisely that two people would take the same trades from it:",
         "**Market and timeframes.** **Bias rule** (how you find the draw). **Time window** (which killzone). **Setup** (which sweep, which POI). **Trigger** (MSS with displacement). **Entry** (gap top or CE). **Stop** and **target** rules. **Limits** (maximum trades and losses per day).",
       ],
+      visual: {
+        type: "scene",
+        scene: {
+          kind: "checklist",
+          title: "What a written model fixes",
+          items: [
+            { text: "Market and timeframes", mark: "dot" },
+            { text: "Bias rule", mark: "dot" },
+            { text: "Time window", mark: "dot" },
+            { text: "Setup", mark: "dot" },
+            { text: "Trigger", mark: "dot" },
+            { text: "Entry", mark: "dot" },
+            { text: "Stop and target rules", mark: "dot" },
+            { text: "Daily limits", mark: "dot" },
+          ],
+        },
+      },
     },
     {
       kind: "choice",
@@ -32,6 +49,26 @@ export const lesson: LessonContent = {
         "Go back through months of charts candle by candle (bar replay), and log **every** setup your rules produce, not just the beautiful ones.",
         "The biggest trap in SMC backtesting is **hindsight**: on a finished chart, the perfect FVG is obvious. In real time, a gap only exists once its third candle has closed, and several gaps compete. Hide the right side of the chart and decide as if it were live.",
       ],
+      visual: {
+        type: "scene",
+        scene: {
+          kind: "compare",
+          columns: [
+            {
+              title: "Honest backtest",
+              icon: "check",
+              tone: "up",
+              points: ["Candle by candle", "Every setup logged", "Right side of the chart hidden"],
+            },
+            {
+              title: "Hindsight",
+              icon: "eye",
+              tone: "down",
+              points: ["A finished chart", "Only the beautiful setups", "The perfect gap looks obvious"],
+            },
+          ],
+        },
+      },
     },
     {
       kind: "truefalse",
@@ -47,6 +84,20 @@ export const lesson: LessonContent = {
         "After at least **50 to 100 trades**, measure: win rate, average win and loss in R, **expectancy** (Unit 1), biggest losing streak and deepest drawdown.",
         "If expectancy after costs isn't positive, change one rule and test again, or drop the model. If it is, forward test on a demo or very small size before trusting it with real money.",
       ],
+      visual: {
+        type: "scene",
+        scene: {
+          kind: "checklist",
+          title: "After 50 to 100 trades, measure",
+          items: [
+            { text: "Win rate", mark: "dot" },
+            { text: "Average win and loss, in R", mark: "dot" },
+            { text: "Expectancy after costs", mark: "dot" },
+            { text: "Biggest losing streak", mark: "dot" },
+            { text: "Deepest drawdown", mark: "dot" },
+          ],
+        },
+      },
     },
     {
       kind: "numeric",
@@ -64,6 +115,19 @@ export const lesson: LessonContent = {
         "There is very little independent research proving that SMC or ICT concepts give an edge, and many traders who use them still lose. Some of the ideas are old, well-understood market behaviour with new names; others are unproven.",
         "That is fine. You don't need anyone's proof. You need your own: a precise model, an honest backtest, a forward test, and the risk management of Level 4.",
       ],
+      visual: {
+        type: "scene",
+        scene: {
+          kind: "flow",
+          title: "Your own proof",
+          nodes: [
+            { label: "A precise model", icon: "pen" },
+            { label: "An honest backtest", icon: "search" },
+            { label: "A forward test", icon: "hourglass" },
+            { label: "Risk management", sub: "Level 4", icon: "shield", tone: "up" },
+          ],
+        },
+      },
     },
     {
       kind: "choice",

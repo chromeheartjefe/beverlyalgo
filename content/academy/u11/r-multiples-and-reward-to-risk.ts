@@ -11,6 +11,18 @@ export const lesson: LessonContent = {
         "**1R** is the amount you risk on a trade: the distance from entry to stop, times your size. Measuring every result in R instead of dollars makes trades comparable, whatever the market or account size.",
         "Lose the full stop: **−1R**. Make twice your risk: **+2R**. Exit at breakeven: **0R**.",
       ],
+      visual: {
+        type: "scene",
+        scene: {
+          kind: "grid",
+          title: "Every result, in R",
+          corner: "",
+          cols: ["Full stop hit", "Breakeven exit", "Twice your risk"],
+          signed: true,
+          suffix: "R",
+          rows: [{ label: "Result", cells: [-1, 0, 2] }],
+        },
+      },
     },
     {
       kind: "numeric",
@@ -28,6 +40,21 @@ export const lesson: LessonContent = {
         "Before you enter, the **reward-to-risk ratio (R:R)** compares the distance to your target with the distance to your stop. Entry 100, stop 98, target 106: you risk 2 to make 6, which is **3:1** (a 3R target).",
         "Most traders want at least 2:1 on their setups. A great entry location, like the OTE or a fair value gap after a sweep, is what makes high R:R possible.",
       ],
+      visual: {
+        type: "scene",
+        scene: {
+          kind: "path",
+          title: "Risk 2 to make 6",
+          points: [100, 99.3, 100.6, 101.5, 100.9, 102.4, 103.6, 103, 104.8, 106],
+          marks: [{ at: 0, label: "Entry" }, { at: 9, label: "A 3R target", tone: "up" }],
+          levels: [
+            { price: 106, label: "Target 106", tone: "up" },
+            { price: 100, label: "Entry 100", tone: "neutral" },
+            { price: 98, label: "Stop 98", tone: "down" },
+          ],
+        },
+        caption: "6 of reward for 2 of risk is 3:1.",
+      },
     },
     {
       kind: "numeric",

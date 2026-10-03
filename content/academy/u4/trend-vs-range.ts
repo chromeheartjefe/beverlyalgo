@@ -19,7 +19,10 @@ const range = swingCandles([[0, 100.6], [4, 102.6], [8, 100.2], [12, 102.7], [16
 
 export const lesson: LessonContent = {
   id: "u4-trend-vs-range",
-  sources: ["Hamilton, The Stock Market Barometer (1922), public domain"],
+  sources: [
+    "Hamilton, The Stock Market Barometer (1922), public domain: trends read from successive highs and lows",
+    "Trend and range terminology as commonly taught; explained here in our own words",
+  ],
   steps: [
     {
       kind: "learn",

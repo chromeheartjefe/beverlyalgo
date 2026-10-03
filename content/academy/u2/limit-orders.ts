@@ -28,6 +28,17 @@ export const lesson: LessonContent = {
         "A **limit order** sets the worst price you'll accept. A buy limit fills at your price or lower. A sell limit fills at your price or higher.",
         "Until price reaches it, the order rests in the order book. A limit order guarantees the price, but not the fill.",
       ],
+      visual: {
+        type: "scene",
+        scene: {
+          kind: "compare",
+          columns: [
+            { title: "Buy limit", icon: "trending-up", tone: "up", points: ["Fills at your price or lower", "Usually rests below the price"] },
+            { title: "Sell limit", icon: "trending-down", tone: "down", points: ["Fills at your price or higher", "Usually rests above the price"] },
+          ],
+        },
+        caption: "A limit order guarantees the price, but not the fill.",
+      },
     },
     {
       kind: "learn",
@@ -66,8 +77,18 @@ export const lesson: LessonContent = {
       title: "Queues, partial fills and fees",
       body: [
         "Orders at the same price fill in the order they arrived. If price only touches your level for a moment, the orders ahead of you may use up all the selling, and yours fills partly or not at all.",
-        "A resting limit order adds liquidity to the book, so it is called a **maker** order. Orders that take liquidity, like market orders, are **taker** orders. Many crypto and futures venues charge makers lower fees than takers.",
+        "A resting limit order adds liquidity to the book, so it is called a **maker** order. Orders that take liquidity, like market orders, are **taker** orders. Many crypto exchanges charge makers lower fees than takers.",
       ],
+      visual: {
+        type: "scene",
+        scene: {
+          kind: "compare",
+          columns: [
+            { title: "Maker", icon: "layers", tone: "up", points: ["A resting limit order", "Adds liquidity to the book", "Often lower fees"] },
+            { title: "Taker", icon: "zap", tone: "warn", points: ["A market order", "Takes liquidity", "Often higher fees"] },
+          ],
+        },
+      },
     },
     {
       kind: "choice",

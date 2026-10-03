@@ -3,7 +3,7 @@
 import { AlertTriangle, CheckCircle2, Info, Lightbulb } from "lucide-react"
 import { Fragment, type ReactNode, useMemo, useState } from "react"
 
-import { Figure } from "@/components/dashboard/academy/figures"
+import { Figure, Scene } from "@/components/dashboard/academy/figures"
 import { GlossaryTerm, useGlossaryHint } from "@/components/dashboard/academy/glossary-hint"
 import { TeachingChart } from "@/components/dashboard/academy/teaching-chart"
 import type {
@@ -61,6 +61,17 @@ function VisualView({ visual }: { visual: Visual }) {
           <TeachingChart key={i} spec={chart} height={chart.height ?? 190} />
         ))}
       </div>
+    )
+  }
+  if (visual.type === "scene") {
+    // Price paths and candle groups are drawn on made-up prices, so they always say so
+    const drawn = visual.scene.kind === "path" || visual.scene.kind === "candles"
+    const caption = [visual.caption, drawn ? "Illustration, not a real chart." : null].filter(Boolean).join(" ")
+    return (
+      <figure>
+        <Scene spec={visual.scene} />
+        {caption && <figcaption className="mt-2 text-xs text-gray-500">{caption}</figcaption>}
+      </figure>
     )
   }
   return (

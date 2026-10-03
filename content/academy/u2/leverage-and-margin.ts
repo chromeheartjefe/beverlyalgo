@@ -15,6 +15,17 @@ export const lesson: LessonContent = {
         "**Leverage** lets you control a position much bigger than the cash you put up. The deposit is called **margin**.",
         "At 20:1 leverage, $1,000 of margin controls a $20,000 position. Futures, forex, CFDs and crypto derivatives all work this way.",
       ],
+      visual: {
+        type: "scene",
+        scene: {
+          kind: "bars",
+          title: "20:1 leverage",
+          bars: [
+            { label: "Your margin", value: 1000, display: "$1,000", tone: "accent" },
+            { label: "The position it controls", value: 20000, display: "$20,000", tone: "warn" },
+          ],
+        },
+      },
     },
     {
       kind: "numeric",
@@ -32,6 +43,16 @@ export const lesson: LessonContent = {
         "Profit and loss are calculated on the **full position**, not on your margin.",
         "At 20:1, a 1% move in price is a 20% change in your margin. A 5% move against you wipes out 100% of it. Leverage doesn't change how far price moves. It changes how much each move costs you.",
       ],
+      visual: {
+        type: "scene",
+        scene: {
+          kind: "grid",
+          title: "At 20:1 leverage",
+          corner: "Price moves against you",
+          cols: ["1%", "2%", "5%"],
+          rows: [{ label: "Your margin loses", cells: ["20%", "40%", "100%"], tones: ["warn", "warn", "down"] }],
+        },
+      },
     },
     {
       kind: "numeric",
@@ -49,6 +70,17 @@ export const lesson: LessonContent = {
         "One E-mini Nasdaq-100 contract (**NQ**) gains or loses **$20 per index point**. The Micro contract (**MNQ**) is a tenth of that: **$2 per point**.",
         "The Nasdaq-100 often moves 100 points or more in a day. That is $2,000 on one NQ contract, from a margin deposit that can be a fraction of the contract's full value.",
       ],
+      visual: {
+        type: "scene",
+        scene: {
+          kind: "bars",
+          title: "A 100-point move in the Nasdaq-100",
+          bars: [
+            { label: "1 NQ contract, $20 a point", value: 2000, display: "$2,000", tone: "warn" },
+            { label: "1 MNQ contract, $2 a point", value: 200, display: "$200", tone: "accent" },
+          ],
+        },
+      },
     },
     {
       kind: "numeric",
@@ -66,6 +98,18 @@ export const lesson: LessonContent = {
         "If losses eat your margin below the required level, your broker issues a **margin call**: add money or your position gets closed. Many platforms, especially crypto exchanges, simply close it automatically. That is **liquidation**.",
         "Regulators cap retail leverage in some places. In the EU, retail CFD leverage is limited to 30:1 on major currency pairs and as low as 2:1 on crypto.",
       ],
+      visual: {
+        type: "scene",
+        scene: {
+          kind: "flow",
+          title: "When the margin runs out",
+          nodes: [
+            { label: "Losses eat your margin", icon: "trending-down", tone: "warn" },
+            { label: "Margin call", sub: "add money, or else", icon: "alert", tone: "warn" },
+            { label: "Liquidation", sub: "the position is closed for you", icon: "ban", tone: "down" },
+          ],
+        },
+      },
       callout: {
         tone: "warn",
         text: "High leverage is the fastest way beginners blow up accounts. Using less than the maximum is not timid. It is how you survive long enough to get good.",

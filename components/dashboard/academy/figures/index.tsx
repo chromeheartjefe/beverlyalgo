@@ -3,7 +3,7 @@
 import dynamic from "next/dynamic"
 import type { ComponentType } from "react"
 
-import type { FigureId } from "@/lib/academy/types"
+import type { FigureId, SceneSpec } from "@/lib/academy/types"
 
 // Lesson figures, loaded only when a lesson shows them (Remotion stays out of
 // every other bundle).
@@ -29,6 +29,13 @@ const FIGURES: Record<FigureId, ComponentType> = {
   killzones: dynamic(() => import("./killzones"), { ssr: false, loading: Placeholder }),
   "analysis-readout": dynamic(() => import("./analysis-readout"), { ssr: false, loading: Placeholder }),
 }
+
+// Data-driven Remotion scenes (lib/academy/types.ts SceneSpec)
+function ScenePlaceholder() {
+  return <div className="aspect-[720/440] w-full animate-pulse border border-white/10 bg-white/[0.03]" />
+}
+
+export const Scene: ComponentType<{ spec: SceneSpec }> = dynamic(() => import("./scenes"), { ssr: false, loading: ScenePlaceholder })
 
 export function Figure({ id }: { id: FigureId }) {
   const Component = FIGURES[id]

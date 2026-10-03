@@ -14,6 +14,18 @@ export const lesson: LessonContent = {
         "Public companies report results every quarter. Most reports land in the few weeks after each quarter ends, a stretch called **earnings season**.",
         "Traders compare **earnings per share (EPS)** and **revenue** with analysts' estimates, but the **guidance** (what management expects next) often moves the stock most. Reports usually come before the open or after the close, so stocks often **gap**.",
       ],
+      visual: {
+        type: "scene",
+        scene: {
+          kind: "compare",
+          title: "What traders read in a report",
+          columns: [
+            { title: "EPS", icon: "coins", tone: "accent", points: ["Earnings per share", "Against analysts' estimates"] },
+            { title: "Revenue", icon: "chart", tone: "accent", points: ["Against analysts' estimates"] },
+            { title: "Guidance", icon: "eye", tone: "up", points: ["What management expects next", "Often moves the stock most"] },
+          ],
+        },
+      },
     },
     {
       kind: "choice",
@@ -29,6 +41,18 @@ export const lesson: LessonContent = {
       body: [
         "A handful of very large companies make up a big part of the Nasdaq-100 and S&P 500. Their earnings can move NQ and ES on their own, even after hours.",
       ],
+      visual: {
+        type: "scene",
+        scene: {
+          kind: "flow",
+          nodes: [
+            { label: "A handful of very large companies", icon: "building" },
+            { label: "A big part of the Nasdaq-100 and S&P 500", icon: "layers", tone: "accent" },
+            { label: "Their earnings", icon: "news", tone: "warn" },
+            { label: "Can move NQ and ES", sub: "even after hours", icon: "candles", tone: "up" },
+          ],
+        },
+      },
     },
     {
       kind: "learn",
@@ -36,6 +60,20 @@ export const lesson: LessonContent = {
       body: [
         "Crypto has no earnings, but it has its own drivers. **The halving**: roughly every four years (every 210,000 blocks), the new Bitcoin issued per block is cut in half. **Fund flows**, such as money moving into or out of spot Bitcoin ETFs. **Regulation** and enforcement news. **Exchange events**: hacks or collapses, like FTX in 2022. And the same **macro** forces as other risk assets, like interest rates.",
       ],
+      visual: {
+        type: "scene",
+        scene: {
+          kind: "checklist",
+          title: "Crypto's own drivers",
+          items: [
+            { text: "The halving: new Bitcoin per block is cut in half", mark: "dot" },
+            { text: "Fund flows, such as spot Bitcoin ETFs", mark: "dot" },
+            { text: "Regulation and enforcement news", mark: "dot" },
+            { text: "Exchange events: hacks or collapses", mark: "dot" },
+            { text: "Macro forces, like interest rates", mark: "dot" },
+          ],
+        },
+      },
     },
     {
       kind: "match",

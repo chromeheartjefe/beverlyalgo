@@ -1,6 +1,9 @@
+import { PAPER_TRADING } from "@/config/features"
 import type { GlossaryTerm } from "@/lib/glossary/types"
 
 const CALC = { label: "Risk Calculator", href: "/dashboard/risk-calculator" }
+// Undefined (so no link is shown) until Paper Trading is released
+const SIM = PAPER_TRADING ? { label: "Paper Trading", href: "/dashboard/paper-trading" } : undefined
 
 export const RISK: GlossaryTerm[] = [
   {
@@ -38,6 +41,7 @@ export const RISK: GlossaryTerm[] = [
     detail: ["Place it at structure (beyond the sweep or swing) or by volatility (ATR), not at an arbitrary amount. Stops only ever move towards profit."],
     related: ["stop-order", "atr", "position-sizing", "breakeven-stop"],
     lessonId: "u11-where-to-put-your-stop",
+    tool: SIM,
   },
   {
     slug: "take-profit",
@@ -49,6 +53,7 @@ export const RISK: GlossaryTerm[] = [
     detail: [],
     related: ["partial-profit", "risk-reward-ratio", "draw-on-liquidity"],
     lessonId: "u12-entries-and-exits",
+    tool: SIM,
   },
   {
     slug: "r-multiple",
@@ -61,6 +66,7 @@ export const RISK: GlossaryTerm[] = [
     example: "Buy 100, stop 98, exit 103: you risked 2 and made 3, so +1.5R.",
     related: ["risk-reward-ratio", "expectancy"],
     lessonId: "u11-r-multiples-and-reward-to-risk",
+    tool: SIM,
   },
   {
     slug: "risk-reward-ratio",
@@ -69,7 +75,7 @@ export const RISK: GlossaryTerm[] = [
     category: "risk",
     level: "beginner",
     short: "The distance to your target compared with the distance to your stop, decided before entry.",
-    detail: ["It only matters together with win rate: a 5:1 target that is rarely hit can still lose."],
+    detail: ["It only matters together with win rate: a 5:1 target that is rarely hit can still lose. Entrix Academy writes it reward first (3:1); Chart Analysis shows the same thing risk first (1:3)."],
     example: "Short 250, stop 254, target 238: 12 ÷ 4 = 3:1.",
     related: ["r-multiple", "win-rate", "breakeven-win-rate"],
     lessonId: "u11-r-multiples-and-reward-to-risk",
@@ -86,6 +92,7 @@ export const RISK: GlossaryTerm[] = [
     example: "18 wins and 27 losses is a 40% win rate.",
     related: ["expectancy", "breakeven-win-rate", "risk-reward-ratio"],
     lessonId: "u11-win-rate-r-r-and-expectancy",
+    tool: SIM,
   },
   {
     slug: "breakeven-win-rate",
@@ -109,6 +116,7 @@ export const RISK: GlossaryTerm[] = [
     example: "45% wins at 2R and 55% losses at 1R: 0.9 − 0.55 = +0.35R per trade.",
     related: ["edge", "win-rate", "r-multiple"],
     lessonId: "u11-win-rate-r-r-and-expectancy",
+    tool: SIM,
   },
   {
     slug: "drawdown",
@@ -122,6 +130,7 @@ export const RISK: GlossaryTerm[] = [
     visual: "drawdown",
     related: ["risk-of-ruin", "risk-per-trade", "daily-loss-limit"],
     lessonId: "u11-drawdown-math",
+    tool: SIM,
   },
   {
     slug: "risk-of-ruin",
@@ -130,7 +139,7 @@ export const RISK: GlossaryTerm[] = [
     category: "risk",
     level: "intermediate",
     short: "The chance a strategy loses so much you can't or won't continue; driven mostly by risk per trade.",
-    detail: ["With a 40% win rate, 8 or 9 losses in a row will happen. Plan for it."],
+    detail: ["With a 40% win rate, 8 losses in a row within 100 trades is about a coin flip. Plan for it."],
     example: "With a 50% win rate, the chance of the next 4 trades all losing is 6.25%.",
     related: ["drawdown", "risk-per-trade", "daily-loss-limit"],
     lessonId: "u11-risk-of-ruin",
@@ -145,6 +154,7 @@ export const RISK: GlossaryTerm[] = [
     detail: [],
     related: ["revenge-trading", "risk-of-ruin", "prop-firm"],
     lessonId: "u11-risk-of-ruin",
+    tool: SIM,
   },
   {
     slug: "correlation",
@@ -163,10 +173,11 @@ export const RISK: GlossaryTerm[] = [
     aliases: ["BE", "stop to breakeven", "breakeven"],
     category: "risk",
     level: "intermediate",
-    short: "Moving your stop to your entry once a trade is in profit, so it can no longer lose.",
+    short: "Moving your stop to your entry once a trade is in profit, so being stopped out costs about nothing instead of a full loss.",
     detail: ["Too early, and normal pullbacks stop out trades that would have hit target. Test when to do it."],
     related: ["trailing-stop", "stop-loss", "partial-profit"],
     lessonId: "u12-entries-and-exits",
+    tool: SIM,
   },
   {
     slug: "trailing-stop",
@@ -177,6 +188,7 @@ export const RISK: GlossaryTerm[] = [
     detail: [],
     related: ["breakeven-stop", "atr", "stop-loss"],
     lessonId: "u12-entries-and-exits",
+    tool: SIM,
   },
   {
     slug: "partial-profit",

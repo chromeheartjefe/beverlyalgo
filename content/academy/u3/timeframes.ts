@@ -2,7 +2,7 @@ import type { LessonContent } from "@/lib/academy/types"
 
 export const lesson: LessonContent = {
   id: "u3-timeframes",
-  sources: ["Investor.gov (U.S. SEC): reading price charts"],
+  sources: ["Chart timeframes: standard definitions, explained here in our own words"],
   steps: [
     {
       kind: "learn",
@@ -29,6 +29,21 @@ export const lesson: LessonContent = {
         "A daily chart can be in a clear uptrend while the 5-minute chart is falling. Both are true: the 5-minute chart is showing a small pullback inside the bigger move.",
         "**Higher timeframes** move slower, but they carry more weight: more traders and more money are behind a daily level than a 1-minute one. **Lower timeframes** show the detail and help with timing.",
       ],
+      visual: {
+        type: "scene",
+        scene: {
+          kind: "compare",
+          columns: [
+            {
+              title: "Higher timeframes",
+              icon: "calendar",
+              tone: "accent",
+              points: ["Move slower", "Carry more weight", "More traders and money behind a level"],
+            },
+            { title: "Lower timeframes", icon: "clock", tone: "up", points: ["Show the detail", "Help with timing"] },
+          ],
+        },
+      },
     },
     {
       kind: "choice",
@@ -50,6 +65,21 @@ export const lesson: LessonContent = {
         "Scalpers work on 1 to 5-minute charts. Day traders often use 5-minute to 1-hour charts. Swing traders use 4-hour and daily charts.",
         "Most traders pair two or three: a **higher timeframe for direction** and a **lower one for the entry**. That is called top-down analysis, and Level 3 builds whole entry models around it.",
       ],
+      visual: {
+        type: "scene",
+        scene: {
+          kind: "grid",
+          title: "Who uses which charts",
+          corner: "",
+          cols: ["Typical charts"],
+          rows: [
+            { label: "Scalpers", cells: ["1 to 5-minute"], tones: ["warn"] },
+            { label: "Day traders", cells: ["5-minute to 1-hour"], tones: ["accent"] },
+            { label: "Swing traders", cells: ["4-hour and daily"], tones: ["up"] },
+          ],
+        },
+        caption: "Most traders pair two or three: a higher timeframe for direction and a lower one for the entry.",
+      },
     },
     {
       kind: "truefalse",

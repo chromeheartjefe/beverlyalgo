@@ -8,9 +8,20 @@ export const lesson: LessonContent = {
       kind: "learn",
       title: "Signals on your own chart",
       body: [
-        "The **EntrixAlgo AI Trading Indicator** runs on TradingView and paints its zones and signals directly on your chart. It is a Pro feature: you request access from the **AI Trading Indicator** page in your dashboard and follow the steps there.",
-        "Like everything in this course, it is a tool inside your process, not a replacement for it.",
+        "An indicator such as the **EntrixAlgo AI Trading Indicator** runs on TradingView and paints signals directly on your chart. Ours is being rebuilt, so it is not available right now; the **AI Trading Indicator** page in your dashboard shows its status.",
+        "This lesson applies to any indicator you put on a chart, ours included. Like everything in this course, it is a tool inside your process, not a replacement for it.",
       ],
+      visual: {
+        type: "scene",
+        scene: {
+          kind: "compare",
+          title: "A tool inside your process",
+          columns: [
+            { title: "What an indicator does", icon: "candles", tone: "accent", points: ["Runs on your chart", "Paints signals directly on it"] },
+            { title: "What it doesn't do", icon: "ban", tone: "warn", points: ["Replace your process"] },
+          ],
+        },
+      },
     },
     {
       kind: "learn",
@@ -19,6 +30,19 @@ export const lesson: LessonContent = {
         "Before trading any indicator's signals with real money, use TradingView's bar replay on your own market and timeframe. Step through the past candle by candle and log every signal it gave, winners and losers, exactly as you did for your own model in Level 3.",
         "If the signals don't hold up on your market, they don't hold up. Every tool behaves differently on different markets and timeframes.",
       ],
+      visual: {
+        type: "scene",
+        scene: {
+          kind: "flow",
+          title: "Before any real money",
+          nodes: [
+            { label: "Bar replay", sub: "your market, your timeframe", icon: "repeat" },
+            { label: "Candle by candle", sub: "step through the past", icon: "candles" },
+            { label: "Log every signal", sub: "winners and losers", icon: "pen", tone: "accent" },
+            { label: "Do they hold up?", icon: "scale", tone: "warn" },
+          ],
+        },
+      },
     },
     {
       kind: "choice",
@@ -40,6 +64,20 @@ export const lesson: LessonContent = {
         "Even a good signal is better in the right context: in line with the higher-timeframe bias, inside a killzone, away from big news, at a level where liquidity or an imbalance makes sense.",
         "Always size from the signal's stop with your normal risk per trade, and journal every signal you take.",
       ],
+      visual: {
+        type: "scene",
+        scene: {
+          kind: "checklist",
+          title: "A signal is better when it is",
+          items: [
+            { text: "In line with the higher-timeframe bias", mark: "ok" },
+            { text: "Inside a killzone", mark: "ok" },
+            { text: "Away from big news", mark: "ok" },
+            { text: "At a level where liquidity or an imbalance makes sense", mark: "ok" },
+            { text: "Sized from its stop, and journaled", mark: "ok" },
+          ],
+        },
+      },
     },
     {
       kind: "truefalse",
@@ -65,8 +103,8 @@ export const lesson: LessonContent = {
       kind: "recap",
       title: "Lesson recap",
       points: [
-        "The AI Trading Indicator paints zones and signals on TradingView (Pro).",
-        "Request access from the AI Trading Indicator page in your dashboard.",
+        "An indicator paints signals on your chart; the EntrixAlgo one is being rebuilt.",
+        "Any indicator is a tool inside your process, not a replacement for it.",
         "Backtest its signals on your market with bar replay first.",
         "Add context, size from the stop, and journal every signal you take.",
       ],

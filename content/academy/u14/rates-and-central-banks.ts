@@ -11,6 +11,22 @@ export const lesson: LessonContent = {
         "Central banks set short-term **interest rates**: the price of money. In the US, the Federal Reserve's **Federal Open Market Committee (FOMC)** meets eight times a year to decide.",
         "Rates affect everything: what companies pay to borrow, what savings earn, what a currency is worth, and how much investors will pay for future profits.",
       ],
+      visual: {
+        type: "scene",
+        scene: {
+          kind: "compare",
+          title: "Interest rates: the price of money",
+          columns: [
+            { title: "Who decides", icon: "bank", tone: "accent", points: ["Central banks", "In the US, the FOMC", "It meets eight times a year"] },
+            {
+              title: "What it reaches",
+              icon: "globe",
+              tone: "up",
+              points: ["What companies pay to borrow", "What savings earn", "What a currency is worth", "What investors pay for future profits"],
+            },
+          ],
+        },
+      },
     },
     {
       kind: "learn",
@@ -19,6 +35,20 @@ export const lesson: LessonContent = {
         "**Higher rates** (or the expectation of them) usually strengthen the currency, because it earns more interest, and weigh on stocks and gold. **Lower rates** usually do the opposite.",
         "As always, it is the **surprise** that matters. A hike everyone expected may barely move the market; a hint about future cuts in the press conference may move it a lot.",
       ],
+      visual: {
+        type: "scene",
+        scene: {
+          kind: "grid",
+          title: "The usual reaction",
+          corner: "",
+          cols: ["Currency", "Stocks", "Gold"],
+          rows: [
+            { label: "Higher rates", cells: ["Stronger", "Weighed on", "Weighed on"], tones: ["up", "down", "down"] },
+            { label: "Lower rates", cells: ["Weaker", "Supported", "Supported"], tones: ["down", "up", "up"] },
+          ],
+        },
+        caption: "Tendencies, not rules. It is the surprise that matters.",
+      },
     },
     {
       kind: "choice",
@@ -35,6 +65,21 @@ export const lesson: LessonContent = {
         "The decision comes at 2:00 pm New York time, followed by the chair's press conference at 2:30 pm. Four times a year, the Fed also publishes projections, including the famous **dot plot** of where officials expect rates to go.",
         "The first move at 2:00 pm is often reversed during the press conference. Many traders stay out until the dust settles.",
       ],
+      visual: {
+        type: "scene",
+        scene: {
+          kind: "path",
+          title: "A common FOMC afternoon",
+          points: [100, 100.1, 99.9, 100, 101.5, 102, 101.6, 101.8, 100.6, 99.4, 98.8],
+          marks: [
+            { at: 3, label: "2:00 pm decision", side: "below" },
+            { at: 5, label: "First move", tone: "warn" },
+            { at: 6, label: "2:30 pm", side: "below" },
+            { at: 10, label: "Often reversed", tone: "down", side: "below" },
+          ],
+        },
+        caption: "The press conference starts at 2:30 pm.",
+      },
     },
     {
       kind: "truefalse",

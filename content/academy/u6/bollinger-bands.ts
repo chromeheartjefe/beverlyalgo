@@ -53,6 +53,19 @@ export const lesson: LessonContent = {
         "Quiet periods don't last forever. A **squeeze**, the bands at their narrowest in a long while, often comes before a big move. The squeeze doesn't tell you the direction; structure and the breakout do.",
         "Once a move starts, the bands open up quickly, like in the chart above.",
       ],
+      visual: {
+        type: "scene",
+        scene: {
+          kind: "flow",
+          nodes: [
+            { label: "A quiet period", icon: "moon" },
+            { label: "The squeeze", sub: "bands at their narrowest in a long while", icon: "filter", tone: "warn" },
+            { label: "Often a big move", icon: "zap", tone: "accent" },
+            { label: "The bands open up quickly", icon: "trending-up", tone: "up" },
+          ],
+        },
+        caption: "The squeeze doesn't tell you the direction. Structure and the breakout do.",
+      },
     },
     {
       kind: "truefalse",
@@ -68,6 +81,22 @@ export const lesson: LessonContent = {
         "A classic beginner mistake: selling every touch of the upper band. In a strong uptrend, price can **walk the band**, closing near the upper band candle after candle.",
         "In ranges, band touches do often mark the edges. In trends, they mark strength.",
       ],
+      visual: {
+        type: "scene",
+        scene: {
+          kind: "compare",
+          title: "What a band touch means",
+          columns: [
+            { title: "In ranges", icon: "repeat", tone: "accent", points: ["Touches often mark the edges"] },
+            {
+              title: "In trends",
+              icon: "trending-up",
+              tone: "up",
+              points: ["Touches mark strength", "Price can walk the band", "Candle after candle near the upper band"],
+            },
+          ],
+        },
+      },
     },
     {
       kind: "choice",

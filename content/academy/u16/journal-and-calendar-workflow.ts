@@ -11,6 +11,22 @@ export const lesson: LessonContent = {
         "The **Trade Journal** is free for every account. For each trade you log the **date**, **pair**, **direction**, **entry**, **exit** and **P&L**.",
         "It shows your win rate and totals, filters wins and losses, searches by pair, and can **export to CSV** so you can add your own columns in a spreadsheet: setup, result in R, whether you followed your plan, how you felt.",
       ],
+      visual: {
+        type: "scene",
+        scene: {
+          kind: "compare",
+          columns: [
+            { title: "You log", icon: "pen", tone: "accent", points: ["Date, pair, direction", "Entry, exit, P&L"] },
+            { title: "It shows", icon: "chart", tone: "up", points: ["Win rate and totals", "Wins and losses filter", "Search by pair"] },
+            {
+              title: "CSV export",
+              icon: "list",
+              tone: "warn",
+              points: ["Add your own columns", "Setup, result in R", "Followed the plan?", "How you felt"],
+            },
+          ],
+        },
+      },
     },
     {
       kind: "numeric",
@@ -28,6 +44,18 @@ export const lesson: LessonContent = {
         "The **Trade Calendar** shows the same journal day by day: green and red days, your average per trading day, your best and worst day, and a **monthly goal** you can set.",
         "Click any day to see its trades, or to add one for that date.",
       ],
+      visual: {
+        type: "scene",
+        scene: {
+          kind: "grid",
+          title: "Green days and red days",
+          corner: "",
+          cols: ["Mon", "Tue", "Wed", "Thu", "Fri"],
+          signed: true,
+          rows: [{ label: "Week 1", cells: [120, -80, 0, 210, -60] }, { label: "Week 2", cells: [-90, 150, 60, -40, 180] }],
+        },
+        caption: "Example daily results in dollars, to show the idea.",
+      },
     },
     {
       kind: "match",
@@ -46,6 +74,17 @@ export const lesson: LessonContent = {
       body: [
         "**After every session**: log every trade in the Journal, the same day. **Every week**: open the Calendar for your weekly review from Unit 12. **Every month**: export the CSV, add your R and setup columns, and check which setups really pay.",
       ],
+      visual: {
+        type: "scene",
+        scene: {
+          kind: "timeline",
+          events: [
+            { time: "After every session", label: "Log every trade, the same day", tone: "accent" },
+            { time: "Every week", label: "Calendar for your weekly review", tone: "warn" },
+            { time: "Every month", label: "Export the CSV: which setups pay?", tone: "up" },
+          ],
+        },
+      },
     },
     {
       kind: "truefalse",

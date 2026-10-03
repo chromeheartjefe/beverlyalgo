@@ -8,7 +8,7 @@ export const lesson: LessonContent = {
       kind: "learn",
       title: "What Chart Analysis does",
       body: [
-        "**Chart Analysis** reads a screenshot of any chart and returns a structured trade plan: a **signal** (BUY, SELL or NEUTRAL), a **confidence** grade, an **entry** (or limit entry), two targets (**TP1** and **TP2**), a **stop loss**, and the **risk to reward**.",
+        "**Chart Analysis** reads a screenshot of any chart and returns a structured trade plan: a **signal** (BUY, SELL or NEUTRAL), a **confidence** grade, an **entry** (or limit entry), two targets (**TP1** and **TP2**), a **stop loss**, and the **risk to reward**, measured from the entry to TP1. The readout writes it risk first: **1:2** means risking 1 to make 2, which this course calls a reward to risk of 2:1.",
         "It is a Pro tool. Free accounts with a verified email get one free analysis to try it.",
       ],
       visual: { type: "figure", id: "analysis-readout" },
@@ -20,6 +20,19 @@ export const lesson: LessonContent = {
         "The AI reads prices from the image, so give it a clear one. **Zoom price text** to about 125% or more, **show the ticker and timeframe** labels, and **keep the price axis on screen**.",
         "A blurry chart or one without a price axis can't produce exact levels.",
       ],
+      visual: {
+        type: "scene",
+        scene: {
+          kind: "checklist",
+          title: "Before you take the screenshot",
+          items: [
+            { text: "Zoom the price text to about 125% or more", mark: "ok" },
+            { text: "Show the ticker and timeframe labels", mark: "ok" },
+            { text: "Keep the price axis on screen", mark: "ok" },
+            { text: "Blurry, or no price axis: no exact levels", mark: "bad" },
+          ],
+        },
+      },
     },
     {
       kind: "choice",
@@ -39,8 +52,19 @@ export const lesson: LessonContent = {
       title: "Confidence and NEUTRAL",
       body: [
         "**Confidence** is a grade of setup quality: how many factors line up. It is not the chance of winning.",
-        "**NEUTRAL** means no trade: the chart doesn't offer a setup with a clear edge and at least 1:1.5 reward to risk. Instead you get **long above** and **short below** levels. Wait for a candle to close beyond one, then run a fresh analysis.",
+        "**NEUTRAL** means no trade: the chart doesn't offer a setup with a clear edge and a risk to reward of at least 1:1.5. Instead you get **long above** and **short below** levels. Wait for a candle to close beyond one, then run a fresh analysis.",
       ],
+      visual: {
+        type: "scene",
+        scene: {
+          kind: "path",
+          title: "What NEUTRAL gives you",
+          points: [100, 100.4, 99.7, 100.3, 99.8, 100.5, 101.4, 101.7, 101.8],
+          marks: [{ at: 2, label: "NEUTRAL: no trade", side: "below" }, { at: 8, label: "Closed beyond it", tone: "accent" }],
+          levels: [{ price: 101, label: "Long above", tone: "up" }, { price: 99, label: "Short below", tone: "down" }],
+        },
+        caption: "Wait for a candle to close beyond one of the two levels, then run a fresh analysis.",
+      },
     },
     {
       kind: "truefalse",
@@ -56,15 +80,26 @@ export const lesson: LessonContent = {
         "When the readout says **Limit Entry**, the plan is to place a limit order at that price rather than buy at the current price. If price reaches TP1 without filling your order, the setup is gone: don't chase it.",
         "That is the same discipline as the MSS and FVG model from Level 3: no fill, no trade.",
       ],
+      visual: {
+        type: "scene",
+        scene: {
+          kind: "compare",
+          title: "A limit entry has two outcomes",
+          columns: [
+            { title: "Price comes to your limit", icon: "check", tone: "up", points: ["The order fills", "The plan is on"] },
+            { title: "Price reaches TP1 first", icon: "ban", tone: "down", points: ["No fill", "The setup is gone", "Don't chase it"] },
+          ],
+        },
+      },
     },
     {
       kind: "numeric",
       id: "rr",
-      prompt: "A readout shows entry 100, stop 98 and TP2 105. What is the reward to risk to TP2?",
+      prompt: "A readout shows entry 100, stop 98 and TP1 105. What does it show as Risk : Reward?",
       answer: 2.5,
       tolerance: 0.001,
-      suffix: ": 1",
-      explain: "Risk is 2 (100 − 98), reward is 5 (105 − 100): 5 ÷ 2 = 2.5.",
+      prefix: "1:",
+      explain: "Risk is 2 (100 − 98), reward to TP1 is 5 (105 − 100): 5 ÷ 2 = 2.5, shown as 1:2.5. This course would call that a reward to risk of 2.5:1.",
     },
     {
       kind: "learn",
@@ -73,6 +108,18 @@ export const lesson: LessonContent = {
         "Treat Chart Analysis as a fast, structured **second opinion**, not as an order to trade. Check it against your own bias, the killzone and the news calendar. Then size the position from its stop with the **Risk Calculator**, never from a gut feeling.",
         "AI can misread charts. If a level looks wrong to you, it might be.",
       ],
+      visual: {
+        type: "scene",
+        scene: {
+          kind: "flow",
+          title: "A second opinion, not an order",
+          nodes: [
+            { label: "Chart Analysis", sub: "a fast, structured second opinion", icon: "search", tone: "accent" },
+            { label: "Check it", sub: "your bias, the killzone, the news calendar", icon: "eye", tone: "warn" },
+            { label: "Risk Calculator", sub: "size from its stop", icon: "calculator", tone: "up" },
+          ],
+        },
+      },
     },
     {
       kind: "choice",

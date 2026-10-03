@@ -48,6 +48,20 @@ export const lesson: LessonContent = {
         "On its own, a Fibonacci zone is just a zone. ICT traders look for OTE that lines up with something else: a fair value gap, an order block, a breaker, and ideally a liquidity sweep before the leg.",
         "In this chart the OTE overlapped the order block from Unit 8. Those overlaps are what make a level worth acting on.",
       ],
+      visual: {
+        type: "scene",
+        scene: {
+          kind: "checklist",
+          title: "OTE worth acting on lines up with",
+          items: [
+            { text: "A fair value gap", mark: "ok" },
+            { text: "An order block", mark: "ok" },
+            { text: "A breaker", mark: "ok" },
+            { text: "Ideally a liquidity sweep before the leg", mark: "ok" },
+            { text: "On its own, a Fibonacci zone is just a zone", mark: "dot" },
+          ],
+        },
+      },
     },
     {
       kind: "choice",

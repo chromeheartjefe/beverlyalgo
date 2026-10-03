@@ -11,6 +11,19 @@ export const lesson: LessonContent = {
         "Markets don't react to whether news is good or bad. They react to whether it is **better or worse than expected**.",
         "Before every big release, economists publish a **forecast** (the consensus). Prices already reflect that expectation. When the actual number comes out, the **surprise**, the gap between actual and forecast, is what moves price.",
       ],
+      visual: {
+        type: "scene",
+        scene: {
+          kind: "flow",
+          title: "What actually moves price",
+          nodes: [
+            { label: "Forecast", sub: "already in the price", icon: "target" },
+            { label: "Actual", sub: "the number released", icon: "news" },
+            { label: "Surprise", sub: "the gap between them", icon: "zap", tone: "warn" },
+            { label: "Price moves", icon: "candles", tone: "up" },
+          ],
+        },
+      },
     },
     {
       kind: "choice",
@@ -32,6 +45,19 @@ export const lesson: LessonContent = {
         "When everyone expects something, it is **priced in** before it happens. Hence the saying \"buy the rumour, sell the news\": price rises on the expectation, then falls when the event actually arrives because there's no one left to buy.",
         "The first reaction to news is also often a liquidity grab: a spike that runs stops on one side before the real move goes the other way.",
       ],
+      visual: {
+        type: "scene",
+        scene: {
+          kind: "path",
+          title: "Buy the rumour, sell the news",
+          points: [100, 100.8, 101.9, 102.6, 103.8, 104.9, 106, 105, 103.6, 102.8, 102.1],
+          marks: [
+            { at: 1, label: "Price rises on the expectation", side: "below" },
+            { at: 6, label: "The event arrives", tone: "warn" },
+            { at: 10, label: "No one left to buy", tone: "down", side: "below" },
+          ],
+        },
+      },
     },
     {
       kind: "truefalse",

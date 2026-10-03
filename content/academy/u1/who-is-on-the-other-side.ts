@@ -32,6 +32,17 @@ export const lesson: LessonContent = {
         "**Retail traders** trade their own money through a broker or an app. That is you.",
         "There are millions of retail traders, but each one is small. Together they matter. Alone, a retail order barely moves the price.",
       ],
+      visual: {
+        type: "scene",
+        scene: {
+          kind: "compare",
+          title: "Retail traders",
+          columns: [
+            { title: "One of them", icon: "user", tone: "neutral", points: ["Trades their own money", "A small order", "Barely moves the price"] },
+            { title: "All of them", icon: "users", tone: "accent", points: ["Millions of traders", "Together they matter"] },
+          ],
+        },
+      },
     },
     {
       kind: "learn",
@@ -75,6 +86,19 @@ export const lesson: LessonContent = {
         "**Market makers** (also called liquidity providers) are firms that post a price to buy and a price to sell at the same time, all day long. They earn the small gap between the two, called the **spread**.",
         "Thanks to them you can almost always buy or sell instantly, even when no other trader happens to be clicking at that exact second.",
       ],
+      visual: {
+        type: "scene",
+        scene: {
+          kind: "flow",
+          title: "How a market maker earns the spread",
+          nodes: [
+            { label: "A seller", sub: "sells at the lower price", icon: "user" },
+            { label: "Market maker", sub: "quotes both prices all day", icon: "scale", tone: "accent" },
+            { label: "A buyer", sub: "buys at the higher price", icon: "user" },
+          ],
+        },
+        caption: "The small gap between the two prices is the market maker's income.",
+      },
     },
     {
       kind: "truefalse",
@@ -91,6 +115,17 @@ export const lesson: LessonContent = {
         "Much of today's trading is done by computer programs. **High-frequency traders** (HFT) send and cancel orders in millionths of a second, collecting tiny price differences many times over.",
         "You will never beat them on speed, and you don't need to. Human traders work on timeframes of minutes, hours and days, where a microsecond makes no difference.",
       ],
+      visual: {
+        type: "scene",
+        scene: {
+          kind: "compare",
+          title: "Two different games",
+          columns: [
+            { title: "High-frequency", icon: "cpu", tone: "warn", points: ["Millionths of a second", "Tiny price differences", "Many times over"] },
+            { title: "Human traders", icon: "user", tone: "up", points: ["Minutes, hours and days", "A microsecond makes no difference"] },
+          ],
+        },
+      },
     },
     {
       kind: "learn",
@@ -99,6 +134,21 @@ export const lesson: LessonContent = {
         "**Hedgers** use markets to reduce risk, not to bet. An airline buys oil futures to lock in next year's fuel cost. A farmer sells wheat futures to lock in a harvest price.",
         "**Central banks**, such as the US Federal Reserve, set interest rates, and some step into currency markets from time to time. Their decisions can move every market at once.",
       ],
+      visual: {
+        type: "scene",
+        scene: {
+          kind: "compare",
+          columns: [
+            {
+              title: "Hedgers",
+              icon: "shield",
+              tone: "up",
+              points: ["Reduce risk, not bet", "An airline locks in fuel cost", "A farmer locks in a harvest price"],
+            },
+            { title: "Central banks", icon: "bank", tone: "accent", points: ["Set interest rates", "Can move every market at once"] },
+          ],
+        },
+      },
     },
     {
       kind: "choice",
@@ -115,6 +165,19 @@ export const lesson: LessonContent = {
         "The trader on the other side of your order often has more money, more information or more speed than you. After spreads and fees, short-term trading is a hard game.",
         "That is not a reason to quit. It is why this course spends so much time on **risk management**, and on understanding where the big orders sit.",
       ],
+      visual: {
+        type: "scene",
+        scene: {
+          kind: "checklist",
+          title: "The other side of your order",
+          items: [
+            { text: "Often has more money", mark: "bad" },
+            { text: "Often has more information", mark: "bad" },
+            { text: "Often has more speed", mark: "bad" },
+            { text: "Your answer: risk management, and knowing where the big orders sit", mark: "ok" },
+          ],
+        },
+      },
     },
     {
       kind: "truefalse",

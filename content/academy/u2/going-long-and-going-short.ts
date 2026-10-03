@@ -38,6 +38,19 @@ export const lesson: LessonContent = {
         "With **stocks**, your broker lends you shares. You sell them now, buy them back later and return them, usually paying a borrowing fee.",
         "In **futures, forex, CFDs and crypto perpetuals**, there is nothing to borrow. You simply open a position by selling. In forex every trade is both: buying EUR/USD means long euros and short dollars at the same time.",
       ],
+      visual: {
+        type: "scene",
+        scene: {
+          kind: "flow",
+          title: "Shorting a stock",
+          nodes: [
+            { label: "Borrow shares", sub: "from your broker", icon: "hand" },
+            { label: "Sell them now", icon: "trending-down", tone: "down" },
+            { label: "Buy them back later", icon: "trending-up", tone: "up" },
+            { label: "Return them", sub: "and pay a borrowing fee", icon: "repeat" },
+          ],
+        },
+      },
     },
     {
       kind: "numeric",
@@ -62,6 +75,21 @@ export const lesson: LessonContent = {
         "A long can lose at most what you paid: price can't go below zero. A short's loss has no ceiling, because price can keep rising.",
         "Sharp rallies against crowded shorts, called **short squeezes**, can be brutal as short sellers all rush to buy back at once. A stop-loss matters on every trade, and even more on shorts.",
       ],
+      visual: {
+        type: "scene",
+        scene: {
+          kind: "compare",
+          columns: [
+            { title: "Long", icon: "trending-up", tone: "up", points: ["Can lose at most what you paid", "Price can't go below zero"] },
+            {
+              title: "Short",
+              icon: "trending-down",
+              tone: "down",
+              points: ["The loss has no ceiling", "Price can keep rising", "Short squeezes can be brutal"],
+            },
+          ],
+        },
+      },
     },
     {
       kind: "choice",

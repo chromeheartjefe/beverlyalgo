@@ -11,6 +11,19 @@ export const lesson: LessonContent = {
         "**Backtesting** means applying your exact rules to past price data, trade by trade, and recording the results. It is the cheapest way to find out whether an idea has any edge.",
         "It is also the easiest place to fool yourself. A backtest is only useful if it is honest.",
       ],
+      visual: {
+        type: "scene",
+        scene: {
+          kind: "flow",
+          title: "A backtest",
+          nodes: [
+            { label: "Your exact rules", icon: "list" },
+            { label: "Past price data", sub: "trade by trade", icon: "candles" },
+            { label: "Record every result", icon: "pen", tone: "accent" },
+            { label: "Is there an edge?", icon: "search", tone: "up" },
+          ],
+        },
+      },
     },
     {
       kind: "learn",
@@ -18,6 +31,20 @@ export const lesson: LessonContent = {
       body: [
         "**Look-ahead bias**: using information you couldn't have had at the time, like a candle that hadn't closed yet. **Cherry-picking**: logging only the trades that look good. **Overfitting**: tweaking rules until they fit the past perfectly, so they fail on new data. **Survivorship bias**: testing only on stocks or coins that still exist today. **Ignoring costs**: no spreads, commissions or slippage.",
       ],
+      visual: {
+        type: "scene",
+        scene: {
+          kind: "checklist",
+          title: "How backtests fool you",
+          items: [
+            { text: "Look-ahead: using what you couldn't have known", mark: "bad" },
+            { text: "Cherry-picking: logging only the good trades", mark: "bad" },
+            { text: "Overfitting: rules tuned to fit the past", mark: "bad" },
+            { text: "Survivorship: testing only what still exists", mark: "bad" },
+            { text: "Ignoring spreads, commissions and slippage", mark: "bad" },
+          ],
+        },
+      },
     },
     {
       kind: "match",
@@ -38,6 +65,18 @@ export const lesson: LessonContent = {
         "Split your history. Build and adjust the rules on one period (**in-sample**), then test them once, unchanged, on a later period you haven't looked at (**out-of-sample**).",
         "If results collapse on the new data, the rules were fitted to noise.",
       ],
+      visual: {
+        type: "scene",
+        scene: {
+          kind: "timeline",
+          title: "Split your history",
+          events: [
+            { time: "In-sample", label: "Build and adjust the rules here" },
+            { time: "Then", label: "Lock the rules", tone: "warn" },
+            { time: "Out-of-sample", label: "Test once, unchanged, on data you haven't seen", tone: "up" },
+          ],
+        },
+      },
     },
     {
       kind: "choice",

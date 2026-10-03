@@ -11,6 +11,19 @@ export const lesson: LessonContent = {
         "An **economic calendar** lists upcoming data releases and events with their date, time, expected impact, the **previous** value, the **forecast** and, once released, the **actual** value.",
         "Free calendars are easy to find. Most mark impact as low, medium or high. High-impact events are the ones that can move every market at once.",
       ],
+      visual: {
+        type: "scene",
+        scene: {
+          kind: "flow",
+          title: "Three numbers on every release",
+          nodes: [
+            { label: "Previous", sub: "the last reading", icon: "clock" },
+            { label: "Forecast", sub: "what is expected", icon: "target", tone: "accent" },
+            { label: "Actual", sub: "filled in once released", icon: "check", tone: "up" },
+          ],
+        },
+        caption: "Each row also shows the date, the time and the expected impact: low, medium or high.",
+      },
     },
     {
       kind: "learn",
@@ -19,6 +32,21 @@ export const lesson: LessonContent = {
         "**CPI** (inflation), monthly at 8:30 am New York time. **Non-farm payrolls** (jobs), usually the first Friday of the month at 8:30 am. **FOMC** interest rate decisions, eight times a year at 2:00 pm, with a press conference at 2:30 pm. Plus GDP, retail sales and PCE inflation.",
         "For forex, add the other central banks: the ECB, the Bank of England and the Bank of Japan.",
       ],
+      visual: {
+        type: "scene",
+        scene: {
+          kind: "grid",
+          title: "The big US releases",
+          corner: "New York time",
+          cols: ["What", "How often", "Time"],
+          rows: [
+            { label: "CPI", cells: ["Inflation", "Monthly", "8:30 am"], tones: ["neutral", "neutral", "accent"] },
+            { label: "NFP", cells: ["Jobs", "First Friday", "8:30 am"], tones: ["neutral", "neutral", "accent"] },
+            { label: "FOMC", cells: ["Rate decision", "8 times a year", "2:00 pm"], tones: ["neutral", "neutral", "warn"] },
+          ],
+        },
+        caption: "Non-farm payrolls usually land on the first Friday of the month.",
+      },
     },
     {
       kind: "match",

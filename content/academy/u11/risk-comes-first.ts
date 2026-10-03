@@ -11,6 +11,18 @@ export const lesson: LessonContent = {
         "You can now read a chart better than most people who trade. That alone doesn't make money. What decides whether you last is how you handle **risk**, how you **test** your ideas, and how you handle **yourself**.",
         "This level is the least exciting part of trading and the most important one.",
       ],
+      visual: {
+        type: "scene",
+        scene: {
+          kind: "flow",
+          title: "What decides whether you last",
+          nodes: [
+            { label: "Risk", sub: "how you handle it", icon: "shield", tone: "up" },
+            { label: "Testing", sub: "how you test your ideas", icon: "search", tone: "accent" },
+            { label: "Yourself", sub: "how you handle you", icon: "brain", tone: "warn" },
+          ],
+        },
+      },
     },
     {
       kind: "learn",
@@ -19,6 +31,17 @@ export const lesson: LessonContent = {
         "Beginners ask: **how much can I make** on this trade? Professionals ask: **how much can I lose**, and is that acceptable?",
         "Every trade's risk is decided before you enter: the distance from your entry to your stop, multiplied by your position size. If you can't say that number, you don't have a trade, you have a hope.",
       ],
+      visual: {
+        type: "scene",
+        scene: {
+          kind: "compare",
+          title: "The first question before a trade",
+          columns: [
+            { title: "Beginners", icon: "user", tone: "warn", points: ["How much can I make?"] },
+            { title: "Professionals", icon: "shield", tone: "up", points: ["How much can I lose?", "Is that acceptable?", "Decided before entry"] },
+          ],
+        },
+      },
     },
     {
       kind: "numeric",
@@ -36,6 +59,19 @@ export const lesson: LessonContent = {
         "Even a strategy that works will have long losing streaks. Your first job is to make sure no streak can knock you out of the game.",
         "If you survive, a real edge has time to show itself. If you don't, it never matters how good the edge was.",
       ],
+      visual: {
+        type: "scene",
+        scene: {
+          kind: "flow",
+          title: "Why survival comes first",
+          nodes: [
+            { label: "A strategy that works", icon: "check", tone: "up" },
+            { label: "Still has long losing streaks", icon: "trending-down", tone: "warn" },
+            { label: "Survive them", icon: "shield", tone: "accent" },
+            { label: "The edge has time to show", icon: "trending-up", tone: "up" },
+          ],
+        },
+      },
     },
     {
       kind: "choice",

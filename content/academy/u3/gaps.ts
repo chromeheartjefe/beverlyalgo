@@ -12,7 +12,11 @@ const chart: ChartSpec = { candles: [...before, ...after, ...fall], decimals: 2 
 
 export const lesson: LessonContent = {
   id: "u3-gaps",
-  sources: ["Investor.gov (U.S. SEC): extended-hours trading and price gaps"],
+  sources: [
+    "Investor.gov (U.S. SEC): extended-hours trading and price gaps",
+    "CME Group: 24/7 trading of cryptocurrency futures and options (2026)",
+    "Gap types as commonly taught in classical chart analysis; explained here in our own words",
+  ],
   steps: [
     {
       kind: "learn",
@@ -47,21 +51,37 @@ export const lesson: LessonContent = {
       title: "Where gaps happen",
       body: [
         "**Stocks** gap often: they trade only part of the day, and earnings and news land overnight. **Futures** gap mostly over the weekend.",
-        "**Spot forex** only gaps over the weekend. **Crypto** never closes, so spot charts rarely gap, but CME Bitcoin futures do, because CME closes at weekends.",
+        "**Spot forex** only gaps over the weekend. **Crypto** never closes, so its charts rarely gap. CME's Bitcoin futures used to gap every weekend, until CME moved its crypto futures to 24/7 trading in 2026.",
       ],
+      visual: {
+        type: "scene",
+        scene: {
+          kind: "grid",
+          title: "Which markets gap",
+          corner: "",
+          cols: ["How often"],
+          rows: [
+            { label: "Stocks", cells: ["Often: overnight news and earnings"], tones: ["warn"] },
+            { label: "Futures", cells: ["Mostly over the weekend"], tones: ["accent"] },
+            { label: "Spot forex", cells: ["Only over the weekend"], tones: ["accent"] },
+            { label: "Spot crypto", cells: ["Rarely: it never closes"], tones: ["up"] },
+            { label: "CME Bitcoin futures", cells: ["No longer: 24/7 since 2026"], tones: ["up"] },
+          ],
+        },
+      },
     },
     {
       kind: "choice",
       id: "why-stocks-gap",
       prompt: "Why do stocks gap much more often than forex?",
       options: [
-        "Stocks stop trading overnight, so news piles up while they are closed",
+        "The main stock session shuts overnight, so news piles up until the open",
         "Stock exchanges create gaps on purpose",
         "Forex prices are fixed overnight",
         "Stocks have no order book",
       ],
       answer: 0,
-      explain: "With the market shut, all the overnight news hits the opening price at once. Forex trades around the clock on weekdays, so it adjusts gradually.",
+      explain: "With the main session shut, the overnight news hits the opening price at once. Forex trades around the clock on weekdays, so it adjusts gradually.",
     },
     {
       kind: "learn",
@@ -70,6 +90,21 @@ export const lesson: LessonContent = {
         "**Common gaps** happen inside ranges and often get filled. **Breakaway gaps** launch a new move out of a range. **Runaway gaps** appear mid-trend as it accelerates. **Exhaustion gaps** come late in a trend and can mark its end.",
         "Traders say gaps tend to get filled, meaning price comes back to the pre-gap level. That happens often, but not always, and it can take days, months or never.",
       ],
+      visual: {
+        type: "scene",
+        scene: {
+          kind: "grid",
+          title: "Four types of gap",
+          corner: "",
+          cols: ["Where it shows up"],
+          rows: [
+            { label: "Common", cells: ["Inside ranges, often filled"], tones: ["neutral"] },
+            { label: "Breakaway", cells: ["Launches a new move out of a range"], tones: ["up"] },
+            { label: "Runaway", cells: ["Mid-trend, as it accelerates"], tones: ["accent"] },
+            { label: "Exhaustion", cells: ["Late in a trend, can mark its end"], tones: ["warn"] },
+          ],
+        },
+      },
     },
     {
       kind: "truefalse",
@@ -85,6 +120,22 @@ export const lesson: LessonContent = {
         "A gap is empty space between sessions. A **fair value gap** (FVG), which you will study in Level 3, is different: a three-candle pattern where price moved so fast in one direction that it left a one-sided imbalance, even with no market close.",
         "Same idea of 'price skipped something', very different setups. Don't mix them up.",
       ],
+      visual: {
+        type: "scene",
+        scene: {
+          kind: "compare",
+          title: "Don't mix them up",
+          columns: [
+            { title: "Gap", icon: "door", tone: "accent", points: ["Empty space between sessions"] },
+            {
+              title: "Fair value gap",
+              icon: "layers",
+              tone: "warn",
+              points: ["A three-candle pattern", "Price moved so fast it left a one-sided imbalance", "Needs no market close"],
+            },
+          ],
+        },
+      },
     },
     {
       kind: "recap",

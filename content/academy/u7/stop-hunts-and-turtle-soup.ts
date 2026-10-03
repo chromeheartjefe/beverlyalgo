@@ -18,6 +18,17 @@ export const lesson: LessonContent = {
         "In the 1980s the famous **Turtle traders** bought breakouts to new 20-day highs. In their 1995 book Street Smarts, Linda Raschke and Laurence Connors published a setup that did the opposite: when a new 20-day high quickly failed, fade it. They called it **Turtle Soup**.",
         "ICT borrowed the name for any **stop hunt**: price runs an obvious high or low, takes the stops, and reverses.",
       ],
+      visual: {
+        type: "scene",
+        scene: {
+          kind: "timeline",
+          events: [
+            { time: "1980s", label: "Turtle traders buy breakouts to 20-day highs", tone: "accent" },
+            { time: "1995", label: "Street Smarts: fade the breakout that fails", tone: "warn" },
+            { time: "Since then", label: "ICT borrows the name for any stop hunt", tone: "up" },
+          ],
+        },
+      },
     },
     {
       kind: "learn",
@@ -54,6 +65,26 @@ export const lesson: LessonContent = {
         "Strong trends make new highs all the time, and most of them are real. A turtle soup needs the failure: a quick rejection back inside, ideally followed by displacement and a structure shift the other way.",
         "Without that confirmation, fading every new high is just fighting the trend.",
       ],
+      visual: {
+        type: "scene",
+        scene: {
+          kind: "compare",
+          columns: [
+            {
+              title: "A real new high",
+              icon: "trending-up",
+              tone: "up",
+              points: ["Strong trends make them all the time", "Most of them are real", "Fading them fights the trend"],
+            },
+            {
+              title: "A turtle soup",
+              icon: "repeat",
+              tone: "warn",
+              points: ["A quick rejection back inside", "Ideally displacement", "And a structure shift the other way"],
+            },
+          ],
+        },
+      },
     },
     {
       kind: "truefalse",

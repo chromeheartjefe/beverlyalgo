@@ -14,6 +14,21 @@ export const lesson: LessonContent = {
         "**What you trade**: standardised contracts on a central exchange. The most popular with day traders are the equity index futures: **ES** (S&P 500, $50 a point), **NQ** (Nasdaq-100, $20 a point) and their micros, **MES** and **MNQ**, at a tenth of the size.",
         "**When**: nearly 24 hours, Sunday evening to Friday afternoon, with a daily break from 5 to 6 pm New York time. The busiest hours match the US stock session.",
       ],
+      visual: {
+        type: "scene",
+        scene: {
+          kind: "bars",
+          title: "What one point is worth",
+          max: 50,
+          bars: [
+            { label: "ES (S&P 500)", value: 50, display: "$50", tone: "accent" },
+            { label: "NQ (Nasdaq-100)", value: 20, display: "$20", tone: "accent" },
+            { label: "MES (micro)", value: 5, display: "$5", tone: "up" },
+            { label: "MNQ (micro)", value: 2, display: "$2", tone: "up" },
+          ],
+        },
+        caption: "The micros are a tenth of the size.",
+      },
     },
     {
       kind: "learn",
@@ -22,6 +37,20 @@ export const lesson: LessonContent = {
         "Index futures expire **quarterly**: March, June, September and December. About a week before expiry, volume moves to the next contract, and traders **roll** their positions forward.",
         "Charting platforms offer continuous charts that join the contracts together; just make sure you trade the active one.",
       ],
+      visual: {
+        type: "scene",
+        scene: {
+          kind: "timeline",
+          title: "Index futures expire every quarter",
+          events: [
+            { time: "March", label: "Expiry" },
+            { time: "June", label: "Expiry" },
+            { time: "September", label: "Expiry" },
+            { time: "December", label: "Expiry" },
+          ],
+        },
+        caption: "About a week before each expiry, volume moves to the next contract and traders roll forward.",
+      },
     },
     {
       kind: "match",
@@ -39,9 +68,29 @@ export const lesson: LessonContent = {
       kind: "learn",
       title: "Why traders like them, and the catches",
       body: [
-        "Central exchange, transparent prices and real volume, nearly round-the-clock trading, and margin requirements that let small accounts trade micros. US futures accounts are also not subject to the stock market's pattern day trader rule.",
+        "Central exchange, transparent prices and real volume, nearly round-the-clock trading, and margin requirements that let small accounts trade micros. US futures accounts also never had the $25,000 day trading minimum that stock accounts long did.",
         "Catches: leverage is high, so size from your stop. Many traders try **prop firm evaluations** (pay a fee, pass a test, trade a funded account); read the rules carefully, since most participants don't pass.",
       ],
+      visual: {
+        type: "scene",
+        scene: {
+          kind: "compare",
+          columns: [
+            {
+              title: "Why traders like them",
+              icon: "check",
+              tone: "up",
+              points: ["A central exchange", "Transparent prices and real volume", "Nearly round the clock", "Micros suit small accounts"],
+            },
+            {
+              title: "The catches",
+              icon: "alert",
+              tone: "warn",
+              points: ["Leverage is high: size from your stop", "Prop firm evaluations: most participants don't pass"],
+            },
+          ],
+        },
+      },
     },
     {
       kind: "choice",

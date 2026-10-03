@@ -43,6 +43,19 @@ export const lesson: LessonContent = {
         "The price you see is not set by the exchange or by your broker. In most markets it is simply the price of the **most recent trade**.",
         "If the last trade happened at 100.25, the screen shows 100.25. A second later someone pays 100.50, and the price ticks to 100.50.",
       ],
+      visual: {
+        type: "scene",
+        scene: {
+          kind: "timeline",
+          title: "The price follows the latest trade",
+          events: [
+            { time: "Trade", label: "A buyer and a seller agree at 100.25" },
+            { time: "Screen", label: "Price shows 100.25", tone: "neutral" },
+            { time: "A second later", label: "Someone pays 100.50", tone: "up" },
+            { time: "Screen", label: "Price ticks to 100.50", tone: "up" },
+          ],
+        },
+      },
       callout: {
         tone: "note",
         text: "Forex has no single central exchange, so forex charts show the latest price quoted by your broker. Same idea: the price people are dealing at right now.",

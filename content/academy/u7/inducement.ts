@@ -46,6 +46,17 @@ export const lesson: LessonContent = {
         "Many SMC traders won't trust a zone until the inducement in front of it has been taken. The idea: until early buyers have been shaken out, price hasn't collected the liquidity it needs.",
         "Practically: don't buy the first obvious pullback low. Wait for it to be swept, and look for your entry at the deeper zone.",
       ],
+      visual: {
+        type: "scene",
+        scene: {
+          kind: "flow",
+          nodes: [
+            { label: "The first obvious pullback low", sub: "don't buy it", icon: "ban", tone: "warn" },
+            { label: "It gets swept", sub: "early buyers are shaken out", icon: "zap", tone: "down" },
+            { label: "The deeper zone", sub: "look for your entry there", icon: "target", tone: "up" },
+          ],
+        },
+      },
     },
     {
       kind: "choice",

@@ -55,6 +55,22 @@ export const lesson: LessonContent = {
         "**Above zero**, the fast EMA is above the slow one: upward momentum. **Below zero**, downward momentum.",
         "**Crossovers**: the MACD line crossing above the signal line shows momentum improving; crossing below shows it fading. The **histogram** shrinking towards zero shows a move losing steam, often before the crossover happens.",
       ],
+      visual: {
+        type: "scene",
+        scene: {
+          kind: "grid",
+          title: "Reading MACD",
+          corner: "",
+          cols: ["What it shows"],
+          rows: [
+            { label: "Above zero", cells: ["Upward momentum"], tones: ["up"] },
+            { label: "Below zero", cells: ["Downward momentum"], tones: ["down"] },
+            { label: "Cross above the signal line", cells: ["Momentum improving"], tones: ["up"] },
+            { label: "Cross below the signal line", cells: ["Momentum fading"], tones: ["down"] },
+            { label: "Histogram shrinking", cells: ["A move losing steam"], tones: ["warn"] },
+          ],
+        },
+      },
     },
     {
       kind: "choice",

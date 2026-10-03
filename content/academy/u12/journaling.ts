@@ -11,6 +11,16 @@ export const lesson: LessonContent = {
         "A **trading journal** records every trade with enough detail to learn from it later. Memory is selective: it remembers the big wins and forgets the rule breaks. A journal doesn't.",
         "Your EntrixAlgo dashboard has a **Trade Journal**, and the **Trade Calendar** shows the same data day by day.",
       ],
+      visual: {
+        type: "scene",
+        scene: {
+          kind: "compare",
+          columns: [
+            { title: "Memory", icon: "brain", tone: "warn", points: ["Remembers the big wins", "Forgets the rule breaks"] },
+            { title: "A journal", icon: "book", tone: "up", points: ["Records every trade", "Forgets nothing"] },
+          ],
+        },
+      },
     },
     {
       kind: "learn",
@@ -19,6 +29,17 @@ export const lesson: LessonContent = {
         "**Facts**: market, date and time, direction, entry, stop, target, exit, size, result in R and in money. **Context**: which setup, which killzone, a screenshot before and after. **Behaviour**: did you follow your plan? What were you feeling?",
         "The behaviour column is the one most traders skip, and the one that teaches the most.",
       ],
+      visual: {
+        type: "scene",
+        scene: {
+          kind: "compare",
+          columns: [
+            { title: "Facts", icon: "list", tone: "neutral", points: ["Market, date and time", "Entry, stop, target, exit", "Size and result in R"] },
+            { title: "Context", icon: "candles", tone: "accent", points: ["Which setup", "Which killzone", "Screenshots before and after"] },
+            { title: "Behaviour", icon: "brain", tone: "up", points: ["Did you follow the plan?", "What were you feeling?"] },
+          ],
+        },
+      },
     },
     {
       kind: "choice",
@@ -40,6 +61,19 @@ export const lesson: LessonContent = {
         "After 50 trades, a journal can answer questions your memory can't: Which setup actually makes money? Which time of day loses? Do you lose more after a winning streak? What do trades where you broke a rule cost you in total?",
         "Tag each trade by setup and by mistake, so you can filter later.",
       ],
+      visual: {
+        type: "scene",
+        scene: {
+          kind: "checklist",
+          title: "After 50 trades, a journal can answer",
+          items: [
+            { text: "Which setup actually makes money?", mark: "dot" },
+            { text: "Which time of day loses?", mark: "dot" },
+            { text: "Do you lose more after a winning streak?", mark: "dot" },
+            { text: "What do broken rules cost you in total?", mark: "dot" },
+          ],
+        },
+      },
     },
     {
       kind: "truefalse",

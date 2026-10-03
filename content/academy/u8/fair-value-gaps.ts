@@ -69,6 +69,19 @@ export const lesson: LessonContent = {
         "In a bullish setup, traders wait for price to retrace into a bullish FVG and look for entries there, with the stop below the move's low. Many enter at the top of the gap or at its midpoint.",
         "Gaps that form with displacement, after a liquidity sweep, in the direction of the higher-timeframe bias, are taken far more seriously than random small gaps.",
       ],
+      visual: {
+        type: "scene",
+        scene: {
+          kind: "flow",
+          title: "A bullish setup",
+          nodes: [
+            { label: "A bullish FVG", icon: "layers", tone: "accent" },
+            { label: "Price retraces into it", icon: "repeat" },
+            { label: "Entry", sub: "the top of the gap or its midpoint", icon: "target", tone: "up" },
+            { label: "Stop", sub: "below the move's low", icon: "shield", tone: "down" },
+          ],
+        },
+      },
     },
     {
       kind: "truefalse",

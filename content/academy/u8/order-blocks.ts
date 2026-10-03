@@ -42,6 +42,19 @@ export const lesson: LessonContent = {
         "It **took liquidity** (swept a high or low). The move away **left an FVG**. The move **broke structure**. It is **unmitigated**: price hasn't come back to it yet.",
         "The candle in this chart ticks all four, which is why it is a textbook example.",
       ],
+      visual: {
+        type: "scene",
+        scene: {
+          kind: "checklist",
+          title: "An order block most SMC traders trust",
+          items: [
+            { text: "It took liquidity: swept a high or low", mark: "ok" },
+            { text: "The move away left an FVG", mark: "ok" },
+            { text: "The move broke structure", mark: "ok" },
+            { text: "Unmitigated: price hasn't come back to it yet", mark: "ok" },
+          ],
+        },
+      },
     },
     {
       kind: "learn",

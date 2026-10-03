@@ -45,6 +45,22 @@ export const lesson: LessonContent = {
         "**Rising volume behind a move** suggests conviction: lots of traders are pushing in that direction. Moves on thin volume are often more fragile.",
         "Volume also spikes at session opens, on news, when many stops trigger together, and at the climax of long trends, when the last buyers or sellers finally give up.",
       ],
+      visual: {
+        type: "scene",
+        scene: {
+          kind: "compare",
+          columns: [
+            { title: "Rising volume", icon: "trending-up", tone: "up", points: ["Suggests conviction", "Lots of traders pushing that way"] },
+            { title: "Thin volume", icon: "alert", tone: "warn", points: ["Moves are often more fragile"] },
+            {
+              title: "Volume spikes",
+              icon: "zap",
+              tone: "accent",
+              points: ["Session opens", "News", "Many stops triggering", "The climax of a long trend"],
+            },
+          ],
+        },
+      },
     },
     {
       kind: "choice",
@@ -66,6 +82,23 @@ export const lesson: LessonContent = {
         "Spot forex has no central exchange, so nobody sees the total volume. Forex platforms show **tick volume** instead: how many times your broker's price changed. It tracks activity reasonably well, but it is only your broker's slice.",
         "Futures, like those on CME, report real exchange volume. Crypto volume is reported per exchange, so the same coin shows different volume on different venues.",
       ],
+      visual: {
+        type: "scene",
+        scene: {
+          kind: "compare",
+          title: "What the volume bars really count",
+          columns: [
+            {
+              title: "Spot forex",
+              icon: "coins",
+              tone: "warn",
+              points: ["No central exchange", "Tick volume: how often your broker's price changed", "Only your broker's slice"],
+            },
+            { title: "Futures", icon: "building", tone: "up", points: ["Real exchange volume", "Like those on CME"] },
+            { title: "Crypto", icon: "bitcoin", tone: "accent", points: ["Reported per exchange", "The same coin shows different volume"] },
+          ],
+        },
+      },
     },
     {
       kind: "truefalse",

@@ -35,6 +35,18 @@ export const lesson: LessonContent = {
         "A dealing range tells you where you are. Near its low, buying is cheap relative to the leg. Near its high, buying is expensive. Its edges are also the external liquidity from Unit 7.",
         "When price breaks out of the range and makes a new leg, you draw a new dealing range from that leg.",
       ],
+      visual: {
+        type: "scene",
+        scene: {
+          kind: "compare",
+          title: "A dealing range tells you where you are",
+          columns: [
+            { title: "Near its low", icon: "check", tone: "up", points: ["Buying is cheap relative to the leg"] },
+            { title: "Near its high", icon: "alert", tone: "down", points: ["Buying is expensive"] },
+          ],
+        },
+        caption: "Its edges are also the external liquidity from Unit 7.",
+      },
     },
     {
       kind: "choice",

@@ -11,6 +11,19 @@ export const lesson: LessonContent = {
         "Beginners pick a size first, then squeeze the stop to fit. Professionals do the opposite: they put the stop where the trade idea is wrong, then work out the size that makes that stop cost exactly their planned risk.",
         "**Position size = money at risk ÷ (stop distance × value of one unit of movement)**.",
       ],
+      visual: {
+        type: "scene",
+        scene: {
+          kind: "flow",
+          title: "The order professionals work in",
+          nodes: [
+            { label: "Place the stop", sub: "where the idea is wrong", icon: "flag" },
+            { label: "Money at risk", sub: "your planned loss", icon: "wallet" },
+            { label: "Divide", sub: "by stop distance x value of one unit", icon: "calculator", tone: "accent" },
+            { label: "Position size", icon: "scale", tone: "up" },
+          ],
+        },
+      },
     },
     {
       kind: "numeric",
@@ -46,6 +59,19 @@ export const lesson: LessonContent = {
         "A wider stop isn't more risky if you size down to match. A trade with a 50-point stop at 1 contract risks the same as a 25-point stop at 2 contracts.",
         "That is why the stop should go where the market says, at structure or beyond the sweep, never where your account size says.",
       ],
+      visual: {
+        type: "scene",
+        scene: {
+          kind: "grid",
+          title: "Two trades with the same risk",
+          corner: "",
+          cols: ["Stop", "Size", "Risk"],
+          rows: [
+            { label: "Wide stop", cells: ["50 points", "1 contract", "The same"], tones: ["neutral", "neutral", "up"] },
+            { label: "Tight stop", cells: ["25 points", "2 contracts", "The same"], tones: ["neutral", "neutral", "up"] },
+          ],
+        },
+      },
       callout: {
         tone: "tip",
         text: "The Risk Calculator in your dashboard does this maths for you. Enter your account, risk and stop, and it gives you the size.",

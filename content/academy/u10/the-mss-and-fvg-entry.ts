@@ -64,6 +64,20 @@ export const lesson: LessonContent = {
         "Skip the setup if the MSS came **without displacement** (weak, overlapping candles), if it goes **against the higher-timeframe bias**, if the gap sits in **premium** for a long, or if the target leaves less than about 2R.",
         "And if price never comes back to your limit order, let it go. Chasing the move breaks the model.",
       ],
+      visual: {
+        type: "scene",
+        scene: {
+          kind: "checklist",
+          title: "Skip the setup if",
+          items: [
+            { text: "The MSS came without displacement", mark: "bad" },
+            { text: "It goes against the higher-timeframe bias", mark: "bad" },
+            { text: "The gap sits in premium, for a long", mark: "bad" },
+            { text: "The target leaves less than about 2R", mark: "bad" },
+            { text: "Price never came back to your limit: let it go", mark: "bad" },
+          ],
+        },
+      },
     },
     {
       kind: "choice",

@@ -66,6 +66,23 @@ export const lesson: LessonContent = {
         "The model is a map, not an entry. It helps you see where you are in a larger cycle: still in the sell-side curve (be careful buying), or already in the buy-side curve (look for buys at each new stage, targeting the levels the decline left behind).",
         "The **market maker sell model (MMSM)** is the mirror: a stair-step rally, a reversal at a premium level, and a decline back through the stages.",
       ],
+      visual: {
+        type: "scene",
+        scene: {
+          kind: "compare",
+          title: "A map, not an entry",
+          columns: [
+            { title: "Still in the sell-side curve", icon: "trending-down", tone: "warn", points: ["Be careful buying"] },
+            {
+              title: "Already in the buy-side curve",
+              icon: "trending-up",
+              tone: "up",
+              points: ["Look for buys at each new stage", "Target the levels the decline left behind"],
+            },
+          ],
+        },
+        caption: "The market maker sell model (MMSM) is the mirror.",
+      },
     },
     {
       kind: "choice",

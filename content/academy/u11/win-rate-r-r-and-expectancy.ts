@@ -11,6 +11,17 @@ export const lesson: LessonContent = {
         "A strategy's results come from two numbers working together: how often it wins (**win rate**) and how much it wins compared with what it loses (**R:R**).",
         "A 70% win rate with tiny winners can lose money. A 35% win rate with big winners can make a lot. Neither number means anything alone.",
       ],
+      visual: {
+        type: "scene",
+        scene: {
+          kind: "compare",
+          title: "Neither number means anything alone",
+          columns: [
+            { title: "70% win rate", icon: "percent", tone: "warn", points: ["With tiny winners", "Can lose money"] },
+            { title: "35% win rate", icon: "percent", tone: "up", points: ["With big winners", "Can make a lot"] },
+          ],
+        },
+      },
     },
     {
       kind: "learn",
@@ -19,6 +30,19 @@ export const lesson: LessonContent = {
         "For a given R:R, the win rate where you neither make nor lose money is: **breakeven win rate = 1 ÷ (1 + R:R)**.",
         "At 1:1 you need to win 50%. At 2:1, about 33%. At 3:1, just 25%. Anything above the breakeven rate, after costs, is your edge.",
       ],
+      visual: {
+        type: "scene",
+        scene: {
+          kind: "bars",
+          title: "Win rate needed just to break even",
+          max: 100,
+          bars: [
+            { label: "R:R of 1:1", value: 50, display: "50%", tone: "warn" },
+            { label: "R:R of 2:1", value: 33.3, display: "about 33%", tone: "accent" },
+            { label: "R:R of 3:1", value: 25, display: "25%", tone: "up" },
+          ],
+        },
+      },
     },
     {
       kind: "numeric",
@@ -45,6 +69,19 @@ export const lesson: LessonContent = {
         "Spreads, commissions and slippage are paid on every trade, win or lose. If they average 0.1R per trade, a +0.2R strategy is really a +0.1R strategy.",
         "Always calculate expectancy **after costs**. Small edges vanish quickly when you trade often.",
       ],
+      visual: {
+        type: "scene",
+        scene: {
+          kind: "bars",
+          title: "Expectancy per trade",
+          max: 0.25,
+          bars: [
+            { label: "Before costs", value: 0.2, display: "+0.2R", tone: "up" },
+            { label: "Costs", value: 0.1, display: "0.1R", tone: "down" },
+            { label: "What is really left", value: 0.1, display: "+0.1R", tone: "warn" },
+          ],
+        },
+      },
     },
     {
       kind: "choice",

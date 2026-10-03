@@ -10,7 +10,10 @@ const chart: ChartSpec = { candles, decimals: 2 }
 
 export const lesson: LessonContent = {
   id: "u4-break-of-structure",
-  sources: ["Hamilton, The Stock Market Barometer (1922), public domain"],
+  sources: [
+    "Smart Money Concepts and ICT market structure terminology as commonly taught; explained here in our own words",
+    "Hamilton, The Stock Market Barometer (1922), public domain: the older idea of trends defined by highs and lows",
+  ],
   steps: [
     {
       kind: "learn",
@@ -54,6 +57,29 @@ export const lesson: LessonContent = {
         "Traders argue about this, and it matters. A **wick** above the old high only shows that price visited it. A **close** above it shows that buyers held it there until the candle ended.",
         "This course uses the close. In Level 3 you will learn why a wick above a high that quickly falls back is often the opposite of a BOS: a **liquidity sweep**, where stops get taken and price reverses.",
       ],
+      visual: {
+        type: "scene",
+        scene: {
+          kind: "candles",
+          groups: [
+            {
+              label: "A wick above",
+              note: "Price only visited it",
+              tone: "warn",
+              candles: [[98, 99.6, 97.5, 99.2], [99.2, 101.5, 98.8, 99.4]],
+              lines: [{ price: 100, label: "Old high" }],
+            },
+            {
+              label: "A close above",
+              note: "Buyers held it there until the candle ended",
+              tone: "up",
+              candles: [[98, 99.6, 97.5, 99.2], [99.2, 101.6, 99, 101.2]],
+              lines: [{ price: 100, label: "Old high" }],
+            },
+          ],
+        },
+        caption: "This course uses the close.",
+      },
     },
     {
       kind: "choice",
