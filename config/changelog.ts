@@ -21,6 +21,28 @@ export type Release = {
 
 export const CHANGELOG: Release[] = [
   {
+    version: "2.8",
+    date: "2026-10-04",
+    title: "Sharper Chart Analysis, animated Academy",
+    summary: "Chart Analysis shows and reads your screenshots better, and every Academy lesson now comes with animated visuals.",
+    items: [
+      { kind: "new", text: "Animated visuals across the Academy: every teaching step now has its own short animation, from candles forming to risk and reward bars.", href: "/dashboard/academy" },
+      { kind: "new", text: "Paste a screenshot straight into Chart Analysis with Ctrl+V, or drop it anywhere on the page.", href: "/dashboard/chart-analysis" },
+      { kind: "new", text: "Tap your chart in Chart Analysis to open it full size, before or after the analysis." },
+      { kind: "new", text: "A Cookie Policy, next to the Terms of Service and Privacy Policy.", href: "/cookies" },
+      { kind: "improved", text: "Chart Analysis shows your whole screenshot, down to the time axis. Nothing is cut off any more, on phones or computers." },
+      { kind: "improved", text: "The AI gets a sharper copy of your screenshot, which matters most for phone screenshots and small price labels." },
+      { kind: "improved", text: "Screenshots can be up to 20 MB, up from 5 MB." },
+      { kind: "improved", text: "A heads-up when a picture is too small to read well, before you run the analysis." },
+      { kind: "improved", text: "Academy lessons were reviewed line by line and brought up to date, including this year's changes to crypto futures hours and the US day trading rule." },
+      { kind: "improved", text: "The Terms of Service and Privacy Policy are rewritten in fuller detail, each with a contents list to jump to a section.", href: "/terms" },
+      { kind: "fixed", text: "A file your browser can't open is caught the moment you pick it, not after you press Analyze." },
+      { kind: "fixed", text: "Dropping a picture just outside the upload box no longer takes you away from the page." },
+      { kind: "fixed", text: "Browser tab titles no longer show the EntrixAlgo name twice." },
+      { kind: "fixed", text: "Bug fixes and small visual polish." },
+    ],
+  },
+  {
     version: "2.7",
     date: "2026-10-03",
     title: "Better on phones, easier to read",
