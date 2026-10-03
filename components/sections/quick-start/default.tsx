@@ -2,7 +2,6 @@
 
 import { motion, useInView } from 'framer-motion'
 import {
-  Activity,
   ArrowRight,
   BookOpen,
   Bot,
@@ -193,7 +192,6 @@ function FreeToolsVisual() {
 const PRO_TOOLS = [
   { icon: Zap,      label: 'Chart Analysis' },
   { icon: Bot,      label: 'Trading Bot' },
-  { icon: Activity, label: 'Indicator' },
 ]
 
 function ProToolsVisual() {
@@ -202,7 +200,7 @@ function ProToolsVisual() {
 
   return (
     <div ref={ref} className="relative overflow-hidden">
-      <div className="grid grid-cols-3 gap-2">
+      <div className="grid grid-cols-2 gap-2">
         {PRO_TOOLS.map((tool) => (
           <div
             key={tool.label}
@@ -271,7 +269,7 @@ const steps: Step[] = [
     icon: Sparkles,
     tag: 'Pro',
     title: 'Go Pro for AI signals',
-    description: 'Unlock AI Chart Analysis, the AI Trading Bot, and invite-only TradingView Indicator access.',
+    description: 'Unlock unlimited AI Chart Analysis and the AI Trading Bot.',
     visual: <ProToolsVisual />,
     cta: { label: 'See full plan comparison', href: '#pricing' },
   },
@@ -387,7 +385,7 @@ export default function QuickStartGuide() {
         >
           <motion.h2
             variants={headingVariants}
-            className="from-foreground to-foreground dark:to-brand bg-linear-to-r bg-clip-text text-3xl font-bold text-transparent drop-shadow-[0_0_24px_var(--brand-foreground)] sm:text-5xl pb-2"
+            className="from-foreground to-foreground dark:to-brand bg-linear-to-r bg-clip-text text-3xl font-extrabold text-transparent drop-shadow-[0_0_24px_var(--brand-foreground)] sm:text-5xl pb-2"
           >
             Quick Start Guide
           </motion.h2>

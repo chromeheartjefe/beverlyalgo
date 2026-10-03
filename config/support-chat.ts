@@ -1,6 +1,8 @@
 // Shared by the support chat widget (client) and its API routes (server).
 // Nothing secret here: the system prompt lives in lib/support-chat.ts.
 
+import { PAPER_TRADING } from "@/config/features"
+
 export const SUPPORT_CHAT = {
   maxInputChars:   500,
   // Messages of history sent with each question. Each one is re-billed as
@@ -27,11 +29,13 @@ export const SUPPORT_LINKS = new Set([
   "/dashboard/trade-journal",
   "/dashboard/trade-calendar",
   "/dashboard/risk-calculator",
+  ...(PAPER_TRADING ? ["/dashboard/paper-trading"] : []),
   "/dashboard/academy",
   "/dashboard/glossary",
   "/dashboard/settings",
   "/privacy",
   "/terms",
+  "/cookies",
 ])
 
 // Starter questions answered instantly in the browser, at zero AI cost. Keep
@@ -43,17 +47,12 @@ export const QUICK_REPLIES: QuickReply[] = [
   {
     label: "What does Pro include?",
     answer:
-      "Pro unlocks unlimited AI Chart Analysis, the AI Trading Bot and our invite-only TradingView indicator, plus priority support and early access to new features. It's $49/month (cancel anytime) or $299 once for lifetime access. See /#pricing",
+      "Pro unlocks unlimited AI Chart Analysis and the AI Trading Bot, plus priority support and early access to new features. It's $49/month (cancel anytime) or $299 once for lifetime access. See /#pricing",
   },
   {
     label: "Is there a free plan?",
     answer:
       "Yes. A free account includes one AI Chart Analysis, plus the AI Screener, Trade Journal, Trade Calendar, Risk Calculator and the Entrix Academy course, no card needed. Create one at /sign-up",
-  },
-  {
-    label: "How do I get the TradingView indicator?",
-    answer:
-      "With Pro, open /dashboard/indicator and submit your TradingView username. Invites go out once a day, so you'll have access within 48 hours. Then accept the invite on TradingView and add the script from Indicators > Invite-only scripts.",
   },
   { label: "Talk to a person", contact: true },
 ]

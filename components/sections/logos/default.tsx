@@ -107,7 +107,7 @@ function BacktestCard({ backtest }: { backtest: Backtest }) {
 
 export default function Logos({
   title = "Results speak for themselves",
-  description = "Four independent TradingView Strategy Tester backtests across BTC, ETH, SOL, and XRP, all on the same signal engine every subscriber runs. Unedited results over the same 19-day window.",
+  description = "Four independent TradingView Strategy Tester backtests across BTC, ETH, SOL, and XRP, all on signals logged from our AI Chart Analysis. Unedited results over the same 19-day window.",
   badge = (
     <Badge variant="outline" className="border-brand/30 text-brand max-sm:hidden">
       Backtested · Aug 3 – 22, 2026
@@ -139,7 +139,7 @@ export default function Logos({
         <Reveal className="flex flex-col items-center gap-6 max-w-3xl text-center">
           {badge !== false && badge}
 
-          <h2 className="from-foreground to-foreground dark:to-brand bg-linear-to-r bg-clip-text text-3xl font-bold leading-tight text-transparent drop-shadow-[0_0_24px_var(--brand-foreground)] sm:text-5xl pb-2">
+          <h2 className="from-foreground to-foreground dark:to-brand bg-linear-to-r bg-clip-text text-3xl font-extrabold leading-tight text-transparent drop-shadow-[0_0_24px_var(--brand-foreground)] sm:text-5xl pb-2">
             {title}
           </h2>
 
@@ -160,7 +160,7 @@ export default function Logos({
         </RevealGroup>
 
         <p className="max-w-2xl text-center text-xs text-gray-600">
-          Past performance does not guarantee future results. All backtests run via TradingView&apos;s Strategy Tester on historical data.
+          Past performance does not guarantee future results.
         </p>
 
       </div>

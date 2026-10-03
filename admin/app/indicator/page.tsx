@@ -1,24 +1,27 @@
 import { sql } from "drizzle-orm"
 import { CheckCircle2, Radar } from "lucide-react"
 
-import { indicatorUpdateEmail } from "@/lib/email"
-import { markIndicatorInvited, sendIndicatorUpdateToWaiting } from "~/app/actions"
+import { indicatorEarlyAccessEmail, indicatorUpdateEmail } from "@/lib/email"
+import { markIndicatorInvited, sendIndicatorEarlyAccessToWaiting, sendIndicatorUpdateToWaiting } from "~/app/actions"
 import { ActionButton } from "~/components/action-button"
 import { Badge, Card, PageHeader, PlanBadge, Table, Td, UserLink } from "~/components/ui"
 import { rows } from "~/lib/db"
 import { ago, dateTime, PLAN_KIND, type PlanKind } from "~/lib/format"
+import { loadIndicatorEmailAssets } from "~/lib/indicator-email"
 
 export const dynamic = "force-dynamic"
 
-type Req = { id: string; email: string; plan_kind: PlanKind; username: string; requested_at: string; invited_at: string | null; update_sent_at?: string | null }
+type Req = { id: string; email: string; plan_kind: PlanKind; username: string; requested_at: string; invited_at: string | null; update_sent_at?: string | null; early_sent_at?: string | null }
 
 export default async function IndicatorPage() {
-  const [pending, invited] = await Promise.all([
+  const [pending, invited, assets] = await Promise.all([
     rows<Req>(sql`
       SELECT u.id, u.email, ${PLAN_KIND()} AS plan_kind, u.tradingview_username AS username,
         u.indicator_requested_at AS requested_at, u.indicator_invited_at AS invited_at,
         (SELECT max(a.created_at) FROM admin_audit_log a
-          WHERE a.action = 'indicator_update_sent' AND a.target_user_id = u.id) AS update_sent_at
+          WHERE a.action = 'indicator_update_sent' AND a.target_user_id = u.id) AS update_sent_at,
+        (SELECT max(a.created_at) FROM admin_audit_log a
+          WHERE a.action = 'indicator_early_access_sent' AND a.target_user_id = u.id) AS early_sent_at
       FROM users u
       WHERE u.indicator_requested_at IS NOT NULL AND u.indicator_invited_at IS NULL
       ORDER BY u.indicator_requested_at ASC
@@ -30,11 +33,19 @@ export default async function IndicatorPage() {
       WHERE u.indicator_invited_at IS NOT NULL
       ORDER BY u.indicator_invited_at DESC LIMIT 50
     `),
+    loadIndicatorEmailAssets(),
   ])
 
   const notUpdated = pending.filter((r) => !r.update_sent_at).length
   // Preview with a sample handle; the real email uses each user's own
   const preview = indicatorUpdateEmail({ tradingviewUsername: "alex_trades" })
+
+  const noEarlyAccess = pending.filter((r) => !r.early_sent_at).length
+  // The real email carries the Pine button picture as an inline attachment;
+  // the preview embeds the same file so it shows inside the frame
+  const earlyPreview = assets.ok
+    ? indicatorEarlyAccessEmail({ script: assets.script, pineImageSrc: `data:image/png;base64,${assets.pineImage.toString("base64")}` })
+    : null
 
   return (
     <div className="space-y-5">
@@ -74,8 +85,42 @@ export default async function IndicatorPage() {
         </details>
       </Card>
 
+      <Card
+        title="Early access email: the indicator script"
+        sub="The EntrixAlgo Signals script with install steps, sent as their early access. The script is read from .indicator/EntrixAlgo Signals.pine on this machine. Each person gets it once."
+        right={
+          !assets.ok ? (
+            <Badge color="red">Files missing</Badge>
+          ) : noEarlyAccess > 0 ? (
+            <ActionButton
+              label={`Send to ${noEarlyAccess} waiting`}
+              confirmLabel={`Email the script to ${noEarlyAccess} user${noEarlyAccess === 1 ? "" : "s"}?`}
+              run={sendIndicatorEarlyAccessToWaiting}
+            />
+          ) : (
+            <Badge color="green">{pending.length ? "Everyone waiting has it" : "Nobody waiting"}</Badge>
+          )
+        }
+      >
+        {earlyPreview ? (
+          <details className="group" open>
+            <summary className="cursor-pointer text-sm text-purple-300 hover:text-white">
+              Preview the email <span className="text-gray-500">(subject: {earlyPreview.subject})</span>
+            </summary>
+            <iframe
+              title="Indicator early access email preview"
+              srcDoc={earlyPreview.html}
+              sandbox=""
+              className="mt-3 h-[900px] w-full rounded-xl border border-white/15 bg-[#09090f]"
+            />
+          </details>
+        ) : (
+          <p className="text-sm text-rose-300">{assets.ok ? "" : assets.message}</p>
+        )}
+      </Card>
+
       <Card title={`Waiting (${pending.length})`}>
-        <Table head={["TradingView", "User", "Plan", "Requested", "Waiting", "Update email", ""]} empty={pending.length === 0}>
+        <Table head={["TradingView", "User", "Plan", "Requested", "Waiting", "Update email", "Early access", ""]} empty={pending.length === 0}>
           {pending.map((r) => {
             const hours = (Date.now() - new Date(r.requested_at).getTime()) / 3_600_000
             return (
@@ -90,6 +135,7 @@ export default async function IndicatorPage() {
                 <Td>{dateTime(r.requested_at)}</Td>
                 <Td>{hours > 48 ? <Badge color="red">{ago(r.requested_at)} (over 48h)</Badge> : ago(r.requested_at)}</Td>
                 <Td>{r.update_sent_at ? <Badge color="purple">Sent {ago(r.update_sent_at)}</Badge> : <span className="text-gray-500">Not sent</span>}</Td>
+                <Td>{r.early_sent_at ? <Badge color="green">Sent {ago(r.early_sent_at)}</Badge> : <span className="text-gray-500">Not sent</span>}</Td>
                 <Td>
                   <ActionButton label="Mark invited" confirmLabel="Added on TradingView?" run={markIndicatorInvited.bind(null, r.id)} />
                 </Td>

@@ -18,8 +18,8 @@ export function FeatureLock({
 }: {
   locked: boolean
   feature: string
-  // Replaces the default "is a Pro feature" copy and/or its Upgrade button
-  card?: { title?: string; description?: React.ReactNode; action?: React.ReactNode }
+  // Replaces the default "is a Pro feature" copy, its lock icon and/or its Upgrade button
+  card?: { icon?: React.ReactNode; title?: string; description?: React.ReactNode; action?: React.ReactNode }
   // What the lock should say isn't known yet: a same-size placeholder card
   // instead of copy that might flash and then change
   pending?: boolean
@@ -75,7 +75,7 @@ export function FeatureLock({
             }
           >
             <div className="mx-auto mb-3 flex size-12 items-center justify-center rounded-2xl border border-purple-500/20 bg-purple-500/10">
-              <Lock className="size-5 text-purple-400" />
+              {card?.icon ?? <Lock className="size-5 text-purple-400" />}
             </div>
             <h3 className="text-sm font-semibold text-white">{card?.title ?? `${feature} is a Pro feature`}</h3>
             <p className="mt-1.5 text-xs text-gray-500">

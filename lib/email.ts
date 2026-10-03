@@ -239,6 +239,120 @@ export async function sendIndicatorUpdateEmail(to: string, user: { tradingviewUs
   await deliver(resendClient, { from: fromAddress(), replyTo: siteConfig.supportEmail, to, subject, html, text })
 }
 
+// The follow-up to the update above: the indicator script itself with install
+// steps, for Pro users who asked for access. Sent from the admin console
+// (Indicator queue). The script and the picture of TradingView's Pine button
+// are passed in, so neither lives in the site's source: the console reads
+// them from the local .indicator/ folder. Wider than wrapper() so the script
+// fits, and built from blocks because it has lists and a code box.
+const PINE_IMAGE_CID = "pine-button"
+
+export function indicatorEarlyAccessEmail({ script, pineImageSrc }: { script: string; pineImageSrc: string }) {
+  const url = `${baseUrl()}/dashboard/chart-analysis`
+  const subject = "Your EntrixAlgo indicator: early access is ready"
+  const code = script.trim()
+
+  const p = (html: string, margin = "0 0 16px") => `<p style="margin:${margin};font-size:14px;line-height:1.65;color:#9ca3af;">${html}</p>`
+  const h2 = (title: string) => `<h2 style="margin:28px 0 10px;font-size:15px;color:#ffffff;">${title}</h2>`
+  const b = (label: string) => `<strong style="color:#e5e7eb;">${label}</strong>`
+  const list = (tag: "ul" | "ol", items: string[]) =>
+    `<${tag} style="margin:0 0 16px;padding-left:20px;font-size:14px;line-height:1.65;color:#9ca3af;">${items.map((item) => `<li style="margin:0 0 8px;">${item}</li>`).join("")}</${tag}>`
+
+  const pineImage = `<br /><img src="${pineImageSrc}" width="160" height="182" alt="The Pine button in TradingView's right-hand toolbar" style="display:block;margin:10px 0 4px;border:1px solid rgba(255,255,255,0.12);border-radius:10px;" />`
+
+  const html = `
+<div style="background:#09090f;padding:40px 20px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;">
+  <div style="max-width:560px;margin:0 auto;background:#0d0d1c;border:1px solid rgba(255,255,255,0.08);border-radius:16px;padding:32px;">
+    <p style="margin:0 0 24px;font-size:18px;font-weight:700;color:#ffffff;">
+      Entrix<span style="color:#a855f7;">Algo</span>
+    </p>
+    <h1 style="margin:0 0 16px;font-size:20px;color:#ffffff;">Your early access is ready</h1>
+    ${p("Hi there,")}
+    ${p(`Thank you for your patience. Your early access to our TradingView indicator, ${b("EntrixAlgo Signals")}, is in this email. You can have it on your chart in about two minutes.`)}
+    ${h2("What you're getting")}
+    ${p("EntrixAlgo Signals is a complete, working indicator:")}
+    ${list("ul", [
+      `${b("BUY and SELL labels")}, printed when a candle closes. A signal never repaints or disappears afterwards.`,
+      `${b("A trend line that trails price")}, with candles coloured by the current direction.`,
+      `${b("Alerts")} for every signal.`,
+      `${b("Two settings and two colours")}, so there's nothing to tune before you start.`,
+    ])}
+    ${p("It was designed around the 5 and 15 minute charts, and it works on any market.")}
+    ${h2("Why you're getting it first")}
+    ${p("We'll be straight with you: the indicator we're building is taking longer than we planned. We keep raising the bar on it, and we'd rather take the time than rush it. We didn't want you to wait any longer, so this version is yours now, before anyone else.")}
+    ${p("As an early member, every new version comes to you first, by email, as part of your Pro plan.")}
+    ${p("This version isn't listed publicly and isn't on our website. It's shared with you personally, so please keep it to yourself.")}
+    ${h2("Install it in about two minutes")}
+    ${list("ol", [
+      "Open any chart on TradingView.",
+      `In the toolbar on the right edge of the screen, click the ${b("Pine")} button. The Pine Editor opens.${pineImage}`,
+      "Delete whatever is in the editor, then paste the full script from the box below.",
+      `Click ${b("Save")} and name it EntrixAlgo Signals.`,
+      `Click ${b("Indicators")} at the top of the chart, then ${b("My scripts")}. Click the star next to EntrixAlgo Signals to add it to your favorites.`,
+      "Click its name to add it to your chart.",
+    ])}
+    ${h2("The script")}
+    ${p("Copy everything in the box, from the first line to the last.", "0 0 10px")}
+    <pre style="margin:0 0 16px;padding:14px;background:#07070d;border:1px solid rgba(255,255,255,0.10);border-radius:10px;font-family:Consolas,Menlo,'Courier New',monospace;font-size:11px;line-height:1.55;color:#d1d5db;white-space:pre-wrap;word-break:break-word;">${escapeHtml(code)}</pre>
+    ${h2("Get more from it")}
+    ${p("A tip from us: when a signal appears, upload a screenshot of that chart to AI Chart Analysis. You'll get a second read on the setup, with entry, targets and stop loss.")}
+    <a href="${url}" style="display:inline-block;margin:4px 0 20px;background:linear-gradient(90deg,#9333ea,#a855f7);color:#ffffff;text-decoration:none;font-size:14px;font-weight:600;padding:12px 24px;border-radius:12px;">
+      Open AI Chart Analysis
+    </a>
+    ${p("As with any trading tool, signals are information, not advice. You stay in control of every trade.")}
+    ${p("If you'd like a hand installing it, or there's something you'd like the indicator to do, just reply to this email. Requests from early members go to the top of our list.")}
+    ${p("Thanks for trading with us.<br />The EntrixAlgo team", "0")}
+    <p style="margin:24px 0 0;font-size:12px;line-height:1.6;color:#4b5563;">
+      Need help? Reply to this email or write to <a href="mailto:${siteConfig.supportEmail}" style="color:#a855f7;">${siteConfig.supportEmail}</a>.
+    </p>
+  </div>
+</div>`.trim()
+
+  const text = [
+    "EntrixAlgo",
+    "Your early access is ready",
+    "Hi there,",
+    "Thank you for your patience. Your early access to our TradingView indicator, EntrixAlgo Signals, is in this email. You can have it on your chart in about two minutes.",
+    "WHAT YOU'RE GETTING",
+    "EntrixAlgo Signals is a complete, working indicator:\n- BUY and SELL labels, printed when a candle closes. A signal never repaints or disappears afterwards.\n- A trend line that trails price, with candles coloured by the current direction.\n- Alerts for every signal.\n- Two settings and two colours, so there's nothing to tune before you start.",
+    "It was designed around the 5 and 15 minute charts, and it works on any market.",
+    "WHY YOU'RE GETTING IT FIRST",
+    "We'll be straight with you: the indicator we're building is taking longer than we planned. We keep raising the bar on it, and we'd rather take the time than rush it. We didn't want you to wait any longer, so this version is yours now, before anyone else.",
+    "As an early member, every new version comes to you first, by email, as part of your Pro plan.",
+    "This version isn't listed publicly and isn't on our website. It's shared with you personally, so please keep it to yourself.",
+    "INSTALL IT IN ABOUT TWO MINUTES",
+    "1. Open any chart on TradingView.\n2. In the toolbar on the right edge of the screen, click the Pine button. The Pine Editor opens.\n3. Delete whatever is in the editor, then paste the full script below.\n4. Click Save and name it EntrixAlgo Signals.\n5. Click Indicators at the top of the chart, then My scripts. Click the star next to EntrixAlgo Signals to add it to your favorites.\n6. Click its name to add it to your chart.",
+    "THE SCRIPT (copy everything between the two lines)",
+    `--------\n${code}\n--------`,
+    "GET MORE FROM IT",
+    "A tip from us: when a signal appears, upload a screenshot of that chart to AI Chart Analysis. You'll get a second read on the setup, with entry, targets and stop loss.",
+    `Open AI Chart Analysis: ${url}`,
+    "As with any trading tool, signals are information, not advice. You stay in control of every trade.",
+    "If you'd like a hand installing it, or there's something you'd like the indicator to do, just reply to this email. Requests from early members go to the top of our list.",
+    "Thanks for trading with us.\nThe EntrixAlgo team",
+    `Need help? Reply to this email or write to ${siteConfig.supportEmail}.`,
+  ].join("\n\n")
+
+  return { subject, html, text }
+}
+
+// The Pine button picture travels inside the email (inline attachment), so it
+// shows without the site having to host it.
+export async function sendIndicatorEarlyAccessEmail(to: string, assets: { script: string; pineImage: Buffer }) {
+  const resendClient = client()
+  if (!resendClient) throw new Error("RESEND_API_KEY is not set.")
+  const { subject, html, text } = indicatorEarlyAccessEmail({ script: assets.script, pineImageSrc: `cid:${PINE_IMAGE_CID}` })
+  await deliver(resendClient, {
+    from: fromAddress(),
+    replyTo: siteConfig.supportEmail,
+    to,
+    subject,
+    html,
+    text,
+    attachments: [{ filename: "pine-button.png", content: assets.pineImage, contentType: "image/png", contentId: PINE_IMAGE_CID }],
+  })
+}
+
 // Support request from the site's chat widget ("talk to a person"). Goes to
 // support only: no copy is sent to the visitor, because the address they type
 // is unverified and a copy would let anyone send our emails to any inbox.

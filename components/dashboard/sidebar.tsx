@@ -2,7 +2,7 @@
 
 import * as Dialog from "@radix-ui/react-dialog"
 import { LayoutGroup, motion } from "framer-motion"
-import { Activity, BookA, BookOpen, Bot, Calculator, CalendarDays, Flame, GraduationCap, LayoutDashboard, Lock, Settings, X, Zap } from "lucide-react"
+import { Activity, BookA, BookOpen, Bot, Calculator, CalendarDays, CandlestickChart, Flame, GraduationCap, LayoutDashboard, Lock, Settings, X, Zap } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
@@ -11,14 +11,15 @@ import { useEffect } from "react"
 
 import { useMobileNav } from "@/components/dashboard/mobile-nav-context"
 import { PlanCard } from "@/components/dashboard/plan-card"
+import { PAPER_TRADING } from "@/config/features"
 import { useFreeAnalysis } from "@/lib/use-free-analysis"
 import { cn } from "@/lib/utils"
 
 const NAV_MAIN = [
   { label: "Dashboard",       href: "/dashboard",                 icon: LayoutDashboard, lockable: false },
   { label: "Chart Analysis",  href: "/dashboard/chart-analysis",  icon: Zap,             lockable: true  },
-  { label: "AI Trading Indicator", href: "/dashboard/indicator",  icon: Activity,        lockable: true  },
   { label: "AI Trading Bot",  href: "/dashboard/trading-bot",     icon: Bot,             lockable: true  },
+  { label: "AI Trading Indicator", href: "/dashboard/indicator",  icon: Activity,        lockable: false },
 ]
 
 // Hands-on tools for finding, planning and logging your own trades
@@ -27,6 +28,8 @@ const NAV_TRADING = [
   { label: "Trade Journal",   href: "/dashboard/trade-journal",   icon: BookOpen,        lockable: false },
   { label: "Trade Calendar",  href: "/dashboard/trade-calendar",  icon: CalendarDays,    lockable: false },
   { label: "Risk Calculator", href: "/dashboard/risk-calculator", icon: Calculator,      lockable: false },
+  // Not released yet: only listed when its switch is on (config/features.ts)
+  ...(PAPER_TRADING ? [{ label: "Paper Trading", href: "/dashboard/paper-trading", icon: CandlestickChart, lockable: true }] : []),
 ]
 
 // Free for every account

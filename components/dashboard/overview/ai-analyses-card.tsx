@@ -1,6 +1,6 @@
 "use client"
 
-import { Activity, ArrowUpRight, Bot, Brain, Sparkles, Zap } from "lucide-react"
+import { ArrowUpRight, Bot, Brain, Sparkles, Zap } from "lucide-react"
 import Link from "next/link"
 
 import { Loaded } from "@/components/ui/motion"
@@ -44,7 +44,6 @@ function UpgradeCard({ freeTry }: { freeTry: boolean }) {
   const perks = [
     { icon: Zap, text: "AI Chart Analysis from any screenshot" },
     { icon: Bot, text: "AI Trading Bot with live market data" },
-    { icon: Activity, text: "Invite-only TradingView indicator" },
   ]
   return (
     <section className="relative flex h-full flex-col overflow-hidden rounded-2xl border border-purple-500/30 bg-gradient-to-br from-purple-600/[0.22] via-fuchsia-600/[0.1] to-transparent p-5 sm:p-6">

@@ -36,9 +36,6 @@ export default function FAQ({
             EntrixAlgo is a web dashboard for traders that you can sign in to from any browser, desktop or mobile.
             It bundles AI chart analysis, an AI screener, a trade journal, and a risk calculator, plus an AI trading assistant to chat with and a free trading course.
           </p>
-          <p className="text-muted-foreground mb-4 max-w-[640px] text-balance">
-            Pro also includes invite-only access to our TradingView indicator, if you want signals painted directly on your own charts too.
-          </p>
         </>
       ),
     },
@@ -92,7 +89,7 @@ export default function FAQ({
       answer: (
         <>
           <p className="text-muted-foreground mb-4 max-w-[580px]">
-            Pro includes unlimited AI chart analysis, the AI trading assistant, and invite-only access to our TradingView indicator.
+            Pro includes unlimited AI chart analysis and the AI trading assistant.
             The AI screener, trade journal, trade calendar, risk calculator, and Entrix Academy are free for everyone, no subscription needed.
           </p>
         </>
@@ -145,7 +142,7 @@ export default function FAQ({
       answer: (
         <>
           <p className="text-muted-foreground mb-4 max-w-[580px]">
-          No, EntrixAlgo does not place trades for you. Chart analysis, the indicator, and the AI assistant all surface information and signals, while you remain in full control of when and how you execute trades.
+          No, EntrixAlgo does not place trades for you. Chart analysis and the AI assistant surface information and signals, while you remain in full control of when and how you execute trades.
           </p>
         </>
       ),

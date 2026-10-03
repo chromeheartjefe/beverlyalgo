@@ -5,8 +5,9 @@ import { revalidatePath } from "next/cache"
 
 import { adminAuditLog, authTokens, chatMessages, users } from "@/db/schema"
 import { newAuthToken } from "@/lib/auth-tokens"
-import { sendIndicatorUpdateEmail, sendVerificationEmail } from "@/lib/email"
+import { sendIndicatorEarlyAccessEmail, sendIndicatorUpdateEmail, sendVerificationEmail } from "@/lib/email"
 import { readDb, writeDb } from "~/lib/db"
+import { loadIndicatorEmailAssets } from "~/lib/indicator-email"
 
 // The console's only writes. Each one runs on the restricted write login
 // (admin/sql/roles.sql), is confirmed in the UI first, and lands in
@@ -173,6 +174,57 @@ export async function sendIndicatorUpdateToWaiting(): Promise<ActionResult> {
     revalidatePath("/audit")
     return failed.length === 0
       ? { ok: true, message: `Sent the update to ${sent} user${sent === 1 ? "" : "s"}.` }
+      : { ok: false, message: `Sent ${sent}, failed ${failed.length}: ${failed.join(", ")}` }
+  } catch (err) {
+    return fail(err)
+  }
+}
+
+// The indicator script itself, with install steps, to everyone waiting for
+// access. Same rules as the update above: one per user ever, logged per user,
+// paced. People stay in the waiting list; nothing on their account changes.
+const INDICATOR_EARLY_ACCESS_ACTION = "indicator_early_access_sent"
+
+export async function sendIndicatorEarlyAccessToWaiting(): Promise<ActionResult> {
+  try {
+    if (!process.env.AUTH_URL?.startsWith("https://")) return { ok: false, message: AUTH_URL_HINT }
+    const assets = await loadIndicatorEmailAssets()
+    if (!assets.ok) return { ok: false, message: assets.message }
+    const db = writeDb()
+
+    const already = await db
+      .select({ userId: adminAuditLog.targetUserId })
+      .from(adminAuditLog)
+      .where(eq(adminAuditLog.action, INDICATOR_EARLY_ACCESS_ACTION))
+    const done = new Set(already.map((r) => r.userId))
+
+    const waiting = await db
+      .select({ id: users.id, email: users.email, username: users.tradingviewUsername })
+      .from(users)
+      .where(and(isNotNull(users.indicatorRequestedAt), isNull(users.indicatorInvitedAt)))
+      .orderBy(asc(users.indicatorRequestedAt))
+    const list = waiting.filter((u) => !done.has(u.id)).slice(0, BULK_MAX)
+    if (list.length === 0) return { ok: false, message: "Everyone waiting already has the early access email." }
+
+    let sent = 0
+    const failed: string[] = []
+    for (const u of list) {
+      try {
+        await sendIndicatorEarlyAccessEmail(u.email, { script: assets.script, pineImage: assets.pineImage })
+        await audit(INDICATOR_EARLY_ACCESS_ACTION, u.id, { tradingviewUsername: u.username })
+        sent++
+      } catch (err) {
+        console.error("[admin indicator early access]", u.email, err)
+        failed.push(u.email)
+      }
+      await new Promise((r) => setTimeout(r, BULK_GAP_MS))
+    }
+
+    await audit("indicator_early_access_all", null, { sent, failed })
+    revalidatePath("/indicator")
+    revalidatePath("/audit")
+    return failed.length === 0
+      ? { ok: true, message: `Sent early access to ${sent} user${sent === 1 ? "" : "s"}.` }
       : { ok: false, message: `Sent ${sent}, failed ${failed.length}: ${failed.join(", ")}` }
   } catch (err) {
     return fail(err)
